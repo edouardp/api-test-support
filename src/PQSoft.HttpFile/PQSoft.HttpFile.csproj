@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>PQSoft.HttpFile</AssemblyName>
+    <PackageId>PQSoft.HttpFile</PackageId>
+    <Authors>PQSoft</Authors>
+    <Description>A library for parsing HTTP request and response files, similar to Microsoft's VS Code .http files.</Description>
+    <PackageTags>http;parser;testing;api</PackageTags>
+    <RepositoryUrl>https://github.com/your-repo/PQSoft</RepositoryUrl>
+  </PropertyGroup>
+
+</Project>

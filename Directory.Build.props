@@ -1,0 +1,16 @@
+<Project>
+  <PropertyGroup>
+    <Version>1.0.0</Version>
+    <Authors>PQSoft</Authors>
+    <Company>PQSoft</Company>
+    <RepositoryUrl>https://github.com/your-repo/PQSoft</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/your-repo/PQSoft</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <Copyright>Copyright (c) 2025 PQSoft</Copyright>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(IsPackable)' == 'true'">
+    <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="\"/>
+  </ItemGroup>
+</Project>

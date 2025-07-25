@@ -1,0 +1,244 @@
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+build/
+bld/
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Visual Studio 2015/2017 cache/options
+.vs/
+*.vs/
+
+# Rider
+.idea/
+*.DotSettings.user
+
+# MSTest test Results
+[TestResults]/
+[BuildOutput]/
+
+# NUNIT
+nunit-*.xml
+TestResult.xml
+
+# ReSharper
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings
+
+# DotCover
+*.dotCover
+
+# TeamCity
+_TeamCity*
+
+# DotTrace
+*.DotTrace
+
+# .NET Core
+project.lock.json
+*.db
+
+# .NET 9
+*.pidb
+*.resources.dll
+
+# NuGet Packages
+*.nupkg
+packages/
+
+# The packages folder can be ignored because of Package Restore
+**/packages/*
+
+# StyleCop
+StyleCopReport.xml
+
+# Files built by Visual Studio
+*_i.c
+*_p.c
+*.ilk
+*.meta
+*.obj
+*.pch
+*.pdb
+*.pgc
+*.pgd
+*.rsp
+*.sbr
+*.tlb
+*.tli
+*.tlh
+*.tmp
+*.tmp_proj
+*.log
+*.vspscc
+*.vssscc
+*.pidb
+*.userprefs
+*.ide/
+*.sln.ide
+*.cache
+*.stx
+*.suo
+*.user
+*.unsuccessfulbuild
+*.vsidx
+*.dbmdl
+*.dbproj
+*.dbmodel
+*.sqlproj
+*.mdb
+*.ldf
+*.ndf
+*.bak
+*.trn
+*.log
+*.ldf
+*.mdf
+*.ndf
+*.trn
+*.bak
+
+# Click-Once directory
+publish/
+
+# Publish Web Output
+*.[Pp]ublish.xml
+*.azurePubxml
+# Note: Comment the next line if you want to checkin your web deploy settings,
+# but database connection strings (with potential passwords) will be unencrypted
+*.pubxml
+*.publishproj
+
+# Azure Build Pipeline
+azds.yaml
+
+# Node.js Tools for Visual Studio
+.ntvs_analysis.dat
+node_modules/
+
+# Visual Studio 6
+*.aps
+*.clw
+*.ncb
+*.plg
+*.rc2
+
+# Visual Studio 2022
+*.vstate
+*.vsmcrd
+*.vstest
+*.vsp
+*.vspx
+*.vssettings
+
+# CodeRush
+*.cr/
+
+# WebStorm
+*.ws.zip
+
+# ReSharper
+*.DotSettings.user
+
+# JustCode
+*.JustCode
+
+# Mac
+.DS_Store
+*.DS_Store
+
+# .NET Auto Generated Files
+*.AssemblyAttributes.cs
+
+# Backup & temp files
+*.bak
+*.tmp
+*.temp
+*~
+*.swp
+*.swo
+Thumbs.db
+
+# IDE files
+*.csproj.user
+*.vbproj.user
+*.vcxproj.user
+
+# NuGet
+.nuget/packages/
+*.nuget.props
+*.nuget.targets
+
+# Rider
+*.sln.iml
+*.csproj.iml
+*.vbproj.iml
+*.vcxproj.iml
+
+# VS Code
+.vscode/
+
+# Rider
+*.sln.iml
+*.csproj.iml
+*.vbproj.iml
+*.vcxproj.iml
+
+# Mac hidden files
+.DS_Store
+._*
+
+# Vim
+*.swp
+*.swo
+
+# Emacs
+*~
+\#*\#
+
+# Logs
+*.log
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*
+
+# IDE test runner files
+*.dev
+*.out
+*.err
+
+# NuGet packages folder (used by NuGet CLI)
+packages/
+
+# Rider HTTP Client history
+.http/
+/requests/
+/endpoints/
+
+# BenchmarkDotNet
+BenchmarkDotNet.Artifacts/
+
+# Coverlet
+coverage.*
+coverage/
+TestResults/
+
+# .NET Aspire
+.aspire/
