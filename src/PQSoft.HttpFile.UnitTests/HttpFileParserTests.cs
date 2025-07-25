@@ -1,7 +1,7 @@
-﻿using FluentAssertions;
+﻿using AwesomeAssertions;
 using System.Text;
 
-namespace TestSupport.HttpFile.UnitTests;
+namespace PQSoft.HttpFile.UnitTests;
 
 public class HttpFileParserTests
 {

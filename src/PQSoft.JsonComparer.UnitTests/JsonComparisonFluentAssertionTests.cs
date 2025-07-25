@@ -1,8 +1,8 @@
 ﻿using System.Text.Json;
-using FluentAssertions;
-using TestSupport.Json;
+using AwesomeAssertions;
+using PQSoft.JsonComparer.AwesomeAssertions;
 
-namespace TestSupport.Json.UnitTests;
+namespace PQSoft.JsonComparer.UnitTests;
 
 public class JsonComparisonFluentAssertionTests
 {
@@ -128,8 +128,8 @@ public class JsonComparisonFluentAssertionTests
             // Act
             var assertions = actual.AsJsonString().Should().FullyMatch(expected, "because we need to extract the JobID");
 
-            // Well this is a nasty hack ... but it works
-            var extractedValues = assertions.And.ExtractedValues;
+            // Extract the values from the assertions
+            var extractedValues = assertions.ExtractedValues;
 
             // Assert
             // Access the extracted values through the ExtractedValues property.

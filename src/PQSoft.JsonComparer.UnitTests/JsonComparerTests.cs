@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 //using JsonComparison; // Ensure this namespace matches where JsonComparer is defined
 
-namespace TestSupport.Json.UnitTests;
+namespace PQSoft.JsonComparer.UnitTests;
 
 public class JsonComparerTests
 {

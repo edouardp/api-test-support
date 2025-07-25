@@ -1,4 +1,4 @@
-﻿namespace TestSupport.HttpFile
+﻿namespace PQSoft.HttpFile
 {
     /// <summary>
     /// Provides functionality to parse HTTP headers into structured components.

@@ -1,7 +1,7 @@
 using System.Text.Json;
 using Xunit;
 
-namespace TestSupport.Json.UnitTests;
+namespace PQSoft.JsonComparer.UnitTests;
 
 public class JsonComparerFunctionTests
 {

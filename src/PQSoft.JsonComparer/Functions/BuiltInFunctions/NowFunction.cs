@@ -1,4 +1,4 @@
-namespace TestSupport;
+namespace PQSoft.JsonComparer;
 
 /// <summary>
 /// Function that returns the current local date and time.

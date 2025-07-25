@@ -1,4 +1,4 @@
-namespace TestSupport;
+namespace PQSoft.JsonComparer;
 
 /// <summary>
 /// Registry for managing JSON functions that can be executed during comparison preprocessing.

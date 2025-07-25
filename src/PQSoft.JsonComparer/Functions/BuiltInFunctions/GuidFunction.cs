@@ -1,4 +1,4 @@
-namespace TestSupport;
+namespace PQSoft.JsonComparer;
 
 /// <summary>
 /// Function that generates a new GUID.

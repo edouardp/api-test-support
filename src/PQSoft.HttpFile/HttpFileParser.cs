@@ -1,4 +1,4 @@
-﻿namespace TestSupport.HttpFile;
+﻿namespace PQSoft.HttpFile;
 
 /// <summary>
 /// Represents a parsed HTTP request, including the HTTP method, URL, headers, and body.

@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace TestSupport.HttpFile;
+namespace PQSoft.HttpFile;
 
 /// <summary>
 /// Represents a parsed HTTP header, including its name, value, and any associated parameters.

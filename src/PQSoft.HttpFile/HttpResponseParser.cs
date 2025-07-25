@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace TestSupport.HttpFile;
+namespace PQSoft.HttpFile;
 
 /// <summary>
 /// Represents a parsed HTTP response with status code, reason phrase, headers, and body.

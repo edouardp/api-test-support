@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
-namespace TestSupport;
+namespace PQSoft.JsonComparer;
 
 /// <summary>
 /// Provides functionality to compare JSON strings with support for tokenized placeholders and function execution.

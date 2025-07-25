@@ -1,9 +1,7 @@
-﻿using System.Text.Json;
-using FluentAssertions.Execution;
-using FluentAssertions.Primitives;
-using FluentAssertions;
+using System.Text.Json;
+using AwesomeAssertions;
 
-namespace TestSupport.Json;
+namespace PQSoft.JsonComparer.AwesomeAssertions;
 
 /// <summary>
 /// A simple wrapper around a JSON string that serves as the subject for JSON-specific assertions.
@@ -19,9 +17,10 @@ public class JsonSubject
 }
 
 /// <summary>
-/// Custom FluentAssertions assertions for <see cref="JsonSubject"/>.
+/// Custom AwesomeAssertions assertions for <see cref="JsonSubject"/>.
 /// </summary>
-public class JsonSubjectAssertions : ReferenceTypeAssertions<JsonSubject, JsonSubjectAssertions>
+[CustomAssertions]
+public class JsonSubjectAssertions
 {
     /// <summary>
     /// Holds the extracted token values from the last JSON comparison.
@@ -29,13 +28,11 @@ public class JsonSubjectAssertions : ReferenceTypeAssertions<JsonSubject, JsonSu
     /// </summary>
     public Dictionary<string, JsonElement> ExtractedValues { get; private set; } = new Dictionary<string, JsonElement>();
 
-    protected override string Identifier => "jsonSubject";
-    private readonly AssertionChain assertionChain;
+    private readonly JsonSubject _subject;
 
-    public JsonSubjectAssertions(JsonSubject subject, AssertionChain assertionChain)
-        : base(subject, assertionChain)
+    public JsonSubjectAssertions(JsonSubject subject)
     {
-        this.assertionChain = assertionChain;
+        _subject = subject ?? throw new ArgumentNullException(nameof(subject));
     }
 
     /// <summary>
@@ -45,18 +42,18 @@ public class JsonSubjectAssertions : ReferenceTypeAssertions<JsonSubject, JsonSu
     /// <param name="expectedJson">The expected JSON string.</param>
     /// <param name="because">An optional reason message to include in the failure.</param>
     /// <param name="becauseArgs">Optional parameters for the reason message.</param>
-    public AndConstraint<JsonSubjectAssertions> FullyMatch(string expectedJson, string because = "", params object[] becauseArgs)
+    public JsonSubjectAssertions FullyMatch(string expectedJson, string because = "", params object[] becauseArgs)
     {
-        bool result = JsonComparer.ExactMatch(expectedJson, Subject.Json, out Dictionary<string, JsonElement> extractedValues, out List<string> mismatches);
+        bool result = JsonComparer.ExactMatch(expectedJson, _subject.Json, out Dictionary<string, JsonElement> extractedValues, out List<string> mismatches);
         ExtractedValues = extractedValues;
-        string reason = string.IsNullOrWhiteSpace(because) ? string.Empty : " because " + string.Format(because, becauseArgs);
 
-        assertionChain
-            .ForCondition(result)
-            .FailWith("Expected JSON to be equivalent to {reason}, but found the following mismatches: {1}", reason, mismatches);
-        // That failwith needs some work
+        if (!result)
+        {
+            var reason = string.IsNullOrEmpty(because) ? "" : $" {string.Format(because, becauseArgs)}";
+            throw new InvalidOperationException($"Expected JSON to be equivalent{reason}, but found the following mismatches: {string.Join(", ", mismatches)}");
+        }
 
-        return new AndConstraint<JsonSubjectAssertions>(this);
+        return this;
     }
 
     /// <summary>
@@ -66,18 +63,18 @@ public class JsonSubjectAssertions : ReferenceTypeAssertions<JsonSubject, JsonSu
     /// <param name="expectedJson">The expected JSON subset.</param>
     /// <param name="because">An optional reason message to include in the failure.</param>
     /// <param name="becauseArgs">Optional parameters for the reason message.</param>
-    public AndConstraint<JsonSubjectAssertions> ContainSubset(string expectedJson, string because = "", params object[] becauseArgs)
+    public JsonSubjectAssertions ContainSubset(string expectedJson, string because = "", params object[] becauseArgs)
     {
-        bool result = JsonComparer.SubsetMatch(expectedJson, Subject.Json, out Dictionary<string, JsonElement> extractedValues, out List<string> mismatches);
+        bool result = JsonComparer.SubsetMatch(expectedJson, _subject.Json, out Dictionary<string, JsonElement> extractedValues, out List<string> mismatches);
         ExtractedValues = extractedValues;
-        string reason = string.IsNullOrWhiteSpace(because) ? string.Empty : " because " + string.Format(because, becauseArgs);
 
-        assertionChain
-            .ForCondition(result)
-            .FailWith("Expected JSON to contain the subset JSON {reason}, but found the following mismatches: {1}", reason, mismatches);
-        // That failwith needs some work
+        if (!result)
+        {
+            var reason = string.IsNullOrEmpty(because) ? "" : $" {string.Format(because, becauseArgs)}";
+            throw new InvalidOperationException($"Expected JSON to contain the subset JSON{reason}, but found the following mismatches: {string.Join(", ", mismatches)}");
+        }
 
-        return new AndConstraint<JsonSubjectAssertions>(this);
+        return this;
     }
 }
 
@@ -99,8 +96,6 @@ public static class JsonSubjectExtensions
     /// </summary>
     public static JsonSubjectAssertions Should(this JsonSubject subject)
     {
-        return new JsonSubjectAssertions(subject, AssertionChain.GetOrCreate());
+        return new JsonSubjectAssertions(subject);
     }
 }
-
-

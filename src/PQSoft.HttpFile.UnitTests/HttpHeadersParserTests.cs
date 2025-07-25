@@ -1,6 +1,6 @@
-﻿using FluentAssertions;
+﻿using AwesomeAssertions;
 
-namespace TestSupport.HttpFile.UnitTests;
+namespace PQSoft.HttpFile.UnitTests;
 
 public class HttpHeadersParserTests
 {

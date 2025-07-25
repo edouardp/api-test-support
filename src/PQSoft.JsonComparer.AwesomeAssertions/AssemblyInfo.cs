@@ -1,0 +1,3 @@
+using AwesomeAssertions;
+
+[assembly: CustomAssertionsAssembly]
