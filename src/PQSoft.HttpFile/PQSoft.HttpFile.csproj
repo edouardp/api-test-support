@@ -6,10 +6,18 @@
     <Nullable>enable</Nullable>
     <AssemblyName>PQSoft.HttpFile</AssemblyName>
     <PackageId>PQSoft.HttpFile</PackageId>
+    <Version>1.0.0</Version>
     <Authors>PQSoft</Authors>
-    <Description>A library for parsing HTTP request and response files, similar to Microsoft's VS Code .http files.</Description>
-    <PackageTags>http;parser;testing;api</PackageTags>
-    <RepositoryUrl>https://github.com/your-repo/PQSoft</RepositoryUrl>
+    <Company>PQSoft</Company>
+    <Product>PQSoft API Test Support</Product>
+    <Description>A library for parsing HTTP request and response files, similar to Microsoft's VS Code .http files. Parse HTTP messages, headers, and responses for testing and automation.</Description>
+    <PackageTags>http;parser;testing;api;request;response;headers</PackageTags>
+    <PackageProjectUrl>https://github.com/edouardp/api-test-support</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/edouardp/api-test-support</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
 
 </Project>

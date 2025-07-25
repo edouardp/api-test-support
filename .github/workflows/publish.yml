@@ -1,20 +1,42 @@
-name: Publish NuGet Package
+name: Publish NuGet Packages
 
 on:
   release:
     types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to publish (e.g., 1.0.0)'
+        required: true
+        default: '1.0.0'
 
 jobs:
-  build:
+  publish:
     runs-on: ubuntu-latest
-
+    
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
     
     - name: Setup .NET
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 9.0.x
+    
+    - name: Determine version
+      id: version
+      run: |
+        if [ "${{ github.event_name }}" == "release" ]; then
+          VERSION="${{ github.event.release.tag_name }}"
+          # Remove 'v' prefix if present
+          VERSION=${VERSION#v}
+        else
+          VERSION="${{ github.event.inputs.version }}"
+        fi
+        echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
+        echo "Using version: ${VERSION}"
     
     - name: Restore dependencies
       run: dotnet restore
@@ -25,8 +47,44 @@ jobs:
     - name: Test
       run: dotnet test --configuration Release --no-build --verbosity normal
     
-    - name: Pack
-      run: dotnet pack src/PQSoft.JsonComparer/PQSoft.JsonComparer.csproj --configuration Release --no-build --output nupkgs
+    - name: Pack PQSoft.JsonComparer
+      run: |
+        dotnet pack src/PQSoft.JsonComparer/PQSoft.JsonComparer.csproj \
+          --configuration Release \
+          --no-build \
+          --output nupkgs \
+          -p:PackageVersion=${{ steps.version.outputs.VERSION }}
+    
+    - name: Pack PQSoft.HttpFile
+      run: |
+        dotnet pack src/PQSoft.HttpFile/PQSoft.HttpFile.csproj \
+          --configuration Release \
+          --no-build \
+          --output nupkgs \
+          -p:PackageVersion=${{ steps.version.outputs.VERSION }}
+    
+    - name: Pack PQSoft.JsonComparer.AwesomeAssertions
+      run: |
+        dotnet pack src/PQSoft.JsonComparer.AwesomeAssertions/PQSoft.JsonComparer.AwesomeAssertions.csproj \
+          --configuration Release \
+          --no-build \
+          --output nupkgs \
+          -p:PackageVersion=${{ steps.version.outputs.VERSION }}
+    
+    - name: List generated packages
+      run: ls -la nupkgs/
     
     - name: Push to NuGet
-      run: dotnet nuget push nupkgs/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
+      run: |
+        dotnet nuget push "nupkgs/*.nupkg" \
+          --api-key ${{ secrets.NUGET_API_KEY }} \
+          --source https://api.nuget.org/v3/index.json \
+          --skip-duplicate
+      env:
+        NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+    
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: nuget-packages
+        path: nupkgs/*.nupkg

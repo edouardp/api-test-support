@@ -6,10 +6,18 @@
     <Nullable>enable</Nullable>
     <AssemblyName>PQSoft.JsonComparer.AwesomeAssertions</AssemblyName>
     <PackageId>PQSoft.JsonComparer.AwesomeAssertions</PackageId>
+    <Version>1.0.0</Version>
     <Authors>PQSoft</Authors>
-    <Description>FluentAssertions extensions for JSON comparison that integrate with PQSoft.JsonComparer.</Description>
-    <PackageTags>json;comparison;testing;fluentassertions;api</PackageTags>
-    <RepositoryUrl>https://github.com/your-repo/PQSoft</RepositoryUrl>
+    <Company>PQSoft</Company>
+    <Product>PQSoft API Test Support</Product>
+    <Description>AwesomeAssertions extensions for JSON comparison that integrate with PQSoft.JsonComparer. Provides fluent assertion methods for JSON validation with token extraction and subset matching.</Description>
+    <PackageTags>json;comparison;testing;awesomeassertions;assertions;api</PackageTags>
+    <PackageProjectUrl>https://github.com/edouardp/api-test-support</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/edouardp/api-test-support</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
