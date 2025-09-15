@@ -52,11 +52,90 @@ actualJson.AsJsonString().Should().FullyMatch(expectedJson);
 // Extracted values are available in the assertion result
 ```
 
+## Installation
+
+Install packages from NuGet:
+
+```bash
+# HTTP file parsing
+dotnet add package PQSoft.HttpFile
+
+# JSON comparison
+dotnet add package PQSoft.JsonComparer
+
+# JSON comparison with FluentAssertions
+dotnet add package PQSoft.JsonComparer.AwesomeAssertions
+```
+
+## Building and Publishing
+
+### Prerequisites
+
+1. **NuGet API Key**: Create an API key at [nuget.org/account/apikeys](https://www.nuget.org/account/apikeys)
+2. **Environment Variable**: Set your API key as an environment variable:
+   ```bash
+   export NUGET_API_KEY="your-api-key-here"
+   ```
+
+### Version Management
+
+All packages use centralized versioning in `Directory.Build.props`. To update the version:
+
+1. **Edit Directory.Build.props**:
+   ```xml
+   <Version>1.0.1</Version>
+   ```
+
+2. **Or override during build**:
+   ```bash
+   ./build-nuget.sh 1.0.1
+   ```
+
+### Building and Publishing
+
+Use the automated build script:
+
+```bash
+# Build and publish all packages with version 1.0.1
+./build-nuget.sh 1.0.1
+```
+
+The script will:
+- Validate version parameter and API key
+- Clean and build the solution
+- Pack all packages with the specified version
+- Upload packages to NuGet.org in dependency order
+
+### Manual Building
+
+For development or testing:
+
+```bash
+# Build solution
+dotnet build --configuration Release
+
+# Pack individual packages
+dotnet pack src/PQSoft.HttpFile/PQSoft.HttpFile.csproj --configuration Release -p:Version=1.0.1
+dotnet pack src/PQSoft.JsonComparer/PQSoft.JsonComparer.csproj --configuration Release -p:Version=1.0.1
+dotnet pack src/PQSoft.JsonComparer.AwesomeAssertions/PQSoft.JsonComparer.AwesomeAssertions.csproj --configuration Release -p:Version=1.0.1
+
+# Push to NuGet (in dependency order)
+dotnet nuget push "src/PQSoft.HttpFile/bin/Release/PQSoft.HttpFile.1.0.1.nupkg" --api-key $NUGET_API_KEY --source https://api.nuget.org/v3/index.json
+dotnet nuget push "src/PQSoft.JsonComparer/bin/Release/PQSoft.JsonComparer.1.0.1.nupkg" --api-key $NUGET_API_KEY --source https://api.nuget.org/v3/index.json
+dotnet nuget push "src/PQSoft.JsonComparer.AwesomeAssertions/bin/Release/PQSoft.JsonComparer.AwesomeAssertions.1.0.1.nupkg" --api-key $NUGET_API_KEY --source https://api.nuget.org/v3/index.json
+```
+
+### Package Dependencies
+
+- **PQSoft.HttpFile**: No external dependencies
+- **PQSoft.JsonComparer**: Depends on System.Text.Json
+- **PQSoft.JsonComparer.AwesomeAssertions**: Depends on PQSoft.JsonComparer and AwesomeAssertions
+
+Packages must be uploaded in dependency order to ensure successful publication.
+
 ## Support Projects
 
 PQSoft.HttpFile.UnitTests
 PQSoft.JsonComparer.UnitTests
 PQSoft.JsonComparer.AwesomeAssertions.UnitTests
-
-
 
