@@ -1,4 +1,4 @@
-namespace PQSoft.JsonComparer;
+namespace PQSoft.JsonComparer.Functions.BuiltInFunctions;
 
 /// <summary>
 /// Function that generates a new GUID.

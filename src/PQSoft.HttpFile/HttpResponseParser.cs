@@ -23,7 +23,7 @@ public class HttpResponseParser
         using var reader = new StreamReader(httpStream);
 
         // Step 1: Parse the status line (e.g., "HTTP/1.1 200 OK")
-        string? statusLine = await reader.ReadLineAsync();
+        var statusLine = await reader.ReadLineAsync();
         if (string.IsNullOrWhiteSpace(statusLine))
         {
             throw new InvalidDataException("Invalid HTTP response format: missing status line.");
@@ -44,7 +44,7 @@ public class HttpResponseParser
         var statusCode = (HttpStatusCode)statusCodeInt;
 
         // Extract the reason phrase from the status line
-        string reasonPhrase = statusLineParts[2];
+        var reasonPhrase = statusLineParts[2];
 
         // Step 2: Parse headers
         var headers = new List<ParsedHeader>();
@@ -58,7 +58,7 @@ public class HttpResponseParser
 
         // Step 3: Read the body (if any)
         // Remaining content in the stream is treated as the body
-        string body = await reader.ReadToEndAsync();
+        var body = await reader.ReadToEndAsync();
 
         // Return the parsed HTTP response as a structured record
         return new ParsedHttpResponse(statusCode, reasonPhrase, headers, body);

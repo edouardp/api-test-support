@@ -1,4 +1,5 @@
 using System.Text.Json;
+using PQSoft.JsonComparer.Functions;
 using Xunit;
 
 namespace PQSoft.JsonComparer.UnitTests;

@@ -1,4 +1,6 @@
-namespace PQSoft.JsonComparer;
+using PQSoft.JsonComparer.Functions.BuiltInFunctions;
+
+namespace PQSoft.JsonComparer.Functions;
 
 /// <summary>
 /// Registry for managing JSON functions that can be executed during comparison preprocessing.
@@ -6,7 +8,7 @@ namespace PQSoft.JsonComparer;
 /// </summary>
 public class JsonFunctionRegistry
 {
-    private readonly Dictionary<string, IJsonFunction> _functions;
+    private readonly Dictionary<string, IJsonFunction> functions;
 
     /// <summary>
     /// Initializes a new instance of the JsonFunctionRegistry with built-in functions registered.
@@ -14,7 +16,7 @@ public class JsonFunctionRegistry
     /// <param name="timeProvider">Optional TimeProvider for time-based functions. Uses TimeProvider.System if not provided.</param>
     public JsonFunctionRegistry(TimeProvider? timeProvider = null)
     {
-        _functions = new Dictionary<string, IJsonFunction>(StringComparer.OrdinalIgnoreCase);
+        functions = new Dictionary<string, IJsonFunction>(StringComparer.OrdinalIgnoreCase);
         RegisterBuiltInFunctions(timeProvider ?? TimeProvider.System);
     }
 
@@ -29,14 +31,11 @@ public class JsonFunctionRegistry
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new ArgumentException("Function name cannot be null or empty.", nameof(name));
-        
-        if (function == null)
-            throw new ArgumentNullException(nameof(function));
 
-        if (_functions.ContainsKey(name))
+        ArgumentNullException.ThrowIfNull(function);
+
+        if (!functions.TryAdd(name, function))
             throw new ArgumentException($"Function '{name}' is already registered.", nameof(name));
-
-        _functions[name] = function;
     }
 
     /// <summary>
@@ -48,7 +47,7 @@ public class JsonFunctionRegistry
     /// <returns>True if the function was found, false otherwise.</returns>
     public bool TryGetFunction(string name, out IJsonFunction? function)
     {
-        return _functions.TryGetValue(name, out function);
+        return functions.TryGetValue(name, out function);
     }
 
     /// <summary>
@@ -57,7 +56,7 @@ public class JsonFunctionRegistry
     /// <returns>An array of registered function names.</returns>
     public string[] GetRegisteredFunctions()
     {
-        return _functions.Keys.ToArray();
+        return functions.Keys.ToArray();
     }
 
     /// <summary>
@@ -87,8 +86,8 @@ public class JsonFunctionRegistry
     /// <param name="timeProvider">The TimeProvider to use for time-based functions.</param>
     private void RegisterBuiltInFunctions(TimeProvider timeProvider)
     {
-        _functions["GUID"] = new GuidFunction();
-        _functions["NOW"] = new NowFunction(timeProvider);
-        _functions["UTCNOW"] = new UtcNowFunction(timeProvider);
+        functions["GUID"] = new GuidFunction();
+        functions["NOW"] = new NowFunction(timeProvider);
+        functions["UTCNOW"] = new UtcNowFunction(timeProvider);
     }
 }

@@ -8,7 +8,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PQSoft.JsonComparer", "src\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PQSoft.JsonComparer.AwesomeAssertions", "src\PQSoft.JsonComparer.AwesomeAssertions\PQSoft.JsonComparer.AwesomeAssertions.csproj", "{B4D9F2A1-7C3E-4B2D-9A1F-5D7E2B4C6A9F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PQSoft.HttpFile.UnitTests", "src\PQSoft.HttpFile.UnitTests\PQSoft.HttpFile.UnitTests.csproj", "{A1B2C3D4-E5F6-7890-GHIJ-KLMNOPQRSTUV}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PQSoft.HttpFile.UnitTests", "src\PQSoft.HttpFile.UnitTests\PQSoft.HttpFile.UnitTests.csproj", "{00000000-0000-0000-0000-000000000000}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PQSoft.JsonComparer.UnitTests", "src\PQSoft.JsonComparer.UnitTests\PQSoft.JsonComparer.UnitTests.csproj", "{D4C3B2A1-0F9E-8D7C-6B5A-4C3B2A10F9E8}"
 EndProject
@@ -34,10 +34,6 @@ Global
 		{B4D9F2A1-7C3E-4B2D-9A1F-5D7E2B4C6A9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B4D9F2A1-7C3E-4B2D-9A1F-5D7E2B4C6A9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B4D9F2A1-7C3E-4B2D-9A1F-5D7E2B4C6A9F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A1B2C3D4-E5F6-7890-GHIJ-KLMNOPQRSTUV}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A1B2C3D4-E5F6-7890-GHIJ-KLMNOPQRSTUV}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A1B2C3D4-E5F6-7890-GHIJ-KLMNOPQRSTUV}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A1B2C3D4-E5F6-7890-GHIJ-KLMNOPQRSTUV}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D4C3B2A1-0F9E-8D7C-6B5A-4C3B2A10F9E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D4C3B2A1-0F9E-8D7C-6B5A-4C3B2A10F9E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D4C3B2A1-0F9E-8D7C-6B5A-4C3B2A10F9E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -50,6 +46,8 @@ Global
 		{C6B5A43B-2A10-F9E8-D7C6-B5A43B2A10F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C6B5A43B-2A10-F9E8-D7C6-B5A43B2A10F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C6B5A43B-2A10-F9E8-D7C6-B5A43B2A10F9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{00000000-0000-0000-0000-000000000000}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{00000000-0000-0000-0000-000000000000}.Debug|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

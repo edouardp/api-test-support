@@ -1,111 +1,75 @@
-﻿namespace PQSoft.HttpFile;
+namespace PQSoft.HttpFile;
+
+using System.Runtime.CompilerServices;
 
 /// <summary>
-/// Represents a parsed HTTP request, including the HTTP method, URL, headers, and body.
+/// Provides functionality to parse HTTP requests from a file or stream.
+/// The input can contain multiple requests separated by "###" lines.
+/// This parser uses a streaming approach to handle very large files without loading them into memory.
 /// </summary>
-public record ParsedHttpRequest(HttpMethod Method, string Url, List<ParsedHeader> Headers, string Body);
-
-/// <summary>
-/// Provides functionality to parse an HTTP request from a stream.
-/// </summary>
-public class HttpFileParser
+public static class HttpFileParser
 {
-    private const int MinRequestLineParts = 3;
-    private const char Space = ' ';
-    private const char Tab = '\t';
+    private const string RequestSeparator = "###";
 
     /// <summary>
-    /// Asynchronously parses an HTTP request from a given stream.
+    /// Asynchronously parses HTTP requests from a given file path.
+    /// This method streams the file and yields requests one at a time, making it suitable for very large files.
     /// </summary>
-    /// <param name="httpStream">The input stream containing the HTTP request.</param>
-    /// <returns>A <see cref="ParsedHttpRequest"/> object containing the parsed request data.</returns>
+    /// <param name="filePath">The path to the file containing HTTP requests.</param>
+    /// <param name="cancellationToken">A token to cancel the operation.</param>
+    /// <returns>An async enumerable of <see cref="ParsedHttpRequest"/> objects.</returns>
+    /// <exception cref="FileNotFoundException">Thrown when the specified file is not found.</exception>
+    /// <exception cref="UnauthorizedAccessException">Thrown when access to the file is denied.</exception>
+    /// <exception cref="IOException">Thrown when an I/O error occurs while reading the file.</exception>
+    public static async IAsyncEnumerable<ParsedHttpRequest> ParseFileAsync(string filePath, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        if (!File.Exists(filePath))
+        {
+            throw new FileNotFoundException($"The file '{filePath}' was not found.", filePath);
+        }
+
+        await using var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 4096, useAsync: true);
+        await foreach (var request in ParseAsync(fileStream, cancellationToken).ConfigureAwait(false))
+        {
+            yield return request;
+        }
+    }
+
+    /// <summary>
+    /// Asynchronously parses HTTP requests from a given stream.
+    /// The stream is expected to contain requests separated by "###" lines.
+    /// This method uses a streaming approach and yields requests one at a time.
+    /// </summary>
+    /// <param name="httpStream">The input stream containing HTTP requests.</param>
+    /// <param name="cancellationToken">A token to cancel the operation.</param>
+    /// <returns>An async enumerable of <see cref="ParsedHttpRequest"/> objects.</returns>
     /// <exception cref="InvalidDataException">Thrown when the request format is invalid.</exception>
-    public static async Task<ParsedHttpRequest> ParseAsync(Stream httpStream)
+    public static async IAsyncEnumerable<ParsedHttpRequest> ParseAsync(Stream httpStream, [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         ValidateInputStream(httpStream);
-        
-        using var reader = new StreamReader(httpStream);
 
-        var (method, url) = await ParseRequestLineAsync(reader);
-        var headers = await ParseHeadersAsync(reader);
-        var body = await reader.ReadToEndAsync();
+        var splitter = new HttpLineSplitter(httpStream, RequestSeparator);
 
-        return new ParsedHttpRequest(method, url, headers, body);
+        await foreach (var segmentStream in splitter.WithCancellation(cancellationToken).ConfigureAwait(false))
+        {
+            try
+            {
+                var request = await HttpStreamParser.ParseAsync(segmentStream).ConfigureAwait(false);
+                yield return request;
+            }
+            finally
+            {
+                segmentStream.Dispose();
+            }
+        }
     }
 
     private static void ValidateInputStream(Stream httpStream)
     {
         if (httpStream == null)
             throw new ArgumentNullException(nameof(httpStream), "HTTP stream cannot be null.");
-        
+
         if (!httpStream.CanRead)
             throw new ArgumentException("HTTP stream must be readable.", nameof(httpStream));
-    }
-
-    private static async Task<(HttpMethod Method, string Url)> ParseRequestLineAsync(StreamReader reader)
-    {
-        var requestLine = await reader.ReadLineAsync();
-        if (string.IsNullOrWhiteSpace(requestLine))
-        {
-            throw new InvalidDataException("Invalid HTTP file format: missing request line.");
-        }
-
-        var parts = requestLine.Split(Space, MinRequestLineParts);
-        if (parts.Length < MinRequestLineParts)
-        {
-            throw new InvalidDataException($"Invalid request line format: '{requestLine}'. Expected: METHOD URL VERSION");
-        }
-
-        var (methodString, url, _) = (parts[0], parts[1], parts[2]);
-        var method = new HttpMethod(methodString.ToUpperInvariant());
-        
-        return (method, url);
-    }
-
-    private static async Task<List<ParsedHeader>> ParseHeadersAsync(StreamReader reader)
-    {
-        var headers = new List<ParsedHeader>();
-        string? currentHeaderLine = null;
-        
-        while (await reader.ReadLineAsync() is { } line)
-        {
-            if (string.IsNullOrWhiteSpace(line))
-            {
-                ProcessPendingHeader(headers, currentHeaderLine);
-                return headers;
-            }
-            
-            if (IsHeaderContinuation(line))
-            {
-                if (currentHeaderLine == null)
-                {
-                    throw new InvalidDataException($"Invalid HTTP header format: continuation line '{line.Trim()}' without preceding header.");
-                }
-                currentHeaderLine += Space + line.Trim();
-            }
-            else
-            {
-                ProcessPendingHeader(headers, currentHeaderLine);
-                currentHeaderLine = line;
-            }
-        }
-        
-        // Only process the final header if we reached end of stream without empty line
-        ProcessPendingHeader(headers, currentHeaderLine);
-        return headers;
-    }
-
-    private static bool IsHeaderContinuation(string line)
-    {
-        return line.StartsWith(Space) || line.StartsWith(Tab);
-    }
-
-    private static void ProcessPendingHeader(List<ParsedHeader> headers, string? headerLine)
-    {
-        if (!string.IsNullOrWhiteSpace(headerLine))
-        {
-            var parsedHeader = HttpHeadersParser.ParseHeader(headerLine);
-            headers.Add(parsedHeader);
-        }
     }
 }

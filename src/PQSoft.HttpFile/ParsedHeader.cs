@@ -17,7 +17,7 @@ public class ParsedHeader
     {
         Name = name;
         Value = value;
-        Parameters = parameters ?? [];
+        Parameters = parameters;
     }
 
     /// <summary>
@@ -50,41 +50,41 @@ public class ParsedHeader
     }
 
     /// <summary>
-    /// Compares this header with another header semantically, ignoring parameter order, 
+    /// Compares this header with another header semantically, ignoring parameter order,
     /// whitespace differences, and case sensitivity in header names.
     /// </summary>
     /// <param name="other">The other header to compare with.</param>
     /// <returns>True if the headers are semantically equivalent; otherwise, false.</returns>
-    public bool SemanticEquals(ParsedHeader? other)
+    private bool SemanticEquals(ParsedHeader? other)
     {
         if (other == null) return false;
-        
+
         // Compare header names (case-insensitive)
         if (!string.Equals(Name.Trim(), other.Name.Trim(), StringComparison.OrdinalIgnoreCase))
             return false;
-        
+
         // Compare header values (case-sensitive, but trimmed)
         if (!string.Equals(Value.Trim(), other.Value.Trim(), StringComparison.Ordinal))
             return false;
-        
+
         // Compare parameters (ignoring order)
         if (Parameters.Count != other.Parameters.Count)
             return false;
-        
+
         foreach (var kvp in Parameters)
         {
             if (!other.Parameters.TryGetValue(kvp.Key, out string? otherValue))
                 return false;
-            
+
             if (!string.Equals(kvp.Value.Trim(), otherValue.Trim(), StringComparison.Ordinal))
                 return false;
         }
-        
+
         return true;
     }
 
     /// <summary>
-    /// Compares a collection of headers semantically with another collection, 
+    /// Compares a collection of headers semantically with another collection,
     /// ignoring order and using semantic comparison for individual headers.
     /// </summary>
     /// <param name="headers1">First collection of headers.</param>
@@ -94,17 +94,17 @@ public class ParsedHeader
     {
         var list1 = headers1.ToList();
         var list2 = headers2.ToList();
-        
+
         if (list1.Count != list2.Count)
             return false;
-        
+
         // For each header in list1, find a semantically matching header in list2
         foreach (var header1 in list1)
         {
             if (!list2.Any(header2 => header1.SemanticEquals(header2)))
                 return false;
         }
-        
+
         return true;
     }
 }

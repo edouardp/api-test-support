@@ -1,4 +1,4 @@
-namespace PQSoft.JsonComparer;
+namespace PQSoft.JsonComparer.Functions.BuiltInFunctions;
 
 /// <summary>
 /// Function that returns the current local date and time.
@@ -6,7 +6,7 @@ namespace PQSoft.JsonComparer;
 /// </summary>
 public class NowFunction : IJsonFunction
 {
-    private readonly TimeProvider _timeProvider;
+    private readonly TimeProvider timeProvider;
 
     /// <summary>
     /// Initializes a new instance of NowFunction with the specified TimeProvider.
@@ -14,7 +14,7 @@ public class NowFunction : IJsonFunction
     /// <param name="timeProvider">The TimeProvider to use for getting current time.</param>
     public NowFunction(TimeProvider? timeProvider = null)
     {
-        _timeProvider = timeProvider ?? TimeProvider.System;
+        this.timeProvider = timeProvider ?? TimeProvider.System;
     }
 
     /// <summary>
@@ -23,6 +23,6 @@ public class NowFunction : IJsonFunction
     /// <returns>Current local date and time in format "yyyy-MM-ddTHH:mm:ss.fffK".</returns>
     public string Execute()
     {
-        return _timeProvider.GetLocalNow().ToString("yyyy-MM-ddTHH:mm:ss.fffK");
+        return timeProvider.GetLocalNow().ToString("yyyy-MM-ddTHH:mm:ss.fffK");
     }
 }

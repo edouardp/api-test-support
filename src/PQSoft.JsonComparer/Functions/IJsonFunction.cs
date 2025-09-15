@@ -1,4 +1,4 @@
-namespace PQSoft.JsonComparer;
+namespace PQSoft.JsonComparer.Functions;
 
 /// <summary>
 /// Represents a function that can be executed during JSON comparison preprocessing.

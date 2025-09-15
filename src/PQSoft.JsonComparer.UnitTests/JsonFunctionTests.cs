@@ -1,3 +1,5 @@
+using PQSoft.JsonComparer.Functions;
+using PQSoft.JsonComparer.Functions.BuiltInFunctions;
 using Xunit;
 
 namespace PQSoft.JsonComparer.UnitTests;

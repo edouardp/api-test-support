@@ -1,4 +1,4 @@
-namespace PQSoft.JsonComparer;
+namespace PQSoft.JsonComparer.Functions.BuiltInFunctions;
 
 /// <summary>
 /// Function that returns the current UTC date and time.
@@ -6,7 +6,7 @@ namespace PQSoft.JsonComparer;
 /// </summary>
 public class UtcNowFunction : IJsonFunction
 {
-    private readonly TimeProvider _timeProvider;
+    private readonly TimeProvider timeProvider;
 
     /// <summary>
     /// Initializes a new instance of UtcNowFunction with the specified TimeProvider.
@@ -14,7 +14,7 @@ public class UtcNowFunction : IJsonFunction
     /// <param name="timeProvider">The TimeProvider to use for getting current time.</param>
     public UtcNowFunction(TimeProvider? timeProvider = null)
     {
-        _timeProvider = timeProvider ?? TimeProvider.System;
+        this.timeProvider = timeProvider ?? TimeProvider.System;
     }
 
     /// <summary>
@@ -23,6 +23,6 @@ public class UtcNowFunction : IJsonFunction
     /// <returns>Current UTC date and time in format "yyyy-MM-ddTHH:mm:ss.fffZ".</returns>
     public string Execute()
     {
-        return _timeProvider.GetUtcNow().ToString("yyyy-MM-ddTHH:mm:ss.fffZ");
+        return timeProvider.GetUtcNow().ToString("yyyy-MM-ddTHH:mm:ss.fffZ");
     }
 }
