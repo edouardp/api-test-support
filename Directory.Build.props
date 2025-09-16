@@ -8,12 +8,7 @@
     <PackageProjectUrl>https://github.com/edouardp/api-test-support</PackageProjectUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
     <Copyright>Copyright (c) 2025 PQSoft</Copyright>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
-
-  <ItemGroup Condition="'$(IsPackable)' == 'true'">
-    <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="\"/>
-  </ItemGroup>
 </Project>
