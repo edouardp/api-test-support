@@ -8,7 +8,12 @@
     <PackageId>PQSoft.JsonComparer</PackageId>
     <Description>A powerful library for comparing JSON documents with token support and function execution. Supports exact matching, subset matching, token extraction, and function execution for dynamic JSON comparisons.</Description>
     <PackageTags>json;comparison;testing;api;token;extraction;function</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="System.Text.Json" Version="9.0.0" />

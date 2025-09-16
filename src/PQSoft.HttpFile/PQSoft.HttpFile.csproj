@@ -8,6 +8,11 @@
     <PackageId>PQSoft.HttpFile</PackageId>
     <Description>A library for parsing HTTP request and response files, similar to Microsoft's VS Code .http files. Parse HTTP messages, headers, and responses for testing and automation.</Description>
     <PackageTags>http;parser;testing;api;request;response;headers</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
 
 </Project>

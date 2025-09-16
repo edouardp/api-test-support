@@ -8,7 +8,12 @@
     <PackageId>PQSoft.JsonComparer.AwesomeAssertions</PackageId>
     <Description>AwesomeAssertions extensions for JSON comparison that integrate with PQSoft.JsonComparer. Provides fluent assertion methods for JSON validation with token extraction and subset matching.</Description>
     <PackageTags>json;comparison;testing;awesomeassertions;assertions;api</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\PQSoft.JsonComparer\PQSoft.JsonComparer.csproj" />
