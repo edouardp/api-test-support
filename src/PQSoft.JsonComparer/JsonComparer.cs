@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using PQSoft.JsonComparer.Functions;
@@ -61,8 +62,11 @@ public static partial class JsonComparer
     /// Returns true if they match exactly (except for tokens), false otherwise.
     /// Also extracts any token values (e.g. JOBID) into extractedValues and records mismatch details.
     /// </summary>
-    public static bool ExactMatch(string expectedJson, string actualJson,
-        out Dictionary<string, JsonElement> extractedValues, out List<string> mismatches)
+    public static bool ExactMatch(
+        [StringSyntax(StringSyntaxAttribute.Json)] string expectedJson,
+        [StringSyntax(StringSyntaxAttribute.Json)] string actualJson,
+        out Dictionary<string, JsonElement> extractedValues,
+        out List<string> mismatches)
     {
         return Compare(expectedJson, actualJson, subsetMode: false, out extractedValues, out mismatches);
     }
@@ -73,7 +77,9 @@ public static partial class JsonComparer
     /// Also extracts any token values (e.g. JOBID) into extractedValues and records mismatch details.
     /// </summary>
     public static async Task<(bool IsMatch, Dictionary<string, JsonElement> ExtractedValues, List<string> Mismatches)> ExactMatchAsync(
-        string expectedJson, string actualJson, CancellationToken cancellationToken = default)
+        [StringSyntax(StringSyntaxAttribute.Json)] string expectedJson,
+        [StringSyntax(StringSyntaxAttribute.Json)] string actualJson,
+        CancellationToken cancellationToken = default)
     {
         return await CompareAsync(expectedJson, actualJson, subsetMode: false, null, cancellationToken);
     }
@@ -83,7 +89,10 @@ public static partial class JsonComparer
     /// Returns true if they match exactly (except for tokens), false otherwise.
     /// Also extracts any token values (e.g. JOBID) into extractedValues and records mismatch details.
     /// </summary>
-    public static bool ExactMatch(string expectedJson, string actualJson, TimeProvider timeProvider,
+    public static bool ExactMatch(
+        [StringSyntax(StringSyntaxAttribute.Json)] string expectedJson,
+        [StringSyntax(StringSyntaxAttribute.Json)] string actualJson,
+        TimeProvider timeProvider,
         out Dictionary<string, JsonElement> extractedValues, out List<string> mismatches)
     {
         return Compare(expectedJson, actualJson, subsetMode: false, timeProvider, out extractedValues, out mismatches);
@@ -95,7 +104,10 @@ public static partial class JsonComparer
     /// Also extracts any token values (e.g. JOBID) into extractedValues and records mismatch details.
     /// </summary>
     public static async Task<(bool IsMatch, Dictionary<string, JsonElement> ExtractedValues, List<string> Mismatches)> ExactMatchAsync(
-        string expectedJson, string actualJson, TimeProvider timeProvider, CancellationToken cancellationToken = default)
+        [StringSyntax(StringSyntaxAttribute.Json)] string expectedJson,
+        [StringSyntax(StringSyntaxAttribute.Json)] string actualJson,
+        TimeProvider timeProvider,
+        CancellationToken cancellationToken = default)
     {
         return await CompareAsync(expectedJson, actualJson, subsetMode: false, timeProvider, cancellationToken);
     }
@@ -105,8 +117,11 @@ public static partial class JsonComparer
     /// Returns true if all elements in expected (except tokens) are found in actual.
     /// Also extracts any token values into extractedValues and records mismatch details.
     /// </summary>
-    public static bool SubsetMatch(string expectedJson, string actualJson,
-        out Dictionary<string, JsonElement> extractedValues, out List<string> mismatches)
+    public static bool SubsetMatch(
+        [StringSyntax(StringSyntaxAttribute.Json)] string expectedJson,
+        [StringSyntax(StringSyntaxAttribute.Json)] string actualJson,
+        out Dictionary<string, JsonElement> extractedValues,
+        out List<string> mismatches)
     {
         return Compare(expectedJson, actualJson, subsetMode: true, out extractedValues, out mismatches);
     }
@@ -117,7 +132,9 @@ public static partial class JsonComparer
     /// Also extracts any token values into extractedValues and records mismatch details.
     /// </summary>
     public static async Task<(bool IsMatch, Dictionary<string, JsonElement> ExtractedValues, List<string> Mismatches)> SubsetMatchAsync(
-        string expectedJson, string actualJson, CancellationToken cancellationToken = default)
+        [StringSyntax(StringSyntaxAttribute.Json)] string expectedJson,
+        [StringSyntax(StringSyntaxAttribute.Json)] string actualJson,
+        CancellationToken cancellationToken = default)
     {
         return await CompareAsync(expectedJson, actualJson, subsetMode: true, null, cancellationToken);
     }
@@ -127,8 +144,12 @@ public static partial class JsonComparer
     /// Returns true if all elements in expected (except tokens) are found in actual.
     /// Also extracts any token values into extractedValues and records mismatch details.
     /// </summary>
-    public static bool SubsetMatch(string expectedJson, string actualJson, TimeProvider timeProvider,
-        out Dictionary<string, JsonElement> extractedValues, out List<string> mismatches)
+    public static bool SubsetMatch(
+        [StringSyntax(StringSyntaxAttribute.Json)] string expectedJson,
+        [StringSyntax(StringSyntaxAttribute.Json)] string actualJson,
+        TimeProvider timeProvider,
+        out Dictionary<string, JsonElement> extractedValues,
+        out List<string> mismatches)
     {
         return Compare(expectedJson, actualJson, subsetMode: true, timeProvider, out extractedValues, out mismatches);
     }
@@ -139,7 +160,10 @@ public static partial class JsonComparer
     /// Also extracts any token values into extractedValues and records mismatch details.
     /// </summary>
     public static async Task<(bool IsMatch, Dictionary<string, JsonElement> ExtractedValues, List<string> Mismatches)> SubsetMatchAsync(
-        string expectedJson, string actualJson, TimeProvider timeProvider, CancellationToken cancellationToken = default)
+        [StringSyntax(StringSyntaxAttribute.Json)] string expectedJson,
+        [StringSyntax(StringSyntaxAttribute.Json)] string actualJson,
+        TimeProvider timeProvider,
+        CancellationToken cancellationToken = default)
     {
         return await CompareAsync(expectedJson, actualJson, subsetMode: true, timeProvider, cancellationToken);
     }
@@ -148,8 +172,12 @@ public static partial class JsonComparer
     /// Parses the JSON strings and calls the recursive CompareElements function.
     /// It pre-processes the expected JSON string by executing functions and wrapping unquoted tokens with quotes.
     /// </summary>
-    private static bool Compare(string expectedJson, string actualJson, bool subsetMode,
-        out Dictionary<string, JsonElement> extractedValues, out List<string> mismatches)
+    private static bool Compare(
+        [StringSyntax(StringSyntaxAttribute.Json)] string expectedJson,
+        [StringSyntax(StringSyntaxAttribute.Json)] string actualJson,
+        bool subsetMode,
+        out Dictionary<string, JsonElement> extractedValues,
+        out List<string> mismatches)
     {
         return Compare(expectedJson, actualJson, subsetMode, null, out extractedValues, out mismatches);
     }
@@ -158,8 +186,13 @@ public static partial class JsonComparer
     /// Parses the JSON strings and calls the recursive CompareElements function.
     /// It pre-processes the expected JSON string by executing functions and wrapping unquoted tokens with quotes.
     /// </summary>
-    private static bool Compare(string expectedJson, string actualJson, bool subsetMode, TimeProvider? timeProvider,
-        out Dictionary<string, JsonElement> extractedValues, out List<string> mismatches)
+    private static bool Compare(
+        [StringSyntax(StringSyntaxAttribute.Json)] string expectedJson,
+        [StringSyntax(StringSyntaxAttribute.Json)] string actualJson,
+        bool subsetMode,
+        TimeProvider? timeProvider,
+        out Dictionary<string, JsonElement> extractedValues,
+        out List<string> mismatches)
     {
         extractedValues = [];
         mismatches = [];
@@ -184,7 +217,11 @@ public static partial class JsonComparer
     /// It pre-processes the expected JSON string by executing functions and wrapping unquoted tokens with quotes.
     /// </summary>
     private static async Task<(bool IsMatch, Dictionary<string, JsonElement> ExtractedValues, List<string> Mismatches)> CompareAsync(
-        string expectedJson, string actualJson, bool subsetMode, TimeProvider? timeProvider, CancellationToken cancellationToken)
+        [StringSyntax(StringSyntaxAttribute.Json)] string expectedJson,
+        [StringSyntax(StringSyntaxAttribute.Json)] string actualJson,
+        bool subsetMode,
+        TimeProvider? timeProvider,
+        CancellationToken cancellationToken)
     {
         var extractedValues = new Dictionary<string, JsonElement>();
         var mismatches = new List<string>();
@@ -346,7 +383,7 @@ public static partial class JsonComparer
     /// <param name="json">The JSON string containing function calls to process.</param>
     /// <param name="timeProvider">Optional TimeProvider for time-based functions.</param>
     /// <returns>The JSON string with function calls replaced by their execution results.</returns>
-    private static string ProcessFunctions(string json, TimeProvider? timeProvider = null)
+    private static string ProcessFunctions([StringSyntax(StringSyntaxAttribute.Json)] string json, TimeProvider? timeProvider = null)
     {
         var registry = timeProvider != null ? new JsonFunctionRegistry(timeProvider) : FunctionRegistry;
 

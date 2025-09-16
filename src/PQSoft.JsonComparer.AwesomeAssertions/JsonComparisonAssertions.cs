@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using AwesomeAssertions;
 
@@ -6,8 +7,9 @@ namespace PQSoft.JsonComparer.AwesomeAssertions;
 /// <summary>
 /// A simple wrapper around a JSON string that serves as the subject for JSON-specific assertions.
 /// </summary>
-public class JsonSubject(string json)
+public class JsonSubject([StringSyntax(StringSyntaxAttribute.Json)] string json)
 {
+    [StringSyntax(StringSyntaxAttribute.Json)]
     public string Json { get; } = json ?? throw new ArgumentNullException(nameof(json));
 }
 
@@ -32,7 +34,10 @@ public class JsonSubjectAssertions(JsonSubject subject)
     /// <param name="expectedJson">The expected JSON string.</param>
     /// <param name="because">An optional reason message to include in the failure.</param>
     /// <param name="becauseArgs">Optional parameters for the reason message.</param>
-    public JsonSubjectAssertions FullyMatch(string expectedJson, string because = "", params object[] becauseArgs)
+    public JsonSubjectAssertions FullyMatch(
+        [StringSyntax(StringSyntaxAttribute.Json)] string expectedJson,
+        string because = "",
+        params object[] becauseArgs)
     {
         var result = JsonComparer.ExactMatch(expectedJson, subject.Json, out Dictionary<string, JsonElement> extractedValues, out List<string> mismatches);
         ExtractedValues = extractedValues;
@@ -53,7 +58,10 @@ public class JsonSubjectAssertions(JsonSubject subject)
     /// <param name="expectedJson">The expected JSON subset.</param>
     /// <param name="because">An optional reason message to include in the failure.</param>
     /// <param name="becauseArgs">Optional parameters for the reason message.</param>
-    public JsonSubjectAssertions ContainSubset(string expectedJson, string because = "", params object[] becauseArgs)
+    public JsonSubjectAssertions ContainSubset(
+        [StringSyntax(StringSyntaxAttribute.Json)] string expectedJson,
+        string because = "",
+        params object[] becauseArgs)
     {
         var result = JsonComparer.SubsetMatch(expectedJson, subject.Json, out Dictionary<string, JsonElement> extractedValues, out List<string> mismatches);
         ExtractedValues = extractedValues;
@@ -76,7 +84,7 @@ public static class JsonSubjectExtensions
     /// <summary>
     /// Wraps the JSON string in a <see cref="JsonSubject"/>.
     /// </summary>
-    public static JsonSubject AsJsonString(this string json)
+    public static JsonSubject AsJsonString([StringSyntax(StringSyntaxAttribute.Json)] this string json)
     {
         return new JsonSubject(json);
     }
