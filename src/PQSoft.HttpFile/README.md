@@ -19,15 +19,60 @@ dotnet add package PQSoft.HttpFile
 
 ## Usage
 
+### Basic Request Parsing
+
 ```csharp
-// Parse HTTP request
-var request = HttpRequestParser.Parse(httpRequestString);
+string httpRequest = @"POST /api/users HTTP/1.1
+Host: example.com
+Content-Type: application/json
+Authorization: Bearer token123
 
-// Parse HTTP response
-var response = HttpResponseParser.Parse(httpResponseString);
+{""name"": ""John"", ""email"": ""john@example.com""}";
 
-// Access parsed data
-Console.WriteLine($"Method: {request.Method}");
-Console.WriteLine($"URL: {request.Url}");
-Console.WriteLine($"Status: {response.StatusCode}");
+var request = HttpRequestParser.Parse(httpRequest);
+Console.WriteLine($"Method: {request.Method}");        // POST
+Console.WriteLine($"URL: {request.Url}");              // /api/users
+Console.WriteLine($"Host: {request.Headers["Host"]}"); // example.com
+Console.WriteLine($"Body: {request.Body}");            // JSON content
+```
+
+### Basic Response Parsing
+
+```csharp
+string httpResponse = @"HTTP/1.1 201 Created
+Content-Type: application/json
+Location: /api/users/123
+
+{""id"": 123, ""name"": ""John"", ""email"": ""john@example.com""}";
+
+var response = HttpResponseParser.Parse(httpResponse);
+Console.WriteLine($"Status: {response.StatusCode}");           // 201
+Console.WriteLine($"Reason: {response.ReasonPhrase}");         // Created
+Console.WriteLine($"Location: {response.Headers["Location"]}"); // /api/users/123
+```
+
+### Header Comparison for Testing
+
+```csharp
+// Compare headers semantically (useful for testing)
+var expected = new Dictionary<string, string> { {"Content-Type", "application/json"} };
+var actual = response.Headers;
+
+bool headersMatch = HttpHeaderComparer.Compare(expected, actual);
+```
+
+### Working with Complex Headers
+
+```csharp
+string requestWithComplexHeaders = @"GET /api/data HTTP/1.1
+Host: api.example.com
+Accept: application/json, text/plain; q=0.9
+Cache-Control: no-cache, max-age=0
+Cookie: session=abc123; theme=dark";
+
+var request = HttpRequestParser.Parse(requestWithComplexHeaders);
+
+// Access header parameters
+var acceptHeader = request.Headers["Accept"];
+var cookies = request.Headers["Cookie"];
 ```
