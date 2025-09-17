@@ -3,7 +3,30 @@ namespace PQSoft.HttpFile;
 /// <summary>
 /// Represents a parsed HTTP request, including the HTTP method, URL, headers, and body.
 /// </summary>
-public record ParsedHttpRequest(HttpMethod Method, string Url, List<ParsedHeader> Headers, string Body);
+public record ParsedHttpRequest(HttpMethod Method, string Url, List<ParsedHeader> Headers, string Body)
+{
+    /// <summary>
+    /// Converts the parsed HTTP request to an HttpRequestMessage.
+    /// </summary>
+    /// <returns>An HttpRequestMessage representing this parsed request.</returns>
+    public HttpRequestMessage ToHttpRequestMessage()
+    {
+        var request = new HttpRequestMessage(Method, Url);
+        
+        if (!string.IsNullOrEmpty(Body))
+        {
+            request.Content = new StringContent(Body);
+        }
+        
+        foreach (var header in Headers)
+        {
+            request.Headers.TryAddWithoutValidation(header.Name, header.Value);
+            request.Content?.Headers.TryAddWithoutValidation(header.Name, header.Value);
+        }
+        
+        return request;
+    }
+};
 
 /// <summary>
 /// Provides functionality to parse an HTTP request from a stream.
