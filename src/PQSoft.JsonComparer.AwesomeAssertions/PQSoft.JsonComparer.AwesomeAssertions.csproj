@@ -20,7 +20,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AwesomeAssertions" Version="9.0.0" />
+    <PackageReference Include="AwesomeAssertions" Version="9.1.0" />
+    <PackageReference Include="SonarAnalyzer.CSharp" Version="10.15.0.120848">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>analyzers</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
 </Project>
