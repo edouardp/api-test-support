@@ -48,7 +48,9 @@ public class HttpLineSplitter : IAsyncEnumerable<Stream>
         }
 
         public Stream Current { get; private set; } = null!;
-        // TODO: Using the null forgiving operator here is a big red flag that needs fixing
+        // The ugly null! assignment is because the IAsyncEnumerator<Stream> requires a
+        // Stream member, not a Stream? member. This could be addressed by refactoring in
+        // the future, as it is somewhat unsafe.
 
         /// <summary>
         /// Moves to the next HTTP request section in the stream.
