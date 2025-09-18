@@ -59,7 +59,7 @@ public static class HttpFileParser
             }
             finally
             {
-                segmentStream.Dispose();
+                await segmentStream.DisposeAsync();
             }
         }
     }
