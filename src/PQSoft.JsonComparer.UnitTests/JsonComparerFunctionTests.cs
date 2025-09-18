@@ -10,11 +10,12 @@ public class JsonComparerFunctionTests
     public void ExactMatch_WithGuidFunction_ShouldExecuteAndMatch()
     {
         // Arrange - Use functions in both expected and actual to ensure they generate the same values
-        string expectedJson = """{ "id": "{{GUID()}}", "name": "test" }""";
-        string actualJson = """{ "id": "{{GUID()}}", "name": "test" }""";
+        const string expectedJson = """{ "id": "{{GUID()}}", "name": "test" }""";
+        const string actualJson = """{ "id": "{{GUID()}}", "name": "test" }""";
 
         // Act
-        bool result = JsonComparer.ExactMatch(expectedJson, actualJson, out var extractedValues, out var mismatches);
+        var comparer = new JsonComparer();
+        var result = comparer.ExactMatch(expectedJson, actualJson, out var extractedValues, out var mismatches);
 
         // Assert - This will fail because GUIDs are different, but that's expected behavior
         // The test verifies that function processing works without JSON parsing errors
@@ -29,12 +30,13 @@ public class JsonComparerFunctionTests
         // Arrange
         var fixedTime = new DateTimeOffset(2024, 1, 1, 10, 0, 0, TimeSpan.Zero);
         var fakeTimeProvider = new FakeTimeProvider(fixedTime);
-        
-        string expectedJson = """{ "timestamp": "{{NOW()}}", "utc": "{{UTCNOW()}}", "status": "active" }""";
-        string actualJson = """{ "timestamp": "2024-01-01T10:00:00.000+00:00", "utc": "2024-01-01T10:00:00.000Z", "status": "active" }""";
+
+        const string expectedJson = """{ "timestamp": "{{NOW()}}", "utc": "{{UTCNOW()}}", "status": "active" }""";
+        const string actualJson = """{ "timestamp": "2024-01-01T10:00:00.000+00:00", "utc": "2024-01-01T10:00:00.000Z", "status": "active" }""";
 
         // Act
-        bool result = JsonComparer.ExactMatch(expectedJson, actualJson, fakeTimeProvider, out var extractedValues, out var mismatches);
+        var comparer = new JsonComparer(fakeTimeProvider);
+        var result = comparer.ExactMatch(expectedJson, actualJson, out var extractedValues, out var mismatches);
 
         // Assert
         Assert.True(result);
@@ -48,31 +50,32 @@ public class JsonComparerFunctionTests
         // Arrange
         var fixedTime = new DateTimeOffset(2024, 1, 1, 10, 0, 0, TimeSpan.Zero);
         var fakeTimeProvider = new FakeTimeProvider(fixedTime);
-        
-        string expectedJson = """
-        {
-            "id": "[[USER_ID]]",
-            "timestamp": "{{NOW()}}",
-            "data": {
-                "requestId": "[[REQUEST_ID]]",
-                "processed": true
-            }
-        }
-        """;
-        
-        string actualJson = """
-        {
-            "id": "user123",
-            "timestamp": "2024-01-01T10:00:00.000+00:00",
-            "data": {
-                "requestId": "req456",
-                "processed": true
-            }
-        }
-        """;
+
+        const string expectedJson = """
+                                    {
+                                        "id": "[[USER_ID]]",
+                                        "timestamp": "{{NOW()}}",
+                                        "data": {
+                                            "requestId": "[[REQUEST_ID]]",
+                                            "processed": true
+                                        }
+                                    }
+                                    """;
+
+        const string actualJson = """
+                                  {
+                                      "id": "user123",
+                                      "timestamp": "2024-01-01T10:00:00.000+00:00",
+                                      "data": {
+                                          "requestId": "req456",
+                                          "processed": true
+                                      }
+                                  }
+                                  """;
 
         // Act
-        bool result = JsonComparer.ExactMatch(expectedJson, actualJson, fakeTimeProvider, out var extractedValues, out var mismatches);
+        var comparer = new JsonComparer(fakeTimeProvider);
+        var result = comparer.ExactMatch(expectedJson, actualJson, out var extractedValues, out var mismatches);
 
         // Assert
         Assert.True(result);
@@ -86,13 +89,14 @@ public class JsonComparerFunctionTests
     public void ExactMatch_WithInvalidFunction_ShouldThrowException()
     {
         // Arrange
-        string expectedJson = """{ "id": "{{INVALID_FUNCTION()}}", "name": "test" }""";
-        string actualJson = """{ "id": "123", "name": "test" }""";
+        const string expectedJson = """{ "id": "{{INVALID_FUNCTION()}}", "name": "test" }""";
+        const string actualJson = """{ "id": "123", "name": "test" }""";
 
         // Act & Assert
+        var comparer = new JsonComparer();
         var exception = Assert.Throws<InvalidOperationException>(() =>
-            JsonComparer.ExactMatch(expectedJson, actualJson, out _, out _));
-        
+            comparer.ExactMatch(expectedJson, actualJson, out _, out _));
+
         Assert.Contains("Failed to execute function 'INVALID_FUNCTION'", exception.Message);
     }
 
@@ -102,12 +106,13 @@ public class JsonComparerFunctionTests
         // Arrange
         var fixedTime = new DateTimeOffset(2024, 1, 1, 10, 0, 0, TimeSpan.Zero);
         var fakeTimeProvider = new FakeTimeProvider(fixedTime);
-        
-        string expectedJson = """{ "timestamp": "{{UTCNOW()}}" }""";
-        string actualJson = """{ "timestamp": "2024-01-01T10:00:00.000Z", "name": "test", "extra": "data" }""";
+
+        const string expectedJson = """{ "timestamp": "{{UTCNOW()}}" }""";
+        const string actualJson = """{ "timestamp": "2024-01-01T10:00:00.000Z", "name": "test", "extra": "data" }""";
 
         // Act
-        bool result = JsonComparer.SubsetMatch(expectedJson, actualJson, fakeTimeProvider, out var extractedValues, out var mismatches);
+        var comparer = new JsonComparer(fakeTimeProvider);
+        var result = comparer.SubsetMatch(expectedJson, actualJson, out var extractedValues, out var mismatches);
 
         // Assert
         Assert.True(result);
@@ -119,14 +124,16 @@ public class JsonComparerFunctionTests
     public void RegisterFunction_WithCustomFunction_ShouldWork()
     {
         // Arrange
-        var customFunction = new TestCustomFunction();
-        JsonComparer.RegisterFunction("TEST_CUSTOM", customFunction);
+        var comparer = new JsonComparer();
 
-        string expectedJson = """{ "value": "{{TEST_CUSTOM()}}", "type": "custom" }""";
-        string actualJson = """{ "value": "custom_result", "type": "custom" }""";
+        var customFunction = new TestCustomFunction();
+        comparer.RegisterFunction("TEST_CUSTOM", customFunction);
+
+        const string expectedJson = """{ "value": "{{TEST_CUSTOM()}}", "type": "custom" }""";
+        const string actualJson = """{ "value": "custom_result", "type": "custom" }""";
 
         // Act
-        bool result = JsonComparer.ExactMatch(expectedJson, actualJson, out var extractedValues, out var mismatches);
+        var result = comparer.ExactMatch(expectedJson, actualJson, out var extractedValues, out var mismatches);
 
         // Assert
         Assert.True(result);
@@ -138,7 +145,8 @@ public class JsonComparerFunctionTests
     public void GetRegisteredFunctions_ShouldReturnBuiltInFunctions()
     {
         // Act
-        var functions = JsonComparer.GetRegisteredFunctions();
+        var comparer = new JsonComparer();
+        var functions = comparer.GetRegisteredFunctions();
 
         // Assert
         Assert.Contains("GUID", functions);
@@ -153,27 +161,28 @@ public class JsonComparerFunctionTests
         // Arrange
         var fixedTime = new DateTimeOffset(2024, 1, 1, 10, 0, 0, TimeSpan.Zero);
         var fakeTimeProvider = new FakeTimeProvider(fixedTime);
-        
-        string expectedJson = """
-        {
-            "items": [
-                { "timestamp": "{{UTCNOW()}}", "type": "first" },
-                { "id": "[[SECOND_ID]]", "type": "second" }
-            ]
-        }
-        """;
-        
-        string actualJson = """
-        {
-            "items": [
-                { "timestamp": "2024-01-01T10:00:00.000Z", "type": "first" },
-                { "id": "item2", "type": "second" }
-            ]
-        }
-        """;
+
+        const string expectedJson = """
+                                    {
+                                        "items": [
+                                            { "timestamp": "{{UTCNOW()}}", "type": "first" },
+                                            { "id": "[[SECOND_ID]]", "type": "second" }
+                                        ]
+                                    }
+                                    """;
+
+        const string actualJson = """
+                                  {
+                                      "items": [
+                                          { "timestamp": "2024-01-01T10:00:00.000Z", "type": "first" },
+                                          { "id": "item2", "type": "second" }
+                                      ]
+                                  }
+                                  """;
 
         // Act
-        bool result = JsonComparer.ExactMatch(expectedJson, actualJson, fakeTimeProvider, out var extractedValues, out var mismatches);
+        var comparer = new JsonComparer(fakeTimeProvider);
+        var result = comparer.ExactMatch(expectedJson, actualJson, out var extractedValues, out var mismatches);
 
         // Assert
         Assert.True(result);
@@ -188,31 +197,32 @@ public class JsonComparerFunctionTests
         // Arrange
         var fixedTime = new DateTimeOffset(2024, 1, 1, 10, 0, 0, TimeSpan.Zero);
         var fakeTimeProvider = new FakeTimeProvider(fixedTime);
-        
-        string expectedJson = """
-        {
-            "metadata": {
-                "created": {
-                    "timestamp": "{{UTCNOW()}}",
-                    "by": "system"
-                }
-            }
-        }
-        """;
-        
-        string actualJson = """
-        {
-            "metadata": {
-                "created": {
-                    "timestamp": "2024-01-01T10:00:00.000Z",
-                    "by": "system"
-                }
-            }
-        }
-        """;
+
+        const string expectedJson = """
+                                    {
+                                        "metadata": {
+                                            "created": {
+                                                "timestamp": "{{UTCNOW()}}",
+                                                "by": "system"
+                                            }
+                                        }
+                                    }
+                                    """;
+
+        const string actualJson = """
+                                  {
+                                      "metadata": {
+                                          "created": {
+                                              "timestamp": "2024-01-01T10:00:00.000Z",
+                                              "by": "system"
+                                          }
+                                      }
+                                  }
+                                  """;
 
         // Act
-        bool result = JsonComparer.ExactMatch(expectedJson, actualJson, fakeTimeProvider, out var extractedValues, out var mismatches);
+        var comparer = new JsonComparer(fakeTimeProvider);
+        var result = comparer.ExactMatch(expectedJson, actualJson, out var extractedValues, out var mismatches);
 
         // Assert
         Assert.True(result);
@@ -229,17 +239,10 @@ public class JsonComparerFunctionTests
         }
     }
 
-    private class FakeTimeProvider : TimeProvider
+    private class FakeTimeProvider(DateTimeOffset fixedTime) : TimeProvider
     {
-        private readonly DateTimeOffset _fixedTime;
+        public override DateTimeOffset GetUtcNow() => fixedTime;
 
-        public FakeTimeProvider(DateTimeOffset fixedTime)
-        {
-            _fixedTime = fixedTime;
-        }
-
-        public override DateTimeOffset GetUtcNow() => _fixedTime;
-        
         public override TimeZoneInfo LocalTimeZone => TimeZoneInfo.Utc;
     }
 }

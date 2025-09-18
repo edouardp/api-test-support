@@ -45,6 +45,7 @@ public partial class JsonComparer
     public JsonComparer(TimeProvider? timeProvider = null)
     {
         _timeProvider = timeProvider ?? TimeProvider.System;
+        _functionRegistry = new JsonFunctionRegistry(_timeProvider);
     }
 
     // Regex to match boxed tokens in expected JSON (e.g. "[[JOBID]]")
@@ -64,7 +65,7 @@ public partial class JsonComparer
     private static readonly Regex FunctionRegex = FunctionRegexGenerator();
 
     // Function registry for executing functions during preprocessing
-    private static readonly JsonFunctionRegistry FunctionRegistry = new();
+    private readonly JsonFunctionRegistry _functionRegistry;
 
     #region Instance Methods (Recommended)
 
@@ -76,7 +77,7 @@ public partial class JsonComparer
     public bool ExactMatch(string expectedJson, string actualJson,
         out Dictionary<string, JsonElement> extractedValues, out List<string> mismatches)
     {
-        return Compare(expectedJson, actualJson, subsetMode: false, _timeProvider, out extractedValues, out mismatches);
+        return Compare(expectedJson, actualJson, subsetMode: false, out extractedValues, out mismatches);
     }
 
     /// <summary>
@@ -87,7 +88,7 @@ public partial class JsonComparer
     public async Task<(bool IsMatch, Dictionary<string, JsonElement> ExtractedValues, List<string> Mismatches)> ExactMatchAsync(
         string expectedJson, string actualJson, CancellationToken cancellationToken = default)
     {
-        return await CompareAsync(expectedJson, actualJson, subsetMode: false, _timeProvider, cancellationToken);
+        return await CompareAsync(expectedJson, actualJson, subsetMode: false, cancellationToken);
     }
 
     /// <summary>
@@ -98,7 +99,7 @@ public partial class JsonComparer
     public bool SubsetMatch(string expectedJson, string actualJson,
         out Dictionary<string, JsonElement> extractedValues, out List<string> mismatches)
     {
-        return Compare(expectedJson, actualJson, subsetMode: true, _timeProvider, out extractedValues, out mismatches);
+        return Compare(expectedJson, actualJson, subsetMode: true, out extractedValues, out mismatches);
     }
 
     /// <summary>
@@ -109,34 +110,25 @@ public partial class JsonComparer
     public async Task<(bool IsMatch, Dictionary<string, JsonElement> ExtractedValues, List<string> Mismatches)> SubsetMatchAsync(
         string expectedJson, string actualJson, CancellationToken cancellationToken = default)
     {
-        return await CompareAsync(expectedJson, actualJson, subsetMode: true, _timeProvider, cancellationToken);
+        return await CompareAsync(expectedJson, actualJson, subsetMode: true, cancellationToken);
     }
 
     #endregion
 
 
     /// <summary>
-    /// Parses the JSON strings and calls the recursive CompareElements function.
-    /// It pre-processes the expected JSON string by executing functions and wrapping unquoted tokens with quotes.
-    /// </summary>
-    private static bool Compare(string expectedJson, string actualJson, bool subsetMode,
-        out Dictionary<string, JsonElement> extractedValues, out List<string> mismatches)
-    {
-        return Compare(expectedJson, actualJson, subsetMode, null, out extractedValues, out mismatches);
-    }
-
     /// <summary>
     /// Parses the JSON strings and calls the recursive CompareElements function.
     /// It pre-processes the expected JSON string by executing functions and wrapping unquoted tokens with quotes.
     /// </summary>
-    private static bool Compare(string expectedJson, string actualJson, bool subsetMode, TimeProvider? timeProvider,
+    private bool Compare(string expectedJson, string actualJson, bool subsetMode,
         out Dictionary<string, JsonElement> extractedValues, out List<string> mismatches)
     {
         extractedValues = [];
         mismatches = [];
 
         // Step 1: Execute functions in the expected JSON (e.g., {{GUID()}} -> actual GUID)
-        expectedJson = ProcessFunctions(expectedJson, timeProvider);
+        expectedJson = ProcessFunctions(expectedJson);
 
         // Step 2: Pre-process the expected JSON to ensure any token of the form {{VARIABLE}}
         // is wrapped in double quotes if not already.
@@ -154,14 +146,14 @@ public partial class JsonComparer
     /// Asynchronously parses the JSON strings and calls the recursive CompareElements function.
     /// It pre-processes the expected JSON string by executing functions and wrapping unquoted tokens with quotes.
     /// </summary>
-    private static async Task<(bool IsMatch, Dictionary<string, JsonElement> ExtractedValues, List<string> Mismatches)> CompareAsync(
-        string expectedJson, string actualJson, bool subsetMode, TimeProvider? timeProvider, CancellationToken cancellationToken)
+    private async Task<(bool IsMatch, Dictionary<string, JsonElement> ExtractedValues, List<string> Mismatches)> CompareAsync(
+        string expectedJson, string actualJson, bool subsetMode, CancellationToken cancellationToken)
     {
         var extractedValues = new Dictionary<string, JsonElement>();
         var mismatches = new List<string>();
 
         // Step 1: Execute functions in the expected JSON (e.g., {{GUID()}} -> actual GUID)
-        expectedJson = ProcessFunctions(expectedJson, timeProvider);
+        expectedJson = ProcessFunctions(expectedJson);
 
         // Step 2: Pre-process the expected JSON to ensure any token of the form {{VARIABLE}}
         // is wrapped in double quotes if not already.
@@ -315,18 +307,15 @@ public partial class JsonComparer
     /// Functions are identified by the pattern {{FUNCTION_NAME()}} and are executed using the function registry.
     /// </summary>
     /// <param name="json">The JSON string containing function calls to process.</param>
-    /// <param name="timeProvider">Optional TimeProvider for time-based functions.</param>
     /// <returns>The JSON string with function calls replaced by their execution results.</returns>
-    private static string ProcessFunctions(string json, TimeProvider? timeProvider = null)
+    private string ProcessFunctions(string json)
     {
-        var registry = timeProvider != null ? new JsonFunctionRegistry(timeProvider) : FunctionRegistry;
-
         return FunctionRegex.Replace(json, match =>
         {
             string functionName = match.Groups[1].Value;
             try
             {
-                string result = registry.ExecuteFunction(functionName);
+                string result = _functionRegistry.ExecuteFunction(functionName);
                 // Return the raw result since the function call is already within quotes in the JSON
                 return result;
             }
@@ -344,18 +333,18 @@ public partial class JsonComparer
     /// <param name="name">The name of the function (without parentheses).</param>
     /// <param name="function">The function implementation.</param>
     /// <exception cref="ArgumentException">Thrown when name is invalid or already registered.</exception>
-    public static void RegisterFunction(string name, IJsonFunction function)
+    public void RegisterFunction(string name, IJsonFunction function)
     {
-        FunctionRegistry.RegisterFunction(name, function);
+        _functionRegistry.RegisterFunction(name, function);
     }
 
     /// <summary>
     /// Gets the names of all registered functions.
     /// </summary>
     /// <returns>An array of registered function names.</returns>
-    public static string[] GetRegisteredFunctions()
+    public string[] GetRegisteredFunctions()
     {
-        return FunctionRegistry.GetRegisteredFunctions();
+        return _functionRegistry.GetRegisteredFunctions();
     }
 }
 

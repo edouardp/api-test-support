@@ -8,11 +8,15 @@ public class JsonComparerTests
     [Fact]
     public void ExactMatch_IdenticalJson_NoTokens_ShouldReturnTrue()
     {
-        string expected = """{ "name": "Alice", "age": 30, "active": true }""";
-        string actual = """{ "name": "Alice", "age": 30, "active": true }""";
+        // Arrange
+        const string expected = """{ "name": "Alice", "age": 30, "active": true }""";
+        const string actual = """{ "name": "Alice", "age": 30, "active": true }""";
 
-        bool result = JsonComparer.ExactMatch(expected, actual, out Dictionary<string, JsonElement> extractedValues, out List<string> mismatches);
+        // Act
+        var comparer = new JsonComparer();
+        var result = comparer.ExactMatch(expected, actual, out var extractedValues, out var mismatches);
 
+        // Assert
         Assert.True(result);
         Assert.Empty(extractedValues);
         Assert.Empty(mismatches);
@@ -25,7 +29,8 @@ public class JsonComparerTests
         string expected = """{ "JobId": "[[JOBID]]", "status": "pending" }""";
         string actual = """{ "JobId": 12345, "status": "pending" }""";
 
-        bool result = JsonComparer.ExactMatch(expected, actual, out Dictionary<string, JsonElement> extractedValues, out List<string> mismatches);
+        var comparer = new JsonComparer();
+        bool result = comparer.ExactMatch(expected, actual, out Dictionary<string, JsonElement> extractedValues, out List<string> mismatches);
 
         Assert.True(result);
         Assert.Single(extractedValues);
@@ -46,7 +51,8 @@ public class JsonComparerTests
         string expected = """{ "name": "Alice" }""";
         string actual = """{ "name": "Alice", "extra": "property" }""";
 
-        bool result = JsonComparer.ExactMatch(expected, actual, out Dictionary<string, JsonElement> extractedValues, out List<string> mismatches);
+        var comparer = new JsonComparer();
+        bool result = comparer.ExactMatch(expected, actual, out Dictionary<string, JsonElement> extractedValues, out List<string> mismatches);
 
         Assert.False(result);
         Assert.Contains(mismatches, m => m.Contains("Extra property"));
@@ -59,7 +65,8 @@ public class JsonComparerTests
         string expected = """{ "name": "Alice" }""";
         string actual = """{ "name": "Alice", "age": 30, "active": true }""";
 
-        bool result = JsonComparer.SubsetMatch(expected, actual, out Dictionary<string, JsonElement> extractedValues, out List<string> mismatches);
+        var comparer = new JsonComparer();
+        bool result = comparer.SubsetMatch(expected, actual, out Dictionary<string, JsonElement> extractedValues, out List<string> mismatches);
 
         Assert.True(result);
         Assert.Empty(mismatches);
@@ -72,7 +79,8 @@ public class JsonComparerTests
         string expected = """{ "name": "Alice", "age": 30 }""";
         string actual = """{ "name": "Alice" }""";
 
-        bool result = JsonComparer.SubsetMatch(expected, actual, out Dictionary<string, JsonElement> extractedValues, out List<string> mismatches);
+        var comparer = new JsonComparer();
+        bool result = comparer.SubsetMatch(expected, actual, out Dictionary<string, JsonElement> extractedValues, out List<string> mismatches);
 
         Assert.False(result);
         Assert.Contains(mismatches, m => m.Contains("Missing property 'age'"));
@@ -85,7 +93,8 @@ public class JsonComparerTests
         string expected = @"{ ""count"": 10 }";
         string actual = @"{ ""count"": ""10"" }";
 
-        bool result = JsonComparer.ExactMatch(expected, actual, out Dictionary<string, JsonElement> extractedValues, out List<string> mismatches);
+        var comparer = new JsonComparer();
+        bool result = comparer.ExactMatch(expected, actual, out Dictionary<string, JsonElement> extractedValues, out List<string> mismatches);
 
         Assert.False(result);
         Assert.Contains(mismatches, m => m.Contains("Type mismatch"));
@@ -98,7 +107,8 @@ public class JsonComparerTests
         string expected = @"{ ""numbers"": [1, 2, 3] }";
         string actual = @"{ ""numbers"": [1, 2, 3] }";
 
-        bool result = JsonComparer.ExactMatch(expected, actual, out Dictionary<string, JsonElement> extractedValues, out List<string> mismatches);
+        var comparer = new JsonComparer();
+        bool result = comparer.ExactMatch(expected, actual, out Dictionary<string, JsonElement> extractedValues, out List<string> mismatches);
 
         Assert.True(result);
         Assert.Empty(mismatches);
@@ -111,7 +121,8 @@ public class JsonComparerTests
         string expected = @"{ ""numbers"": [1, 2, 3] }";
         string actual = @"{ ""numbers"": [1, 2] }";
 
-        bool result = JsonComparer.ExactMatch(expected, actual, out Dictionary<string, JsonElement> extractedValues, out List<string> mismatches);
+        var comparer = new JsonComparer();
+        bool result = comparer.ExactMatch(expected, actual, out Dictionary<string, JsonElement> extractedValues, out List<string> mismatches);
 
         Assert.False(result);
         Assert.Contains(mismatches, m => m.Contains("Array length mismatch"));
@@ -124,7 +135,8 @@ public class JsonComparerTests
         string expected = @"{ ""numbers"": [1, 2] }";
         string actual = @"{ ""numbers"": [1, 2, 3] }";
 
-        bool result = JsonComparer.SubsetMatch(expected, actual, out Dictionary<string, JsonElement> extractedValues, out List<string> mismatches);
+        var comparer = new JsonComparer();
+        bool result = comparer.SubsetMatch(expected, actual, out Dictionary<string, JsonElement> extractedValues, out List<string> mismatches);
 
         Assert.True(result);
         Assert.Empty(mismatches);
@@ -157,7 +169,8 @@ public class JsonComparerTests
             }
             """;
 
-        bool result = JsonComparer.ExactMatch(expected, actual, out Dictionary<string, JsonElement> extractedValues, out List<string> mismatches);
+        var comparer = new JsonComparer();
+        bool result = comparer.ExactMatch(expected, actual, out Dictionary<string, JsonElement> extractedValues, out List<string> mismatches);
 
         // Expect failure due to age mismatch.
         Assert.False(result);
@@ -181,7 +194,8 @@ public class JsonComparerTests
         string expected = @"{ ""arr"": [1, 2, 3] }";
         string actual = @"{ ""arr"": [1, 2] }";
 
-        bool result = JsonComparer.SubsetMatch(expected, actual, out Dictionary<string, JsonElement> extractedValues, out List<string> mismatches);
+        var comparer = new JsonComparer();
+        bool result = comparer.SubsetMatch(expected, actual, out Dictionary<string, JsonElement> extractedValues, out List<string> mismatches);
 
         // Expecting a failure because the expected array is longer than the actual array in subset mode.
         Assert.False(result);
@@ -196,7 +210,8 @@ public class JsonComparerTests
         // Actual JSON with a different string value.
         string actual = @"{ ""greeting"": ""Hi"" }";
 
-        bool result = JsonComparer.ExactMatch(expected, actual,
+        var comparer = new JsonComparer();
+        bool result = comparer.ExactMatch(expected, actual,
             out Dictionary<string, JsonElement> extractedValues,
             out List<string> mismatches);
 
@@ -214,18 +229,19 @@ public class JsonComparerTests
         string expected = $$"""{ "active": {{expectedValue.ToString().ToLower()}} }""";
         string actual = $$"""{ "active": {{actualValue.ToString().ToLower()}} }""";
 
-        bool result = JsonComparer.ExactMatch(expected, actual,
+        var comparer = new JsonComparer();
+        bool result = comparer.ExactMatch(expected, actual,
             out Dictionary<string, JsonElement> extractedValues,
             out List<string> mismatches);
 
         // The match should fail because of the boolean mismatch.
         Assert.False(result);
-        
+
         // Check that the mismatch message indicates a boolean mismatch (not type mismatch).
         var booleanMismatchFound = mismatches.Any(m => m.Contains("$.active") && m.Contains("Boolean mismatch"));
         var actualMismatchMessage = mismatches.FirstOrDefault(m => m.Contains("$.active"));
-        
-        Assert.True(booleanMismatchFound, 
+
+        Assert.True(booleanMismatchFound,
             $"Expected 'Boolean mismatch' message but got: '{actualMismatchMessage}'. " +
             $"Testing {expectedValue} -> {actualValue}");
     }
@@ -238,7 +254,8 @@ public class JsonComparerTests
         // Actual JSON with the same property also set to null.
         string actual = """{ "value": null }""";
 
-        bool result = JsonComparer.ExactMatch(expected, actual,
+        var comparer = new JsonComparer();
+        bool result = comparer.ExactMatch(expected, actual,
             out Dictionary<string, JsonElement> extractedValues,
             out List<string> mismatches);
 
@@ -255,14 +272,15 @@ public class JsonComparerTests
         string expected = "{}";
         string actual = "{}";
 
-        bool result = JsonComparer.ExactMatch(expected, actual,
+        var comparer = new JsonComparer();
+        bool result = comparer.ExactMatch(expected, actual,
             out Dictionary<string, JsonElement> extractedValues,
             out List<string> mismatches);
 
         // The match should succeed because both are empty objects.
         Assert.True(result);
         // Ensure no extracted values or mismatches.
-        Assert.Empty(extractedValues);  
+        Assert.Empty(extractedValues);
         Assert.Empty(mismatches);
     }
 
@@ -273,7 +291,8 @@ public class JsonComparerTests
         string expected = """{ "items": [] }""";
         string actual = """{ "items": [] }""";
 
-        bool result = JsonComparer.ExactMatch(expected, actual,
+        var comparer = new JsonComparer();
+        bool result = comparer.ExactMatch(expected, actual,
             out Dictionary<string, JsonElement> extractedValues,
             out List<string> mismatches);
 
@@ -290,7 +309,8 @@ public class JsonComparerTests
         // Empty JSON strings should throw JsonException during parsing.
         Assert.ThrowsAny<JsonException>(() =>
         {
-            JsonComparer.ExactMatch("", "",
+            var comparer = new JsonComparer();
+            comparer.ExactMatch("", "",
                 out Dictionary<string, JsonElement> extractedValues,
                 out List<string> mismatches);
         });
@@ -302,7 +322,8 @@ public class JsonComparerTests
         // Null JSON strings should throw ArgumentNullException during parsing.
         Assert.Throws<ArgumentNullException>(() =>
         {
-            JsonComparer.ExactMatch(null!, null!,
+            var comparer = new JsonComparer();
+            comparer.ExactMatch(null!, null!,
                 out Dictionary<string, JsonElement> extractedValues,
                 out List<string> mismatches);
         });

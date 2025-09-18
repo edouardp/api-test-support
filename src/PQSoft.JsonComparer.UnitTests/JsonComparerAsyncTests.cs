@@ -13,7 +13,8 @@ public class JsonComparerAsyncTests
         const string actualJson = """{"name": "John", "age": 30}""";
 
         // Act
-        var result = await JsonComparer.ExactMatchAsync(expectedJson, actualJson);
+        var comparer = new JsonComparer();
+        var result = await comparer.ExactMatchAsync(expectedJson, actualJson);
 
         // Assert
         result.IsMatch.Should().BeTrue();
@@ -29,7 +30,8 @@ public class JsonComparerAsyncTests
         const string actualJson = """{"id": "12345", "name": "John"}""";
 
         // Act
-        var result = await JsonComparer.ExactMatchAsync(expectedJson, actualJson);
+        var comparer = new JsonComparer();
+        var result = await comparer.ExactMatchAsync(expectedJson, actualJson);
 
         // Assert
         result.IsMatch.Should().BeTrue();
@@ -46,7 +48,8 @@ public class JsonComparerAsyncTests
         const string actualJson = """{"name": "John", "age": 30, "city": "New York"}""";
 
         // Act
-        var result = await JsonComparer.SubsetMatchAsync(expectedJson, actualJson);
+        var comparer = new JsonComparer();
+        var result = await comparer.SubsetMatchAsync(expectedJson, actualJson);
 
         // Assert
         result.IsMatch.Should().BeTrue();
@@ -63,7 +66,8 @@ public class JsonComparerAsyncTests
         using var cts = new CancellationTokenSource();
 
         // Act
-        var result = await JsonComparer.ExactMatchAsync(expectedJson, actualJson, cts.Token);
+        var comparer = new JsonComparer();
+        var result = await comparer.ExactMatchAsync(expectedJson, actualJson, cts.Token);
 
         // Assert
         result.IsMatch.Should().BeTrue();
@@ -77,7 +81,8 @@ public class JsonComparerAsyncTests
         const string actualJson = """{"id": "550e8400-e29b-41d4-a716-446655440000", "requestId": "abc123"}""";
 
         // Act
-        var result = await JsonComparer.ExactMatchAsync(expectedJson, actualJson);
+        var comparer = new JsonComparer();
+        var result = await comparer.ExactMatchAsync(expectedJson, actualJson);
 
         // Assert
         result.IsMatch.Should().BeTrue();
