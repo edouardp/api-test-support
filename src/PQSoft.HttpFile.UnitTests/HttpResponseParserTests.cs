@@ -22,10 +22,9 @@ public class HttpResponseParserTests
                                    """;
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(rawResponse));
-        var parser = new HttpResponseParser();
 
         // Act
-        var result = await parser.ParseAsync(stream);
+        var result = await HttpResponseParser.ParseAsync(stream);
 
         // Assert
         result.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -54,10 +53,9 @@ public class HttpResponseParserTests
                                    """;
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(rawResponse));
-        var parser = new HttpResponseParser();
 
         // Act
-        var result = await parser.ParseAsync(stream);
+        var result = await HttpResponseParser.ParseAsync(stream);
 
         // Assert
         result.StatusCode.Should().Be(HttpStatusCode.NoContent);
@@ -77,10 +75,9 @@ public class HttpResponseParserTests
                                    """;
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(rawResponse));
-        var parser = new HttpResponseParser();
 
         // Act
-        Func<Task> act = async () => await parser.ParseAsync(stream);
+        Func<Task> act = async () => await HttpResponseParser.ParseAsync(stream);
 
         // Assert
         await act.Should().ThrowAsync<InvalidDataException>()
@@ -97,10 +94,9 @@ public class HttpResponseParserTests
                                    """;
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(rawResponse));
-        var parser = new HttpResponseParser();
 
         // Act
-        Func<Task> act = async () => await parser.ParseAsync(stream);
+        Func<Task> act = async () => await HttpResponseParser.ParseAsync(stream);
 
         // Assert
         await act.Should().ThrowAsync<InvalidDataException>()
@@ -121,10 +117,9 @@ public class HttpResponseParserTests
                                    """;
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(rawResponse));
-        var parser = new HttpResponseParser();
 
         // Act
-        var result = await parser.ParseAsync(stream);
+        var result = await HttpResponseParser.ParseAsync(stream);
 
         // Assert
         result.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -147,10 +142,9 @@ public class HttpResponseParserTests
                                    """;
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(rawResponse));
-        var parser = new HttpResponseParser();
 
         // Act
-        var result = await parser.ParseAsync(stream);
+        var result = await HttpResponseParser.ParseAsync(stream);
 
         // Assert
         result.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -166,10 +160,9 @@ public class HttpResponseParserTests
         string rawResponse = "";
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(rawResponse));
-        var parser = new HttpResponseParser();
 
         // Act
-        Func<Task> act = async () => await parser.ParseAsync(stream);
+        Func<Task> act = async () => await HttpResponseParser.ParseAsync(stream);
 
         // Assert
         await act.Should().ThrowAsync<InvalidDataException>()
@@ -188,10 +181,9 @@ public class HttpResponseParserTests
                                    """;
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(rawResponse));
-        var parser = new HttpResponseParser();
 
         // Act
-        Func<Task> act = async () => await parser.ParseAsync(stream);
+        Func<Task> act = async () => await HttpResponseParser.ParseAsync(stream);
 
         // Assert
         await act.Should().ThrowAsync<InvalidDataException>()
@@ -205,10 +197,9 @@ public class HttpResponseParserTests
         const string rawResponse = "HTTP/1.1\n";
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(rawResponse));
-        var parser = new HttpResponseParser();
 
         // Act
-        Func<Task> act = async () => await parser.ParseAsync(stream);
+        Func<Task> act = async () => await HttpResponseParser.ParseAsync(stream);
 
         // Assert
         await act.Should().ThrowAsync<InvalidDataException>()
@@ -222,10 +213,9 @@ public class HttpResponseParserTests
         const string rawResponse = "HTTP/1.1 ABC OK\n";
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(rawResponse));
-        var parser = new HttpResponseParser();
 
         // Act
-        Func<Task> act = async () => await parser.ParseAsync(stream);
+        Func<Task> act = async () => await HttpResponseParser.ParseAsync(stream);
 
         // Assert
         await act.Should().ThrowAsync<InvalidDataException>()
@@ -244,10 +234,9 @@ public class HttpResponseParserTests
                                    """;
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(rawResponse));
-        var parser = new HttpResponseParser();
 
         // Act
-        Func<Task> act = async () => await parser.ParseAsync(stream);
+        Func<Task> act = async () => await HttpResponseParser.ParseAsync(stream);
 
         // Assert
         await act.Should().ThrowAsync<ArgumentException>()
@@ -266,10 +255,9 @@ public class HttpResponseParserTests
                                    """;
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(rawResponse));
-        var parser = new HttpResponseParser();
 
         // Act
-        Func<Task> act = async () => await parser.ParseAsync(stream);
+        Func<Task> act = async () => await HttpResponseParser.ParseAsync(stream);
 
         // Assert
         await act.Should().ThrowAsync<ArgumentException>()
@@ -287,10 +275,9 @@ public class HttpResponseParserTests
                                    """;
 
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(rawResponse));
-        var parser = new HttpResponseParser();
 
         // Act
-        var result = await parser.ParseAsync(stream);
+        var result = await HttpResponseParser.ParseAsync(stream);
 
         // Assert: In this case, the body should be empty since it is missing
         result.Body.Should().BeEmpty();

@@ -10,7 +10,7 @@ public record ParsedHttpResponse(HttpStatusCode StatusCode, string ReasonPhrase,
 /// <summary>
 /// Parses an HTTP response from a given stream into a structured format.
 /// </summary>
-public class HttpResponseParser
+public static class HttpResponseParser
 {
     /// <summary>
     /// Asynchronously parses an HTTP response stream into a ParsedHttpResponse object.
@@ -18,7 +18,7 @@ public class HttpResponseParser
     /// <param name="httpStream">The stream containing the HTTP response.</param>
     /// <returns>A ParsedHttpResponse object containing the status code, reason phrase, headers, and body.</returns>
     /// <exception cref="InvalidDataException">Thrown when the HTTP response format is invalid.</exception>
-    public async Task<ParsedHttpResponse> ParseAsync(Stream httpStream)
+    public static async Task<ParsedHttpResponse> ParseAsync(Stream httpStream)
     {
         using var reader = new StreamReader(httpStream);
 
