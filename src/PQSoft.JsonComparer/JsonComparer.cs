@@ -232,12 +232,10 @@ public partial class JsonComparer
                 // For an exact match, check that actual does not have extra properties.
                 if (!subsetMode)
                 {
-                    foreach (JsonProperty prop in actual.EnumerateObject())
+                    var extraProperties = actual.EnumerateObject().Select(prop => prop.Name).Where(name => !expected.TryGetProperty(name, out _));
+                    foreach (string propName in extraProperties)
                     {
-                        if (!expected.TryGetProperty(prop.Name, out _))
-                        {
-                            mismatches.Add($"{jsonPath}: Extra property '{prop.Name}' found in actual JSON.");
-                        }
+                        mismatches.Add($"{jsonPath}: Extra property '{propName}' found in actual JSON.");
                     }
                 }
                 break;
@@ -245,9 +243,6 @@ public partial class JsonComparer
             case JsonValueKind.Array:
                 // For arrays, the expected array must be a prefix of the actual array in subset mode
                 // or exactly equal in length for an exact match.
-
-                //JsonElement.ArrayEnumerator expectedEnum = expected.EnumerateArray();
-                //JsonElement.ArrayEnumerator actualEnum = actual.EnumerateArray();
 
                 List<JsonElement> expectedList = new(expected.EnumerateArray());
                 List<JsonElement> actualList = new(actual.EnumerateArray());

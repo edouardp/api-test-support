@@ -33,7 +33,7 @@ public class HttpLineSplitter : IAsyncEnumerable<Stream>
     /// <summary>
     /// An async enumerator that splits the base stream into HTTP request sections.
     /// </summary>
-    private class HttpLineSplitterEnumerator : IAsyncEnumerator<Stream>
+    private sealed class HttpLineSplitterEnumerator : IAsyncEnumerator<Stream>
     {
         private readonly StreamReader reader;
         private readonly string separator;

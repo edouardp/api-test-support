@@ -82,6 +82,8 @@ public class JsonComparisonAssertionsTests
 
         public override DateTimeOffset GetUtcNow() => _fixedTime;
     }
+    
+    [Fact]
     public void FullyMatch_WithDifferentJson_ShouldThrow()
     {
         // Arrange

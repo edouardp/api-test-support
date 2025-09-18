@@ -99,12 +99,6 @@ public class ParsedHeader
             return false;
 
         // For each header in list1, find a semantically matching header in list2
-        foreach (var header1 in list1)
-        {
-            if (!list2.Any(header2 => header1.SemanticEquals(header2)))
-                return false;
-        }
-
-        return true;
+        return list1.All(header1 => list2.Any(header2 => header1.SemanticEquals(header2)));
     }
 }
