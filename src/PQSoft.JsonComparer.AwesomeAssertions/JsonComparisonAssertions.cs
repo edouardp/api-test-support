@@ -9,6 +9,18 @@ namespace PQSoft.JsonComparer.AwesomeAssertions;
 public class JsonSubject(string json)
 {
     public string Json { get; } = json ?? throw new ArgumentNullException(nameof(json));
+    public TimeProvider? TimeProvider { get; private set; }
+
+    /// <summary>
+    /// Configures the TimeProvider to use for time-based functions in JSON comparisons.
+    /// </summary>
+    /// <param name="timeProvider">The TimeProvider to use for time-based functions.</param>
+    /// <returns>This JsonSubject instance for fluent chaining.</returns>
+    public JsonSubject WithTimeProvider(TimeProvider timeProvider)
+    {
+        TimeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
+        return this;
+    }
 }
 
 /// <summary>
@@ -34,7 +46,8 @@ public class JsonSubjectAssertions(JsonSubject subject)
     /// <param name="becauseArgs">Optional parameters for the reason message.</param>
     public JsonSubjectAssertions FullyMatch(string expectedJson, string because = "", params object[] becauseArgs)
     {
-        var result = JsonComparer.ExactMatch(expectedJson, subject.Json, out Dictionary<string, JsonElement> extractedValues, out List<string> mismatches);
+        var comparer = new JsonComparer(subject.TimeProvider);
+        var result = comparer.ExactMatch(expectedJson, subject.Json, out Dictionary<string, JsonElement> extractedValues, out List<string> mismatches);
         ExtractedValues = extractedValues;
 
         if (!result)
@@ -55,7 +68,8 @@ public class JsonSubjectAssertions(JsonSubject subject)
     /// <param name="becauseArgs">Optional parameters for the reason message.</param>
     public JsonSubjectAssertions ContainSubset(string expectedJson, string because = "", params object[] becauseArgs)
     {
-        var result = JsonComparer.SubsetMatch(expectedJson, subject.Json, out Dictionary<string, JsonElement> extractedValues, out List<string> mismatches);
+        var comparer = new JsonComparer(subject.TimeProvider);
+        var result = comparer.SubsetMatch(expectedJson, subject.Json, out Dictionary<string, JsonElement> extractedValues, out List<string> mismatches);
         ExtractedValues = extractedValues;
 
         if (!result)

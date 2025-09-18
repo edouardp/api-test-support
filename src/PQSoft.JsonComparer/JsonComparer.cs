@@ -25,18 +25,28 @@ namespace PQSoft.JsonComparer;
 ///
 /// Example Usage:
 /// <code>
-///   string expectedJson = """{ "id": "[[JOBID]]", "createdAt": "{{NOW()}}", "status": "complete" }""";
-///   string actualJson = """{ "id": "12345", "createdAt": "2024-01-01T10:00:00.000+00:00", "status": "complete" }""";
+///   // Instance-based usage (recommended)
+///   var comparer = new JsonComparer();
+///   bool isMatch = comparer.ExactMatch(expectedJson, actualJson, out var extractedValues, out var mismatches);
 ///
+///   // Static usage (legacy)
 ///   bool isMatch = JsonComparer.ExactMatch(expectedJson, actualJson, out var extractedValues, out var mismatches);
-///
-///   Console.WriteLine(isMatch); // True
-///   Console.WriteLine(extractedValues["JOBID"]); // 12345
 /// </code>
 ///
 /// </summary>
-public static partial class JsonComparer
+public partial class JsonComparer
 {
+    private readonly TimeProvider _timeProvider;
+
+    /// <summary>
+    /// Initializes a new instance of JsonComparer with an optional TimeProvider.
+    /// </summary>
+    /// <param name="timeProvider">TimeProvider for time-based functions. Uses TimeProvider.System if null.</param>
+    public JsonComparer(TimeProvider? timeProvider = null)
+    {
+        _timeProvider = timeProvider ?? TimeProvider.System;
+    }
+
     // Regex to match boxed tokens in expected JSON (e.g. "[[JOBID]]")
     [GeneratedRegex(@"^\[\[(\w+)\]\]$", RegexOptions.Compiled)]
     private static partial Regex TokenRegexGenerator();
@@ -56,15 +66,17 @@ public static partial class JsonComparer
     // Function registry for executing functions during preprocessing
     private static readonly JsonFunctionRegistry FunctionRegistry = new();
 
+    #region Instance Methods (Recommended)
+
     /// <summary>
     /// Compares the two JSON strings for an exact match.
     /// Returns true if they match exactly (except for tokens), false otherwise.
     /// Also extracts any token values (e.g. JOBID) into extractedValues and records mismatch details.
     /// </summary>
-    public static bool ExactMatch(string expectedJson, string actualJson,
+    public bool ExactMatch(string expectedJson, string actualJson,
         out Dictionary<string, JsonElement> extractedValues, out List<string> mismatches)
     {
-        return Compare(expectedJson, actualJson, subsetMode: false, out extractedValues, out mismatches);
+        return Compare(expectedJson, actualJson, subsetMode: false, _timeProvider, out extractedValues, out mismatches);
     }
 
     /// <summary>
@@ -72,77 +84,36 @@ public static partial class JsonComparer
     /// Returns true if they match exactly (except for tokens), false otherwise.
     /// Also extracts any token values (e.g. JOBID) into extractedValues and records mismatch details.
     /// </summary>
-    public static async Task<(bool IsMatch, Dictionary<string, JsonElement> ExtractedValues, List<string> Mismatches)> ExactMatchAsync(
+    public async Task<(bool IsMatch, Dictionary<string, JsonElement> ExtractedValues, List<string> Mismatches)> ExactMatchAsync(
         string expectedJson, string actualJson, CancellationToken cancellationToken = default)
     {
-        return await CompareAsync(expectedJson, actualJson, subsetMode: false, null, cancellationToken);
+        return await CompareAsync(expectedJson, actualJson, subsetMode: false, _timeProvider, cancellationToken);
     }
 
     /// <summary>
-    /// Compares the two JSON strings for an exact match using a custom TimeProvider for time-based functions.
-    /// Returns true if they match exactly (except for tokens), false otherwise.
-    /// Also extracts any token values (e.g. JOBID) into extractedValues and records mismatch details.
-    /// </summary>
-    public static bool ExactMatch(string expectedJson, string actualJson, TimeProvider timeProvider,
-        out Dictionary<string, JsonElement> extractedValues, out List<string> mismatches)
-    {
-        return Compare(expectedJson, actualJson, subsetMode: false, timeProvider, out extractedValues, out mismatches);
-    }
-
-    /// <summary>
-    /// Asynchronously compares the two JSON strings for an exact match using a custom TimeProvider for time-based functions.
-    /// Returns true if they match exactly (except for tokens), false otherwise.
-    /// Also extracts any token values (e.g. JOBID) into extractedValues and records mismatch details.
-    /// </summary>
-    public static async Task<(bool IsMatch, Dictionary<string, JsonElement> ExtractedValues, List<string> Mismatches)> ExactMatchAsync(
-        string expectedJson, string actualJson, TimeProvider timeProvider, CancellationToken cancellationToken = default)
-    {
-        return await CompareAsync(expectedJson, actualJson, subsetMode: false, timeProvider, cancellationToken);
-    }
-
-    /// <summary>
-    /// Compares the two JSON strings for a subset match (i.e. expected is a subset of actual).
+    /// Compares the two JSON strings for a subset match.
     /// Returns true if all elements in expected (except tokens) are found in actual.
     /// Also extracts any token values into extractedValues and records mismatch details.
     /// </summary>
-    public static bool SubsetMatch(string expectedJson, string actualJson,
+    public bool SubsetMatch(string expectedJson, string actualJson,
         out Dictionary<string, JsonElement> extractedValues, out List<string> mismatches)
     {
-        return Compare(expectedJson, actualJson, subsetMode: true, out extractedValues, out mismatches);
+        return Compare(expectedJson, actualJson, subsetMode: true, _timeProvider, out extractedValues, out mismatches);
     }
 
     /// <summary>
-    /// Asynchronously compares the two JSON strings for a subset match (i.e. expected is a subset of actual).
+    /// Asynchronously compares the two JSON strings for a subset match.
     /// Returns true if all elements in expected (except tokens) are found in actual.
     /// Also extracts any token values into extractedValues and records mismatch details.
     /// </summary>
-    public static async Task<(bool IsMatch, Dictionary<string, JsonElement> ExtractedValues, List<string> Mismatches)> SubsetMatchAsync(
+    public async Task<(bool IsMatch, Dictionary<string, JsonElement> ExtractedValues, List<string> Mismatches)> SubsetMatchAsync(
         string expectedJson, string actualJson, CancellationToken cancellationToken = default)
     {
-        return await CompareAsync(expectedJson, actualJson, subsetMode: true, null, cancellationToken);
+        return await CompareAsync(expectedJson, actualJson, subsetMode: true, _timeProvider, cancellationToken);
     }
 
-    /// <summary>
-    /// Compares the two JSON strings for a subset match using a custom TimeProvider for time-based functions.
-    /// Returns true if all elements in expected (except tokens) are found in actual.
-    /// Also extracts any token values into extractedValues and records mismatch details.
-    /// </summary>
-    public static bool SubsetMatch(string expectedJson, string actualJson, TimeProvider timeProvider,
-        out Dictionary<string, JsonElement> extractedValues, out List<string> mismatches)
-    {
-        return Compare(expectedJson, actualJson, subsetMode: true, timeProvider, out extractedValues, out mismatches);
-    }
+    #endregion
 
-    /// <summary>
-    /// Asynchronously compares the two JSON strings for a subset match using a custom TimeProvider for time-based functions.
-    /// Returns true if all elements in expected (except tokens) are found in actual.
-    /// Also extracts any token values into extractedValues and records mismatch details.
-    /// </summary>
-    public static async Task<(bool IsMatch, Dictionary<string, JsonElement> ExtractedValues, List<string> Mismatches)> SubsetMatchAsync(
-        string expectedJson, string actualJson, TimeProvider timeProvider, CancellationToken cancellationToken = default)
-    {
-        return await CompareAsync(expectedJson, actualJson, subsetMode: true, timeProvider, cancellationToken);
-    }
 
     /// <summary>
     /// Parses the JSON strings and calls the recursive CompareElements function.

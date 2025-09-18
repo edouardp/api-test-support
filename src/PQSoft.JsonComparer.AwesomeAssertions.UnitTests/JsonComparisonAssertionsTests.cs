@@ -18,6 +18,70 @@ public class JsonComparisonAssertionsTests
     }
 
     [Fact]
+    public void WithTimeProvider_ShouldConfigureTimeProvider()
+    {
+        // Arrange
+        var fixedTime = new DateTimeOffset(2024, 1, 1, 10, 0, 0, TimeSpan.Zero);
+        var fakeTimeProvider = new FakeTimeProvider(fixedTime);
+        var actualJson = """{"timestamp": "2024-01-01T23:00:00.000+13:00", "name": "John"}""";
+        var expectedJson = """{"timestamp": "{{NOW()}}", "name": "John"}""";
+
+        // Act & Assert
+        actualJson.AsJsonString()
+            .WithTimeProvider(fakeTimeProvider)
+            .Should()
+            .FullyMatch(expectedJson);
+    }
+
+    [Fact]
+    public void WithTimeProvider_SubsetMatch_ShouldUseTimeProvider()
+    {
+        // Arrange
+        var fixedTime = new DateTimeOffset(2024, 1, 1, 10, 0, 0, TimeSpan.Zero);
+        var fakeTimeProvider = new FakeTimeProvider(fixedTime);
+        var actualJson = """{"timestamp": "2024-01-01T23:00:00.000+13:00", "name": "John", "extra": "data"}""";
+        var expectedJson = """{"timestamp": "{{NOW()}}", "name": "John"}""";
+
+        // Act & Assert
+        actualJson.AsJsonString()
+            .WithTimeProvider(fakeTimeProvider)
+            .Should()
+            .ContainSubset(expectedJson);
+    }
+
+    [Fact]
+    public void WithTimeProvider_NullTimeProvider_ShouldThrow()
+    {
+        // Arrange
+        var actualJson = """{"name": "John"}""";
+
+        // Act & Assert
+        Assert.Throws<ArgumentNullException>(() => 
+            actualJson.AsJsonString().WithTimeProvider(null!));
+    }
+
+    [Fact]
+    public void WithoutTimeProvider_ShouldUseDefaultTimeProvider()
+    {
+        // Arrange
+        var actualJson = """{"name": "John", "age": 30}""";
+        var expectedJson = """{"name": "John", "age": 30}""";
+
+        // Act & Assert - Should work without TimeProvider configuration
+        actualJson.AsJsonString().Should().FullyMatch(expectedJson);
+    }
+
+    private class FakeTimeProvider : TimeProvider
+    {
+        private readonly DateTimeOffset _fixedTime;
+
+        public FakeTimeProvider(DateTimeOffset fixedTime)
+        {
+            _fixedTime = fixedTime;
+        }
+
+        public override DateTimeOffset GetUtcNow() => _fixedTime;
+    }
     public void FullyMatch_WithDifferentJson_ShouldThrow()
     {
         // Arrange
