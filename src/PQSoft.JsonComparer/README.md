@@ -49,22 +49,22 @@ string response = """{ "userId": "user_123", "orderId": "order_456", "total": "9
 
 JsonComparer.ExactMatch(template, response, out var tokens, out var mismatches);
 // tokens["USER_ID"] = "user_123"
-// tokens["ORDER_ID"] = "order_456" 
+// tokens["ORDER_ID"] = "order_456"
 // tokens["AMOUNT"] = "99.99"
 ```
 
 ### Function Execution
 
 ```csharp
-string template = """{ 
-    "id": "{{GUID()}}", 
-    "timestamp": "{{UTCNOW()}}", 
-    "date": "{{NOW()}}" 
+string template = """{
+    "id": "{{GUID()}}",
+    "timestamp": "{{UTCNOW()}}",
+    "date": "{{NOW()}}"
 }""";
-string actual = """{ 
-    "id": "550e8400-e29b-41d4-a716-446655440000", 
-    "timestamp": "2024-01-01T10:00:00.000Z", 
-    "date": "2024-01-01T10:00:00.000+00:00" 
+string actual = """{
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "timestamp": "2024-01-01T10:00:00.000Z",
+    "date": "2024-01-01T10:00:00.000+00:00"
 }""";
 
 bool matches = JsonComparer.ExactMatch(template, actual, out var values, out var errors);
@@ -81,11 +81,11 @@ var variables = new Dictionary<string, object>
     ["USER_ID"] = 12345
 };
 
-string expectedJson = """{ 
+string expectedJson = """{
     "endpoint": "{{BASE_URL}}/{{API_VERSION}}/users/{{USER_ID}}",
     "userId": {{USER_ID}}
 }""";
-    
+
 string actualJson = """{
     "endpoint": "https://api.example.com/v1/users/12345",
     "userId": 12345

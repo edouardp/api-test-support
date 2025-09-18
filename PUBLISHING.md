@@ -113,7 +113,7 @@ dotnet nuget push "src/PQSoft.JsonComparer.AwesomeAssertions/bin/Release/PQSoft.
 
 Understanding the dependency chain is crucial for upload order:
 
-```
+```text
 PQSoft.HttpFile (no dependencies)
 PQSoft.JsonComparer (depends on System.Text.Json)
 PQSoft.JsonComparer.AwesomeAssertions (depends on PQSoft.JsonComparer + AwesomeAssertions)

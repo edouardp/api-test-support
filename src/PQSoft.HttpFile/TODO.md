@@ -7,7 +7,7 @@
 
 **Required Changes**:
 - `Accept`: `application/json;q=0.9, text/plain;q=0.8` (commas separate values)
-- `Cache-Control`: `max-age=3600, must-revalidate` (commas separate directives)  
+- `Cache-Control`: `max-age=3600, must-revalidate` (commas separate directives)
 - `Content-Type`: `application/json; charset=utf-8` (semicolons for parameters) ✅ Already correct
 
 **Impact**: Currently `Accept: application/json, text/plain` treated as single value instead of two
@@ -21,7 +21,7 @@
 - Handle quality values (q-values) correctly
 
 **Examples**:
-```
+```http
 Accept: application/json, text/plain, */*
 Cache-Control: max-age=3600, must-revalidate, private
 ```
@@ -35,7 +35,7 @@ Cache-Control: max-age=3600, must-revalidate, private
 - Proper unescaping of quoted values
 
 **Examples**:
-```
+```csharp
 Content-Disposition: attachment; filename="my \"quoted\" file.txt"
 Authorization: Digest username="user", realm="Protected Area"
 ```

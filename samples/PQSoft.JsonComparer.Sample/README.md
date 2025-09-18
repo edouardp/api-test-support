@@ -18,7 +18,7 @@ dotnet run
 
 ## Sample Output
 
-```
+```csharp
 PQSoft.JsonComparer Sample Application
 =====================================
 

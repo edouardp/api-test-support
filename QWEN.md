@@ -1,5 +1,5 @@
 
-
+# Qwen Setup
 
 ```bash
 export OPENAI_API_KEY="<your key here>"
@@ -8,6 +8,4 @@ export OPENAI_MODEL="qwen/qwen3-coder-480b-a35b-instruct"
 
 qwen
 ```
-
-
 

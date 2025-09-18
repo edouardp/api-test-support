@@ -2,7 +2,7 @@
 
 ## Project Structure
 
-```
+```text
 PQSoft.JsonComparer/
 ├── .editorconfig                  # Editor configuration
 ├── .github/                       # GitHub configuration

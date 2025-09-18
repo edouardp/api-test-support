@@ -6,16 +6,20 @@ A repository for Open Source packages for API Test Engineering
 
 ### PQSoft.HttpFile
 
-A library for parsing HTTP request and response files, similar to Microsoft's VS Code .http files. It provides functionality to:
+A library for parsing HTTP request and response files, similar to Microsoft's
+VS Code .http files. It provides functionality to:
+
 - Parse HTTP requests with method, URL, headers, and body
 - Parse HTTP responses with status code, headers, and body
 - Handle HTTP headers with parameters
 - Semantically compare parsed headers for testing purposes
-- Convert parsed requests to `HttpRequestMessage` objects for integration with HttpClient
+- Convert parsed requests to `HttpRequestMessage` objects for integration
+  with HttpClient
 
 #### Converting to HttpRequestMessage
 
-The `ParsedHttpRequest` record includes a `ToHttpRequestMessage()` method that converts the parsed request into a standard .NET `HttpRequestMessage`:
+The `ParsedHttpRequest` record includes a `ToHttpRequestMessage()` method that
+converts the parsed request into a standard .NET `HttpRequestMessage`:
 
 ```csharp
 // Parse an HTTP request from a stream
@@ -23,7 +27,7 @@ var rawHttp = """
     POST https://api.example.com/users HTTP/1.1
     Content-Type: application/json
     Authorization: Bearer token123
-    
+
     {"name": "John", "age": 30}
     """;
 

@@ -30,10 +30,10 @@ actualJson.AsJsonString().Should().FullyMatch(expectedJson);
 ### Subset Matching
 
 ```csharp
-string actualJson = """{ 
-    "id": 123, 
-    "name": "John", 
-    "email": "john@example.com", 
+string actualJson = """{
+    "id": 123,
+    "name": "John",
+    "email": "john@example.com",
     "status": "active",
     "created": "2024-01-01T10:00:00Z"
 }""";
@@ -47,16 +47,16 @@ actualJson.AsJsonString().Should().ContainSubset(expectedSubset);
 ### Token Extraction with Assertions
 
 ```csharp
-string apiResponse = """{ 
-    "orderId": "order_12345", 
-    "userId": "user_67890", 
+string apiResponse = """{
+    "orderId": "order_12345",
+    "userId": "user_67890",
     "total": 99.99,
     "status": "completed"
 }""";
 
-string template = """{ 
-    "orderId": "[[ORDER_ID]]", 
-    "userId": "[[USER_ID]]", 
+string template = """{
+    "orderId": "[[ORDER_ID]]",
+    "userId": "[[USER_ID]]",
     "total": "[[TOTAL]]",
     "status": "completed"
 }""";
@@ -72,15 +72,15 @@ var total = result.ExtractedTokens["TOTAL"];       // "99.99"
 ### Function-Based Matching
 
 ```csharp
-string actualResponse = """{ 
+string actualResponse = """{
     "id": "550e8400-e29b-41d4-a716-446655440000",
     "createdAt": "2024-01-01T10:00:00.000Z",
     "processedAt": "2024-01-01T10:05:30.123+00:00"
 }""";
 
-string expectedTemplate = """{ 
-    "id": "{{GUID()}}", 
-    "createdAt": "{{UTCNOW()}}", 
+string expectedTemplate = """{
+    "id": "{{GUID()}}",
+    "createdAt": "{{UTCNOW()}}",
     "processedAt": "{{NOW()}}"
 }""";
 
@@ -92,7 +92,7 @@ actualResponse.AsJsonString().Should().FullyMatch(expectedTemplate);
 
 ```csharp
 // Test API response structure and extract values for further testing
-string createUserResponse = """{ 
+string createUserResponse = """{
     "user": {
         "id": "usr_abc123",
         "email": "test@example.com",
@@ -105,7 +105,7 @@ string createUserResponse = """{
     "expiresAt": "2024-12-31T23:59:59Z"
 }""";
 
-string expectedStructure = """{ 
+string expectedStructure = """{
     "user": {
         "id": "[[USER_ID]]",
         "email": "test@example.com",
@@ -137,7 +137,7 @@ errorResponse.AsJsonString().Should().FullyMatch(expectedError);
 ### Array and Complex Object Matching
 
 ```csharp
-string actualJson = """{ 
+string actualJson = """{
     "users": [
         { "id": "1", "name": "John" },
         { "id": "2", "name": "Jane" }
@@ -145,7 +145,7 @@ string actualJson = """{
     "total": 2
 }""";
 
-string expectedPattern = """{ 
+string expectedPattern = """{
     "users": [
         { "id": "[[USER1_ID]]", "name": "John" },
         { "id": "[[USER2_ID]]", "name": "Jane" }
