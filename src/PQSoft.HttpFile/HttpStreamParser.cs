@@ -1,3 +1,5 @@
+using System.Text;
+
 namespace PQSoft.HttpFile;
 
 /// <summary>
@@ -88,33 +90,33 @@ public static class HttpStreamParser
     private static async Task<List<ParsedHeader>> ParseHeadersAsync(StreamReader reader)
     {
         var headers = new List<ParsedHeader>();
-        string? currentHeaderLine = null;
+        StringBuilder? currentHeaderBuilder = null;
 
         while (await reader.ReadLineAsync() is { } line)
         {
             if (string.IsNullOrWhiteSpace(line))
             {
-                ProcessPendingHeader(headers, currentHeaderLine);
+                ProcessPendingHeader(headers, currentHeaderBuilder?.ToString());
                 return headers;
             }
 
             if (IsHeaderContinuation(line))
             {
-                if (currentHeaderLine == null)
+                if (currentHeaderBuilder == null)
                 {
                     throw new InvalidDataException($"Invalid HTTP header format: continuation line '{line.Trim()}' without preceding header.");
                 }
-                currentHeaderLine += Space + line.Trim();
+                currentHeaderBuilder.Append(Space).Append(line.Trim());
             }
             else
             {
-                ProcessPendingHeader(headers, currentHeaderLine);
-                currentHeaderLine = line;
+                ProcessPendingHeader(headers, currentHeaderBuilder?.ToString());
+                currentHeaderBuilder = new StringBuilder(line);
             }
         }
 
         // Only process the final header if we reached end of stream without empty line
-        ProcessPendingHeader(headers, currentHeaderLine);
+        ProcessPendingHeader(headers, currentHeaderBuilder?.ToString());
         return headers;
     }
 
