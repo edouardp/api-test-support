@@ -1,5 +1,3 @@
-using System.Text.Json;
-using PQSoft.JsonComparer.AwesomeAssertions;
 using Xunit;
 
 namespace PQSoft.JsonComparer.AwesomeAssertions.UnitTests;
@@ -20,9 +18,11 @@ public class JsonComparisonAssertionsTests
     [Fact]
     public void WithTimeProvider_ShouldConfigureTimeProvider()
     {
-        // Arrange
-        var fixedTime = new DateTimeOffset(2024, 1, 1, 10, 0, 0, TimeSpan.Zero);
-        var fakeTimeProvider = new FakeTimeProvider(fixedTime);
+        // Arrange - Use custom TimeProvider with NZ timezone
+        var fixedUtcTime = new DateTimeOffset(2024, 1, 1, 10, 0, 0, TimeSpan.Zero);
+        var nzTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Pacific/Auckland");
+        var fakeTimeProvider = new FakeTimeProvider(fixedUtcTime, nzTimeZone);
+
         var actualJson = """{"timestamp": "2024-01-01T23:00:00.000+13:00", "name": "John"}""";
         var expectedJson = """{"timestamp": "{{NOW()}}", "name": "John"}""";
 
@@ -36,9 +36,11 @@ public class JsonComparisonAssertionsTests
     [Fact]
     public void WithTimeProvider_SubsetMatch_ShouldUseTimeProvider()
     {
-        // Arrange
-        var fixedTime = new DateTimeOffset(2024, 1, 1, 10, 0, 0, TimeSpan.Zero);
-        var fakeTimeProvider = new FakeTimeProvider(fixedTime);
+        // Arrange - Use custom TimeProvider with NZ timezone
+        var fixedUtcTime = new DateTimeOffset(2024, 1, 1, 10, 0, 0, TimeSpan.Zero);
+        var nzTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Pacific/Auckland");
+        var fakeTimeProvider = new FakeTimeProvider(fixedUtcTime, nzTimeZone);
+
         var actualJson = """{"timestamp": "2024-01-01T23:00:00.000+13:00", "name": "John", "extra": "data"}""";
         var expectedJson = """{"timestamp": "{{NOW()}}", "name": "John"}""";
 
@@ -50,13 +52,49 @@ public class JsonComparisonAssertionsTests
     }
 
     [Fact]
+    public void WithTimeProvider_USTimezone_ShouldUseNegativeOffset()
+    {
+        // Arrange - Use custom TimeProvider with US Eastern timezone
+        var fixedUtcTime = new DateTimeOffset(2024, 1, 1, 10, 0, 0, TimeSpan.Zero);
+        var usTimeZone = TimeZoneInfo.FindSystemTimeZoneById("America/New_York");
+        var fakeTimeProvider = new FakeTimeProvider(fixedUtcTime, usTimeZone);
+
+        var actualJson = """{"timestamp": "2024-01-01T05:00:00.000-05:00", "name": "Jane"}""";
+        var expectedJson = """{"timestamp": "{{NOW()}}", "name": "Jane"}""";
+
+        // Act & Assert
+        actualJson.AsJsonString()
+            .WithTimeProvider(fakeTimeProvider)
+            .Should()
+            .FullyMatch(expectedJson);
+    }
+
+    [Fact]
+    public void WithTimeProvider_DaylightSaving_ShouldHandleCorrectOffset()
+    {
+        // Arrange - Test NZ winter time (UTC+12, no DST)
+        var nzTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Pacific/Auckland");
+        var julyUtcTime = new DateTimeOffset(2024, 7, 1, 10, 0, 0, TimeSpan.Zero);
+        var julyProvider = new FakeTimeProvider(julyUtcTime, nzTimeZone);
+
+        var actualJson = """{"timestamp": "2024-07-01T22:00:00.000+12:00", "season": "winter"}""";
+        var expectedJson = """{"timestamp": "{{NOW()}}", "season": "winter"}""";
+
+        // Act & Assert
+        actualJson.AsJsonString()
+            .WithTimeProvider(julyProvider)
+            .Should()
+            .FullyMatch(expectedJson);
+    }
+
+    [Fact]
     public void WithTimeProvider_NullTimeProvider_ShouldThrow()
     {
         // Arrange
         var actualJson = """{"name": "John"}""";
 
         // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => 
+        Assert.Throws<ArgumentNullException>(() =>
             actualJson.AsJsonString().WithTimeProvider(null!));
     }
 
@@ -71,18 +109,6 @@ public class JsonComparisonAssertionsTests
         actualJson.AsJsonString().Should().FullyMatch(expectedJson);
     }
 
-    private class FakeTimeProvider : TimeProvider
-    {
-        private readonly DateTimeOffset _fixedTime;
-
-        public FakeTimeProvider(DateTimeOffset fixedTime)
-        {
-            _fixedTime = fixedTime;
-        }
-
-        public override DateTimeOffset GetUtcNow() => _fixedTime;
-    }
-    
     [Fact]
     public void FullyMatch_WithDifferentJson_ShouldThrow()
     {
@@ -172,5 +198,12 @@ public class JsonComparisonAssertionsTests
 
         // Act & Assert
         Assert.Throws<ArgumentNullException>(() => json.AsJsonString());
+    }
+
+    private class FakeTimeProvider(DateTimeOffset fixedUtcTime, TimeZoneInfo? localTimeZone = null)
+        : TimeProvider
+    {
+        public override DateTimeOffset GetUtcNow() => fixedUtcTime;
+        public override TimeZoneInfo LocalTimeZone { get; } = localTimeZone ?? TimeZoneInfo.Utc;
     }
 }
