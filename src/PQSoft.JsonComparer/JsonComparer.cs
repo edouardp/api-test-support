@@ -28,10 +28,10 @@ namespace PQSoft.JsonComparer;
 /// <code>
 ///   // Instance-based usage (recommended)
 ///   var comparer = new JsonComparer();
-///   bool isMatch = comparer.ExactMatch(expectedJson, actualJson, out var extractedValues, out var mismatches);
+///   bool isMatch = comparer.ExactMatch(expectedJson, actualJson);
 ///
 ///   // Static usage (legacy)
-///   bool isMatch = JsonComparer.ExactMatch(expectedJson, actualJson, out var extractedValues, out var mismatches);
+///   bool isMatch = JsonComparer.ExactMatch(expectedJson, actualJson);
 /// </code>
 ///
 /// </summary>
@@ -68,16 +68,14 @@ public partial class JsonComparer
 
     /// <summary>
     /// Compares the two JSON strings for an exact match.
-    /// Returns true if they match exactly (except for tokens), false otherwise.
-    /// Also extracts any token values (e.g. JOBID) into extractedValues and records mismatch details.
+    /// Returns a tuple containing match result, extracted token values, and mismatch details.
     /// </summary>
-    public bool ExactMatch(
+    public (bool IsMatch, Dictionary<string, JsonElement> ExtractedValues, List<string> Mismatches) ExactMatch(
         [StringSyntax(StringSyntaxAttribute.Json)] string expectedJson,
-        [StringSyntax(StringSyntaxAttribute.Json)] string actualJson,
-        out Dictionary<string, JsonElement> extractedValues,
-        out List<string> mismatches)
+        [StringSyntax(StringSyntaxAttribute.Json)] string actualJson)
     {
-        return Compare(expectedJson, actualJson, subsetMode: false, out extractedValues, out mismatches);
+        var isMatch = Compare(expectedJson, actualJson, subsetMode: false, out var extractedValues, out var mismatches);
+        return (isMatch, extractedValues, mismatches);
     }
 
     /// <summary>
@@ -95,16 +93,14 @@ public partial class JsonComparer
 
     /// <summary>
     /// Compares the two JSON strings for a subset match.
-    /// Returns true if all elements in expected (except tokens) are found in actual.
-    /// Also extracts any token values into extractedValues and records mismatch details.
+    /// Returns a tuple containing match result, extracted token values, and mismatch details.
     /// </summary>
-    public bool SubsetMatch(
+    public (bool IsMatch, Dictionary<string, JsonElement> ExtractedValues, List<string> Mismatches) SubsetMatch(
         [StringSyntax(StringSyntaxAttribute.Json)] string expectedJson,
-        [StringSyntax(StringSyntaxAttribute.Json)] string actualJson,
-        out Dictionary<string, JsonElement> extractedValues,
-        out List<string> mismatches)
+        [StringSyntax(StringSyntaxAttribute.Json)] string actualJson)
     {
-        return Compare(expectedJson, actualJson, subsetMode: true, out extractedValues, out mismatches);
+        var isMatch = Compare(expectedJson, actualJson, subsetMode: true, out var extractedValues, out var mismatches);
+        return (isMatch, extractedValues, mismatches);
     }
 
     /// <summary>

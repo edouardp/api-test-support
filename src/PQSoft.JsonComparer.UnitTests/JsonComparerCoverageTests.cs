@@ -92,7 +92,7 @@ public class JsonComparerCoverageTests
 
         // Act & Assert
         var exception = Assert.Throws<InvalidOperationException>(() => 
-            comparer.ExactMatch(expectedJson, actualJson, out _, out _));
+            comparer.ExactMatch(expectedJson, actualJson));
         Assert.Contains("Failed to execute function 'FAIL'", exception.Message);
     }
 
@@ -106,7 +106,7 @@ public class JsonComparerCoverageTests
 
         // Act & Assert
         var exception = Assert.Throws<InvalidOperationException>(() => 
-            comparer.ExactMatch(expectedJson, actualJson, out _, out _));
+            comparer.ExactMatch(expectedJson, actualJson));
         Assert.Contains("Failed to execute function 'UNKNOWN'", exception.Message);
     }
 
@@ -151,12 +151,12 @@ public class JsonComparerCoverageTests
         var actualJson = """{"value": null}""";
 
         // Act
-        var result = comparer.ExactMatch(expectedJson, actualJson, out var extractedValues, out var mismatches);
+        var result = comparer.ExactMatch(expectedJson, actualJson);
 
         // Assert
-        Assert.True(result);
-        Assert.Empty(extractedValues);
-        Assert.Empty(mismatches);
+        Assert.True(result.IsMatch);
+        Assert.Empty(result.ExtractedValues);
+        Assert.Empty(result.Mismatches);
     }
 
     [Fact]
@@ -168,11 +168,11 @@ public class JsonComparerCoverageTests
         var actualJson = """{"value": "test"}""";
 
         // Act
-        var result = comparer.ExactMatch(expectedJson, actualJson, out var extractedValues, out var mismatches);
+        var result = comparer.ExactMatch(expectedJson, actualJson);
 
         // Assert
-        Assert.False(result);
-        Assert.Single(mismatches);
+        Assert.False(result.IsMatch);
+        Assert.Single(result.Mismatches);
     }
 
     [Fact]
@@ -184,11 +184,11 @@ public class JsonComparerCoverageTests
         var actualJson = """{"value": null}""";
 
         // Act
-        var result = comparer.ExactMatch(expectedJson, actualJson, out var extractedValues, out var mismatches);
+        var result = comparer.ExactMatch(expectedJson, actualJson);
 
         // Assert
-        Assert.False(result);
-        Assert.Single(mismatches);
+        Assert.False(result.IsMatch);
+        Assert.Single(result.Mismatches);
     }
 
     private class TestFunction : IJsonFunction

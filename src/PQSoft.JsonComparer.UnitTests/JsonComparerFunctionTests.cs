@@ -15,13 +15,13 @@ public class JsonComparerFunctionTests
 
         // Act
         var comparer = new JsonComparer();
-        var result = comparer.ExactMatch(expectedJson, actualJson, out var extractedValues, out var mismatches);
+        var result = comparer.ExactMatch(expectedJson, actualJson);
 
         // Assert - This will fail because GUIDs are different, but that's expected behavior
         // The test verifies that function processing works without JSON parsing errors
-        Assert.False(result); // Different GUIDs should not match
-        Assert.Empty(extractedValues);
-        Assert.Single(mismatches); // Should have one mismatch for the different GUID values
+        Assert.False(result.IsMatch); // Different GUIDs should not match
+        Assert.Empty(result.ExtractedValues);
+        Assert.Single(result.Mismatches); // Should have one mismatch for the different GUID values
     }
 
     [Fact]
@@ -36,12 +36,12 @@ public class JsonComparerFunctionTests
 
         // Act
         var comparer = new JsonComparer(fakeTimeProvider);
-        var result = comparer.ExactMatch(expectedJson, actualJson, out var extractedValues, out var mismatches);
+        var result = comparer.ExactMatch(expectedJson, actualJson);
 
         // Assert
-        Assert.True(result);
-        Assert.Empty(mismatches);
-        Assert.Empty(extractedValues);
+        Assert.True(result.IsMatch);
+        Assert.Empty(result.Mismatches);
+        Assert.Empty(result.ExtractedValues);
     }
 
     [Fact]
@@ -75,14 +75,14 @@ public class JsonComparerFunctionTests
 
         // Act
         var comparer = new JsonComparer(fakeTimeProvider);
-        var result = comparer.ExactMatch(expectedJson, actualJson, out var extractedValues, out var mismatches);
+        var result = comparer.ExactMatch(expectedJson, actualJson);
 
         // Assert
-        Assert.True(result);
-        Assert.Empty(mismatches);
-        Assert.Equal(2, extractedValues.Count);
-        Assert.Equal("user123", extractedValues["USER_ID"].GetString());
-        Assert.Equal("req456", extractedValues["REQUEST_ID"].GetString());
+        Assert.True(result.IsMatch);
+        Assert.Empty(result.Mismatches);
+        Assert.Equal(2, result.ExtractedValues.Count);
+        Assert.Equal("user123", result.ExtractedValues["USER_ID"].GetString());
+        Assert.Equal("req456", result.ExtractedValues["REQUEST_ID"].GetString());
     }
 
     [Fact]
@@ -95,7 +95,7 @@ public class JsonComparerFunctionTests
         // Act & Assert
         var comparer = new JsonComparer();
         var exception = Assert.Throws<InvalidOperationException>(() =>
-            comparer.ExactMatch(expectedJson, actualJson, out _, out _));
+            comparer.ExactMatch(expectedJson, actualJson));
 
         Assert.Contains("Failed to execute function 'INVALID_FUNCTION'", exception.Message);
     }
@@ -112,12 +112,12 @@ public class JsonComparerFunctionTests
 
         // Act
         var comparer = new JsonComparer(fakeTimeProvider);
-        var result = comparer.SubsetMatch(expectedJson, actualJson, out var extractedValues, out var mismatches);
+        var result = comparer.SubsetMatch(expectedJson, actualJson);
 
         // Assert
-        Assert.True(result);
-        Assert.Empty(mismatches);
-        Assert.Empty(extractedValues);
+        Assert.True(result.IsMatch);
+        Assert.Empty(result.Mismatches);
+        Assert.Empty(result.ExtractedValues);
     }
 
     [Fact]
@@ -133,12 +133,12 @@ public class JsonComparerFunctionTests
         const string actualJson = """{ "value": "custom_result", "type": "custom" }""";
 
         // Act
-        var result = comparer.ExactMatch(expectedJson, actualJson, out var extractedValues, out var mismatches);
+        var result = comparer.ExactMatch(expectedJson, actualJson);
 
         // Assert
-        Assert.True(result);
-        Assert.Empty(mismatches);
-        Assert.Empty(extractedValues);
+        Assert.True(result.IsMatch);
+        Assert.Empty(result.Mismatches);
+        Assert.Empty(result.ExtractedValues);
     }
 
     [Fact]
@@ -182,13 +182,13 @@ public class JsonComparerFunctionTests
 
         // Act
         var comparer = new JsonComparer(fakeTimeProvider);
-        var result = comparer.ExactMatch(expectedJson, actualJson, out var extractedValues, out var mismatches);
+        var result = comparer.ExactMatch(expectedJson, actualJson);
 
         // Assert
-        Assert.True(result);
-        Assert.Empty(mismatches);
-        Assert.Single(extractedValues);
-        Assert.Equal("item2", extractedValues["SECOND_ID"].GetString());
+        Assert.True(result.IsMatch);
+        Assert.Empty(result.Mismatches);
+        Assert.Single(result.ExtractedValues);
+        Assert.Equal("item2", result.ExtractedValues["SECOND_ID"].GetString());
     }
 
     [Fact]
@@ -222,12 +222,12 @@ public class JsonComparerFunctionTests
 
         // Act
         var comparer = new JsonComparer(fakeTimeProvider);
-        var result = comparer.ExactMatch(expectedJson, actualJson, out var extractedValues, out var mismatches);
+        var result = comparer.ExactMatch(expectedJson, actualJson);
 
         // Assert
-        Assert.True(result);
-        Assert.Empty(mismatches);
-        Assert.Empty(extractedValues);
+        Assert.True(result.IsMatch);
+        Assert.Empty(result.Mismatches);
+        Assert.Empty(result.ExtractedValues);
     }
 
     // Helper classes for testing

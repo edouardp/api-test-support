@@ -48,10 +48,10 @@ public class JsonSubjectAssertions(JsonSubject subject)
     public JsonSubjectAssertions FullyMatch([StringSyntax(StringSyntaxAttribute.Json)] string expectedJson, string because = "", params object[] becauseArgs)
     {
         var comparer = new JsonComparer(subject.TimeProvider);
-        var result = comparer.ExactMatch(expectedJson, subject.Json, out Dictionary<string, JsonElement> extractedValues, out List<string> mismatches);
+        var (isMatch, extractedValues, mismatches) = comparer.ExactMatch(expectedJson, subject.Json);
         ExtractedValues = extractedValues;
 
-        if (!result)
+        if (!isMatch)
         {
             var reason = string.IsNullOrEmpty(because) ? "" : $" {string.Format(because, becauseArgs)}";
             throw new InvalidOperationException($"Expected JSON to be equivalent{reason}, but found the following mismatches: {string.Join(", ", mismatches)}");
@@ -70,10 +70,10 @@ public class JsonSubjectAssertions(JsonSubject subject)
     public JsonSubjectAssertions ContainSubset([StringSyntax(StringSyntaxAttribute.Json)] string expectedJson, string because = "", params object[] becauseArgs)
     {
         var comparer = new JsonComparer(subject.TimeProvider);
-        var result = comparer.SubsetMatch(expectedJson, subject.Json, out Dictionary<string, JsonElement> extractedValues, out List<string> mismatches);
+        var (isMatch, extractedValues, mismatches) = comparer.SubsetMatch(expectedJson, subject.Json);
         ExtractedValues = extractedValues;
 
-        if (!result)
+        if (!isMatch)
         {
             var reason = string.IsNullOrEmpty(because) ? "" : $" {string.Format(because, becauseArgs)}";
             throw new InvalidOperationException($"Expected JSON to contain the subset JSON{reason}, but found the following mismatches: {string.Join(", ", mismatches)}");
