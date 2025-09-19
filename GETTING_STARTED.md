@@ -17,44 +17,30 @@ dotnet add package PQSoft.JsonComparer
 ```csharp
 using PQSoft.JsonComparer;
 
-// Create a comparer with default options
+// Create a comparer instance
 var comparer = new JsonComparer();
 
-// Compare two JSON strings
-string json1 = @"{""name"":""John"",""age"":30}";
-string json2 = @"{""name"":""John"",""age"":31}";
+// Compare two JSON strings for exact match
+string expectedJson = @"{""name"":""John"",""age"":30}";
+string actualJson = @"{""name"":""John"",""age"":31}";
 
-var result = comparer.Compare(json1, json2);
+bool isMatch = comparer.ExactMatch(expectedJson, actualJson, out var extractedValues, out var mismatches);
 
-if (result.AreEqual)
+if (isMatch)
 {
-    Console.WriteLine("The JSON documents are equal.");
+    Console.WriteLine("The JSON documents match exactly.");
 }
 else
 {
     Console.WriteLine("The JSON documents are different:");
-    foreach (var diff in result.Differences)
+    foreach (var mismatch in mismatches)
     {
-        Console.WriteLine($"Path: {diff.Path}");
-        Console.WriteLine($"Value 1: {diff.Value1}");
-        Console.WriteLine($"Value 2: {diff.Value2}");
-        Console.WriteLine($"Difference Type: {diff.DifferenceType}");
+        Console.WriteLine(mismatch);
     }
 }
-```
 
-### Advanced Usage
-
-You can customize the comparison behavior using `JsonComparerOptions`:
-
-```csharp
-var options = new JsonComparerOptions
-{
-    IgnoreCase = true,
-    IgnoreArrayOrder = true,
-    ExcludePaths = new List<string> { "$.metadata" }
-};
-var customComparer = new JsonComparer(options);
+// You can also use static methods
+bool staticMatch = JsonComparer.ExactMatch(expectedJson, actualJson, out var values, out var errors);
 ```
 
 ## For Contributors
@@ -63,8 +49,8 @@ var customComparer = new JsonComparer(options);
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/PQSoft.JsonComparer.git
-   cd PQSoft.JsonComparer
+   git clone https://github.com/edouardp/api-test-support.git
+   cd api-test-support
    ```
 
 2. Restore dependencies:
@@ -85,7 +71,7 @@ var customComparer = new JsonComparer(options);
 ### Project Structure
 
 - `src/PQSoft.JsonComparer/`: Contains the main library code
-- `tests/PQSoft.JsonComparer.Tests/`: Contains unit tests
+- `src/PQSoft.JsonComparer.UnitTests/`: Contains unit tests
 - `samples/PQSoft.JsonComparer.Sample/`: Contains a sample application
 
 ### Making Changes
@@ -110,8 +96,7 @@ To publish the package to NuGet:
 
 ## Next Steps
 
-1. Complete the implementation of the `IgnoreWhitespace` option
-2. Add support for more complex array comparison strategies
-3. Improve performance for large JSON documents
-4. Add support for JSON Schema validation
-5. Add support for JSON Patch generation
+1. Add support for more complex array comparison strategies
+2. Improve performance for large JSON documents
+3. Add support for JSON Schema validation
+4. Add support for JSON Patch generation

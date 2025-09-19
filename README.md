@@ -43,6 +43,7 @@ var response = await client.SendAsync(httpRequest);
 ```
 
 The method handles:
+
 - Setting HTTP method and URL
 - Adding all headers to the request
 - Setting request content when a body is present
@@ -53,6 +54,7 @@ This package is particularly useful for API testing scenarios where you need to 
 ### PQSoft.JsonComparer
 
 A powerful library for comparing JSON documents with advanced features:
+
 - **Exact Match**: Validates that two JSON documents are identical (except for tokens)
 - **Subset Match**: Verifies that all elements in the expected JSON exist within the actual JSON
 - **Token Support**: Extract values from actual JSON using tokens like `[[TOKEN_NAME]]`
@@ -62,11 +64,13 @@ A powerful library for comparing JSON documents with advanced features:
 - **Custom Function Registration**: Extend functionality with custom functions
 
 Example:
+
 ```csharp
 string expectedJson = """{ "id": "[[JOBID]]", "createdAt": "{{NOW()}}", "status": "complete" }""";
 string actualJson = """{ "id": "12345", "createdAt": "2024-01-01T10:00:00.000+00:00", "status": "complete" }""";
 
-bool isMatch = JsonComparer.ExactMatch(expectedJson, actualJson, out var extractedValues, out var mismatches);
+var comparer = new JsonComparer();
+bool isMatch = comparer.ExactMatch(expectedJson, actualJson, out var extractedValues, out var mismatches);
 // isMatch = true
 // extractedValues["JOBID"] = "12345"
 ```
@@ -74,12 +78,14 @@ bool isMatch = JsonComparer.ExactMatch(expectedJson, actualJson, out var extract
 ### PQSoft.JsonComparer.AwesomeAssertions
 
 FluentAssertions extensions for JSON comparison that integrate seamlessly with the JsonComparer functionality:
+
 - Provides a fluent API for JSON assertions
 - Works with the token extraction features of JsonComparer
 - Supports both exact match and subset match assertions
 - Integrates with FluentAssertions failure reporting
 
 Example:
+
 ```csharp
 string actualJson = """{ "id": "12345", "createdAt": "2024-01-01T10:00:00.000+00:00", "status": "complete" }""";
 string expectedJson = """{ "id": "[[JOBID]]", "createdAt": "{{NOW()}}", "status": "complete" }""";
@@ -137,6 +143,7 @@ Use the automated build script:
 ```
 
 The script will:
+
 - Validate version parameter and API key
 - Clean and build the solution
 - Pack all packages with the specified version
@@ -171,7 +178,7 @@ Packages must be uploaded in dependency order to ensure successful publication.
 
 ## Documentation
 
-Full documentation is available at: https://edouardp.github.io/api-test-support/
+Full documentation is available at: <https://edouardp.github.io/api-test-support/>
 
 ### Setting up GitHub Pages
 
@@ -186,7 +193,7 @@ Documentation is automatically built and deployed from the `docs/` folder using 
 
 ## Support Projects
 
-PQSoft.HttpFile.UnitTests
-PQSoft.JsonComparer.UnitTests
-PQSoft.JsonComparer.AwesomeAssertions.UnitTests
+- PQSoft.HttpFile.UnitTests
+- PQSoft.JsonComparer.UnitTests
+- PQSoft.JsonComparer.AwesomeAssertions.UnitTests
 
