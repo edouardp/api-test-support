@@ -36,16 +36,14 @@ namespace PQSoft.JsonComparer;
 /// </summary>
 public partial class JsonComparer
 {
-    private readonly TimeProvider _timeProvider;
-
     /// <summary>
     /// Initializes a new instance of JsonComparer with an optional TimeProvider.
     /// </summary>
-    /// <param name="timeProvider">TimeProvider for time-based functions. Uses TimeProvider.System if null.</param>
-    public JsonComparer(TimeProvider? timeProvider = null)
+    /// <param name="injectedTimeProvider">TimeProvider for time-based functions. Uses TimeProvider.System if null.</param>
+    public JsonComparer(TimeProvider? injectedTimeProvider = null)
     {
-        _timeProvider = timeProvider ?? TimeProvider.System;
-        _functionRegistry = new JsonFunctionRegistry(_timeProvider);
+        var timeProvider = injectedTimeProvider ?? TimeProvider.System;
+        functionRegistry = new JsonFunctionRegistry(timeProvider);
     }
 
     // Regex to match boxed tokens in expected JSON (e.g. "[[JOBID]]")
@@ -65,7 +63,7 @@ public partial class JsonComparer
     private static readonly Regex FunctionRegex = FunctionRegexGenerator();
 
     // Function registry for executing functions during preprocessing
-    private readonly JsonFunctionRegistry _functionRegistry;
+    private readonly JsonFunctionRegistry functionRegistry;
 
     #region Instance Methods (Recommended)
 
@@ -115,8 +113,6 @@ public partial class JsonComparer
 
     #endregion
 
-
-    /// <summary>
     /// <summary>
     /// Parses the JSON strings and calls the recursive CompareElements function.
     /// It pre-processes the expected JSON string by executing functions and wrapping unquoted tokens with quotes.
@@ -134,8 +130,8 @@ public partial class JsonComparer
         // is wrapped in double quotes if not already.
         expectedJson = UnquotedTokenRegex.Replace(expectedJson, "\"[[$1]]\"");
 
-        using JsonDocument expectedDoc = JsonDocument.Parse(expectedJson);
-        using JsonDocument actualDoc = JsonDocument.Parse(actualJson);
+        using var expectedDoc = JsonDocument.Parse(expectedJson);
+        using var actualDoc = JsonDocument.Parse(actualJson);
 
         CompareElements(expectedDoc.RootElement, actualDoc.RootElement, "$", subsetMode, extractedValues, mismatches, CancellationToken.None);
 
@@ -163,8 +159,8 @@ public partial class JsonComparer
         await Task.Yield();
         cancellationToken.ThrowIfCancellationRequested();
 
-        using JsonDocument expectedDoc = JsonDocument.Parse(expectedJson);
-        using JsonDocument actualDoc = JsonDocument.Parse(actualJson);
+        using var expectedDoc = JsonDocument.Parse(expectedJson);
+        using var actualDoc = JsonDocument.Parse(actualJson);
 
         // Run the comparison in a task to allow for cancellation
         await Task.Run(() => CompareElements(expectedDoc.RootElement, actualDoc.RootElement, "$", subsetMode, extractedValues, mismatches, cancellationToken), cancellationToken);
@@ -185,14 +181,14 @@ public partial class JsonComparer
         // Check for token match when expected is a string
         if (expected.ValueKind == JsonValueKind.String)
         {
-            string? expectedStr = expected.GetString();
+            var expectedStr = expected.GetString();
             if (!string.IsNullOrEmpty(expectedStr))
             {
                 var match = TokenRegex.Match(expectedStr);
                 if (match.Success)
                 {
                     // It's a token, extract the actual value (of any type) and return.
-                    string tokenName = match.Groups[1].Value;
+                    var tokenName = match.Groups[1].Value;
                     extractedValues[tokenName] = actual.Clone();
                     return;
                 }
@@ -307,10 +303,10 @@ public partial class JsonComparer
     {
         return FunctionRegex.Replace(json, match =>
         {
-            string functionName = match.Groups[1].Value;
+            var functionName = match.Groups[1].Value;
             try
             {
-                string result = _functionRegistry.ExecuteFunction(functionName);
+                string result = functionRegistry.ExecuteFunction(functionName);
                 // Return the raw result since the function call is already within quotes in the JSON
                 return result;
             }
@@ -330,7 +326,7 @@ public partial class JsonComparer
     /// <exception cref="ArgumentException">Thrown when name is invalid or already registered.</exception>
     public void RegisterFunction(string name, IJsonFunction function)
     {
-        _functionRegistry.RegisterFunction(name, function);
+        functionRegistry.RegisterFunction(name, function);
     }
 
     /// <summary>
@@ -339,7 +335,7 @@ public partial class JsonComparer
     /// <returns>An array of registered function names.</returns>
     public string[] GetRegisteredFunctions()
     {
-        return _functionRegistry.GetRegisteredFunctions();
+        return functionRegistry.GetRegisteredFunctions();
     }
 }
 

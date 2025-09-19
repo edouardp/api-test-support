@@ -48,8 +48,7 @@ public static class HttpResponseParser
 
         // Step 2: Parse headers
         var headers = new List<ParsedHeader>();
-        string? line;
-        while ((line = await reader.ReadLineAsync()) != null && !string.IsNullOrWhiteSpace(line))
+        while (await reader.ReadLineAsync() is {} line && !string.IsNullOrWhiteSpace(line))
         {
             // Parse individual headers using a helper parser
             var parsedHeader = HttpHeadersParser.ParseHeader(line);

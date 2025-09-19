@@ -14,18 +14,18 @@ public record ParsedHttpRequest(HttpMethod Method, string Url, List<ParsedHeader
     public HttpRequestMessage ToHttpRequestMessage()
     {
         var request = new HttpRequestMessage(Method, Url);
-        
+
         if (!string.IsNullOrEmpty(Body))
         {
             request.Content = new StringContent(Body);
         }
-        
+
         foreach (var header in Headers)
         {
             request.Headers.TryAddWithoutValidation(header.Name, header.Value);
             request.Content?.Headers.TryAddWithoutValidation(header.Name, header.Value);
         }
-        
+
         return request;
     }
 };
@@ -127,10 +127,10 @@ public static class HttpStreamParser
 
     private static void ProcessPendingHeader(List<ParsedHeader> headers, string? headerLine)
     {
-        if (!string.IsNullOrWhiteSpace(headerLine))
-        {
-            var parsedHeader = HttpHeadersParser.ParseHeader(headerLine);
-            headers.Add(parsedHeader);
-        }
+        if (string.IsNullOrWhiteSpace(headerLine))
+            return;
+
+        var parsedHeader = HttpHeadersParser.ParseHeader(headerLine);
+        headers.Add(parsedHeader);
     }
 }

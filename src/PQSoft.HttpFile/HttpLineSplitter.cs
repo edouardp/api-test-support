@@ -38,7 +38,7 @@ public class HttpLineSplitter : IAsyncEnumerable<Stream>
         private readonly StreamReader reader;
         private readonly string separator;
         private readonly CancellationToken cancellationToken;
-        private bool disposed = false;
+        private bool disposed; // default value for bool is false
 
         public HttpLineSplitterEnumerator(Stream baseStream, string separator, CancellationToken cancellationToken)
         {
