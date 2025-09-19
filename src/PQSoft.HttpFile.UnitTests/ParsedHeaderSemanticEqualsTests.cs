@@ -14,7 +14,7 @@ public class ParsedHeaderSemanticEqualsTests
         var header2 = new ParsedHeader("Content-Type", "application/json", new Dictionary<string, string> { { "charset", "utf-8" } });
 
         // Act & Assert
-        InvokeSemanticEquals(header1, header2).Should().BeTrue();
+        header1.SemanticEquals(header2).Should().BeTrue();
     }
 
     [Fact]
@@ -25,7 +25,7 @@ public class ParsedHeaderSemanticEqualsTests
         var header2 = new ParsedHeader("Content-Type", "application/json", new Dictionary<string, string>());
 
         // Act & Assert
-        InvokeSemanticEquals(header1, header2).Should().BeTrue();
+        header1.SemanticEquals(header2).Should().BeTrue();
     }
 
     [Fact]
@@ -36,7 +36,7 @@ public class ParsedHeaderSemanticEqualsTests
         var header2 = new ParsedHeader("Content-Type", "Application/JSON", new Dictionary<string, string>());
 
         // Act & Assert
-        InvokeSemanticEquals(header1, header2).Should().BeFalse();
+        header1.SemanticEquals(header2).Should().BeFalse();
     }
 
     [Fact]
@@ -47,7 +47,7 @@ public class ParsedHeaderSemanticEqualsTests
         var header2 = new ParsedHeader("Content-Type", "application/json", new Dictionary<string, string>());
 
         // Act & Assert
-        InvokeSemanticEquals(header1, header2).Should().BeTrue();
+        header1.SemanticEquals(header2).Should().BeTrue();
     }
 
     [Fact]
@@ -66,7 +66,7 @@ public class ParsedHeaderSemanticEqualsTests
         });
 
         // Act & Assert
-        InvokeSemanticEquals(header1, header2).Should().BeTrue();
+        header1.SemanticEquals(header2).Should().BeTrue();
     }
 
     [Fact]
@@ -83,7 +83,7 @@ public class ParsedHeaderSemanticEqualsTests
         });
 
         // Act & Assert
-        InvokeSemanticEquals(header1, header2).Should().BeTrue();
+        header1.SemanticEquals(header2).Should().BeTrue();
     }
 
     [Fact]
@@ -101,7 +101,7 @@ public class ParsedHeaderSemanticEqualsTests
         });
 
         // Act & Assert
-        InvokeSemanticEquals(header1, header2).Should().BeFalse();
+        header1.SemanticEquals(header2).Should().BeFalse();
     }
 
     [Fact]
@@ -118,7 +118,7 @@ public class ParsedHeaderSemanticEqualsTests
         });
 
         // Act & Assert
-        InvokeSemanticEquals(header1, header2).Should().BeFalse();
+        header1.SemanticEquals(header2).Should().BeFalse();
     }
 
     [Fact]
@@ -135,7 +135,7 @@ public class ParsedHeaderSemanticEqualsTests
         });
 
         // Act & Assert
-        InvokeSemanticEquals(header1, header2).Should().BeFalse();
+        header1.SemanticEquals(header2).Should().BeFalse();
     }
 
     [Fact]
@@ -145,7 +145,7 @@ public class ParsedHeaderSemanticEqualsTests
         var header1 = new ParsedHeader("Content-Type", "application/json", new Dictionary<string, string>());
 
         // Act & Assert
-        InvokeSemanticEquals(header1, null).Should().BeFalse();
+        header1.SemanticEquals(null).Should().BeFalse();
     }
 
     [Fact]
@@ -156,7 +156,7 @@ public class ParsedHeaderSemanticEqualsTests
         var header2 = new ParsedHeader("Authorization", "Bearer token123", new Dictionary<string, string>());
 
         // Act & Assert
-        InvokeSemanticEquals(header1, header2).Should().BeTrue();
+        header1.SemanticEquals(header2).Should().BeTrue();
     }
 
     #endregion
@@ -321,20 +321,6 @@ public class ParsedHeaderSemanticEqualsTests
 
         // Act & Assert
         ParsedHeader.SemanticEquals(headers1, headers2).Should().BeFalse();
-    }
-
-    #endregion
-
-    #region Helper Methods
-
-    /// <summary>
-    /// Helper method to invoke the private SemanticEquals method using reflection
-    /// </summary>
-    private static bool InvokeSemanticEquals(ParsedHeader header1, ParsedHeader? header2)
-    {
-        var method = typeof(ParsedHeader).GetMethod("SemanticEquals", 
-            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-        return (bool)method!.Invoke(header1, new object?[] { header2 })!;
     }
 
     #endregion

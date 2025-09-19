@@ -55,7 +55,7 @@ public class ParsedHeader
     /// </summary>
     /// <param name="other">The other header to compare with.</param>
     /// <returns>True if the headers are semantically equivalent; otherwise, false.</returns>
-    private bool SemanticEquals(ParsedHeader? other)
+    public bool SemanticEquals(ParsedHeader? other)
     {
         if (other == null) return false;
 
