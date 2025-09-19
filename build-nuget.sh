@@ -22,8 +22,10 @@ echo "Building and packing NuGet packages with version $VERSION..."
 # Clean previous builds
 dotnet clean --configuration Release
 
-# Build solution
-dotnet build --configuration Release --no-restore
+# Build individual projects that will be packaged
+dotnet build src/PQSoft.HttpFile/PQSoft.HttpFile.csproj --configuration Release --no-restore
+dotnet build src/PQSoft.JsonComparer/PQSoft.JsonComparer.csproj --configuration Release --no-restore
+dotnet build src/PQSoft.JsonComparer.AwesomeAssertions/PQSoft.JsonComparer.AwesomeAssertions.csproj --configuration Release --no-restore
 
 # Pack packages with specified version (in dependency order)
 echo "Packing packages..."
