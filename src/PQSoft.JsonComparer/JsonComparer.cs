@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using PQSoft.JsonComparer.Functions;
@@ -65,15 +66,16 @@ public partial class JsonComparer
     // Function registry for executing functions during preprocessing
     private readonly JsonFunctionRegistry functionRegistry;
 
-    #region Instance Methods (Recommended)
-
     /// <summary>
     /// Compares the two JSON strings for an exact match.
     /// Returns true if they match exactly (except for tokens), false otherwise.
     /// Also extracts any token values (e.g. JOBID) into extractedValues and records mismatch details.
     /// </summary>
-    public bool ExactMatch(string expectedJson, string actualJson,
-        out Dictionary<string, JsonElement> extractedValues, out List<string> mismatches)
+    public bool ExactMatch(
+        [StringSyntax(StringSyntaxAttribute.Json)] string expectedJson,
+        [StringSyntax(StringSyntaxAttribute.Json)] string actualJson,
+        out Dictionary<string, JsonElement> extractedValues,
+        out List<string> mismatches)
     {
         return Compare(expectedJson, actualJson, subsetMode: false, out extractedValues, out mismatches);
     }
@@ -84,7 +86,9 @@ public partial class JsonComparer
     /// Also extracts any token values (e.g. JOBID) into extractedValues and records mismatch details.
     /// </summary>
     public async Task<(bool IsMatch, Dictionary<string, JsonElement> ExtractedValues, List<string> Mismatches)> ExactMatchAsync(
-        string expectedJson, string actualJson, CancellationToken cancellationToken = default)
+        [StringSyntax(StringSyntaxAttribute.Json)] string expectedJson,
+        [StringSyntax(StringSyntaxAttribute.Json)] string actualJson,
+        CancellationToken cancellationToken = default)
     {
         return await CompareAsync(expectedJson, actualJson, subsetMode: false, cancellationToken);
     }
@@ -94,8 +98,11 @@ public partial class JsonComparer
     /// Returns true if all elements in expected (except tokens) are found in actual.
     /// Also extracts any token values into extractedValues and records mismatch details.
     /// </summary>
-    public bool SubsetMatch(string expectedJson, string actualJson,
-        out Dictionary<string, JsonElement> extractedValues, out List<string> mismatches)
+    public bool SubsetMatch(
+        [StringSyntax(StringSyntaxAttribute.Json)] string expectedJson,
+        [StringSyntax(StringSyntaxAttribute.Json)] string actualJson,
+        out Dictionary<string, JsonElement> extractedValues,
+        out List<string> mismatches)
     {
         return Compare(expectedJson, actualJson, subsetMode: true, out extractedValues, out mismatches);
     }
@@ -106,19 +113,23 @@ public partial class JsonComparer
     /// Also extracts any token values into extractedValues and records mismatch details.
     /// </summary>
     public async Task<(bool IsMatch, Dictionary<string, JsonElement> ExtractedValues, List<string> Mismatches)> SubsetMatchAsync(
-        string expectedJson, string actualJson, CancellationToken cancellationToken = default)
+        [StringSyntax(StringSyntaxAttribute.Json)] string expectedJson,
+        [StringSyntax(StringSyntaxAttribute.Json)] string actualJson,
+        CancellationToken cancellationToken = default)
     {
         return await CompareAsync(expectedJson, actualJson, subsetMode: true, cancellationToken);
     }
-
-    #endregion
 
     /// <summary>
     /// Parses the JSON strings and calls the recursive CompareElements function.
     /// It pre-processes the expected JSON string by executing functions and wrapping unquoted tokens with quotes.
     /// </summary>
-    private bool Compare(string expectedJson, string actualJson, bool subsetMode,
-        out Dictionary<string, JsonElement> extractedValues, out List<string> mismatches)
+    private bool Compare(
+        [StringSyntax(StringSyntaxAttribute.Json)] string expectedJson,
+        [StringSyntax(StringSyntaxAttribute.Json)] string actualJson,
+        bool subsetMode,
+        out Dictionary<string, JsonElement> extractedValues,
+        out List<string> mismatches)
     {
         extractedValues = [];
         mismatches = [];
@@ -143,7 +154,10 @@ public partial class JsonComparer
     /// It pre-processes the expected JSON string by executing functions and wrapping unquoted tokens with quotes.
     /// </summary>
     private async Task<(bool IsMatch, Dictionary<string, JsonElement> ExtractedValues, List<string> Mismatches)> CompareAsync(
-        string expectedJson, string actualJson, bool subsetMode, CancellationToken cancellationToken)
+        [StringSyntax(StringSyntaxAttribute.Json)] string expectedJson,
+        [StringSyntax(StringSyntaxAttribute.Json)] string actualJson,
+        bool subsetMode,
+        CancellationToken cancellationToken)
     {
         var extractedValues = new Dictionary<string, JsonElement>();
         var mismatches = new List<string>();

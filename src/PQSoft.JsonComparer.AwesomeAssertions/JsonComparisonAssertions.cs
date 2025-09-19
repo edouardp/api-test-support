@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using AwesomeAssertions;
 
@@ -44,7 +45,7 @@ public class JsonSubjectAssertions(JsonSubject subject)
     /// <param name="expectedJson">The expected JSON string.</param>
     /// <param name="because">An optional reason message to include in the failure.</param>
     /// <param name="becauseArgs">Optional parameters for the reason message.</param>
-    public JsonSubjectAssertions FullyMatch(string expectedJson, string because = "", params object[] becauseArgs)
+    public JsonSubjectAssertions FullyMatch([StringSyntax(StringSyntaxAttribute.Json)] string expectedJson, string because = "", params object[] becauseArgs)
     {
         var comparer = new JsonComparer(subject.TimeProvider);
         var result = comparer.ExactMatch(expectedJson, subject.Json, out Dictionary<string, JsonElement> extractedValues, out List<string> mismatches);
@@ -66,7 +67,7 @@ public class JsonSubjectAssertions(JsonSubject subject)
     /// <param name="expectedJson">The expected JSON subset.</param>
     /// <param name="because">An optional reason message to include in the failure.</param>
     /// <param name="becauseArgs">Optional parameters for the reason message.</param>
-    public JsonSubjectAssertions ContainSubset(string expectedJson, string because = "", params object[] becauseArgs)
+    public JsonSubjectAssertions ContainSubset([StringSyntax(StringSyntaxAttribute.Json)] string expectedJson, string because = "", params object[] becauseArgs)
     {
         var comparer = new JsonComparer(subject.TimeProvider);
         var result = comparer.SubsetMatch(expectedJson, subject.Json, out Dictionary<string, JsonElement> extractedValues, out List<string> mismatches);
