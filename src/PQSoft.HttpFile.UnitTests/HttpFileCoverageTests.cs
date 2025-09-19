@@ -16,7 +16,7 @@ public class HttpFileCoverageTests
         // Act & Assert
         var exception = await Assert.ThrowsAsync<FileNotFoundException>(async () =>
         {
-            await foreach (var request in new HttpFileParser().ParseFileAsync(nonExistentPath))
+            await foreach (var _ in new HttpFileParser().ParseFileAsync(nonExistentPath))
             {
                 // This should not execute
             }
@@ -28,7 +28,7 @@ public class HttpFileCoverageTests
     public async Task HttpStreamParser_NullStream_ShouldThrowArgumentNullException()
     {
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentNullException>(() => 
+        await Assert.ThrowsAsync<ArgumentNullException>(() =>
             HttpStreamParser.ParseAsync(null!));
     }
 
@@ -40,7 +40,7 @@ public class HttpFileCoverageTests
         nonReadableStream.Close(); // Make it non-readable
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<ArgumentException>(() => 
+        var exception = await Assert.ThrowsAsync<ArgumentException>(() =>
             HttpStreamParser.ParseAsync(nonReadableStream));
         Assert.Contains("must be readable", exception.Message);
     }
@@ -52,7 +52,7 @@ public class HttpFileCoverageTests
         using var stream = new MemoryStream();
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<InvalidDataException>(() => 
+        var exception = await Assert.ThrowsAsync<InvalidDataException>(() =>
             HttpStreamParser.ParseAsync(stream));
         Assert.Contains("missing request line", exception.Message);
     }
@@ -65,7 +65,7 @@ public class HttpFileCoverageTests
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(invalidHttp));
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<InvalidDataException>(() => 
+        var exception = await Assert.ThrowsAsync<InvalidDataException>(() =>
             HttpStreamParser.ParseAsync(stream));
         Assert.Contains("Invalid request line format", exception.Message);
     }
@@ -81,7 +81,7 @@ public class HttpFileCoverageTests
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(invalidHttp));
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<InvalidDataException>(() => 
+        var exception = await Assert.ThrowsAsync<InvalidDataException>(() =>
             HttpStreamParser.ParseAsync(stream));
         Assert.Contains("continuation line", exception.Message);
         Assert.Contains("without preceding header", exception.Message);
@@ -94,7 +94,7 @@ public class HttpFileCoverageTests
         var invalidHeader = "InvalidHeaderWithoutColon";
 
         // Act & Assert
-        var exception = Assert.Throws<ArgumentException>(() => 
+        var exception = Assert.Throws<ArgumentException>(() =>
             HttpHeadersParser.ParseHeader(invalidHeader));
         Assert.Contains("missing ':' separator", exception.Message);
     }
@@ -106,7 +106,7 @@ public class HttpFileCoverageTests
         var invalidHeader = ": value-without-key";
 
         // Act & Assert
-        var exception = Assert.Throws<ArgumentException>(() => 
+        var exception = Assert.Throws<ArgumentException>(() =>
             HttpHeadersParser.ParseHeader(invalidHeader));
         Assert.Contains("missing key", exception.Message);
     }
@@ -118,7 +118,7 @@ public class HttpFileCoverageTests
         using var stream = new MemoryStream();
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<InvalidDataException>(() => 
+        var exception = await Assert.ThrowsAsync<InvalidDataException>(() =>
             HttpResponseParser.ParseAsync(stream));
         Assert.Contains("missing status line", exception.Message);
     }
@@ -131,7 +131,7 @@ public class HttpFileCoverageTests
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(invalidResponse));
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<InvalidDataException>(() => 
+        var exception = await Assert.ThrowsAsync<InvalidDataException>(() =>
             HttpResponseParser.ParseAsync(stream));
         Assert.Contains("Invalid HTTP status line format", exception.Message);
     }
@@ -144,7 +144,7 @@ public class HttpFileCoverageTests
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(invalidResponse));
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<InvalidDataException>(() => 
+        var exception = await Assert.ThrowsAsync<InvalidDataException>(() =>
             HttpResponseParser.ParseAsync(stream));
         Assert.Contains("Invalid status code", exception.Message);
     }
@@ -160,9 +160,9 @@ public class HttpFileCoverageTests
     public async Task HttpFileParser_NullStream_ShouldThrowArgumentNullException()
     {
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<ArgumentNullException>(async () =>
+        await Assert.ThrowsAsync<ArgumentNullException>(async () =>
         {
-            await foreach (var request in new HttpFileParser().ParseAsync((Stream)null!))
+            await foreach (var _ in new HttpFileParser().ParseAsync(null!))
             {
                 // This should not execute
             }
@@ -179,7 +179,7 @@ public class HttpFileCoverageTests
         // Act & Assert
         var exception = await Assert.ThrowsAsync<ArgumentException>(async () =>
         {
-            await foreach (var request in new HttpFileParser().ParseAsync(nonReadableStream))
+            await foreach (var _ in new HttpFileParser().ParseAsync(nonReadableStream))
             {
                 // This should not execute
             }
