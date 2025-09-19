@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using PQSoft.JsonComparer.Functions.BuiltInFunctions;
 
 namespace PQSoft.JsonComparer.Functions;
@@ -45,7 +46,7 @@ public class JsonFunctionRegistry
     /// <param name="name">The name of the function to retrieve.</param>
     /// <param name="function">The function if found, null otherwise.</param>
     /// <returns>True if the function was found, false otherwise.</returns>
-    public bool TryGetFunction(string name, out IJsonFunction? function)
+    public bool TryGetFunction(string name, [NotNullWhen(true)] out IJsonFunction? function)
     {
         return functions.TryGetValue(name, out function);
     }
@@ -72,7 +73,7 @@ public class JsonFunctionRegistry
 
         try
         {
-            return function!.Execute();
+            return function.Execute();
         }
         catch (Exception ex)
         {
