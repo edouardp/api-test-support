@@ -19,7 +19,7 @@ public class HttpFileParserTests
 
         // Act
         var results = new List<ParsedHttpRequest>();
-        await foreach (var request in HttpFileParser.ParseAsync(stream))
+        await foreach (var request in new HttpFileParser().ParseAsync(stream))
         {
             results.Add(request);
         }
@@ -58,7 +58,7 @@ public class HttpFileParserTests
 
         // Act
         var results = new List<ParsedHttpRequest>();
-        await foreach (var request in HttpFileParser.ParseAsync(stream))
+        await foreach (var request in new HttpFileParser().ParseAsync(stream))
         {
             results.Add(request);
         }
@@ -112,7 +112,7 @@ public class HttpFileParserTests
 
         // Act
         var results = new List<ParsedHttpRequest>();
-        await foreach (var request in HttpFileParser.ParseAsync(stream))
+        await foreach (var request in new HttpFileParser().ParseAsync(stream))
         {
             results.Add(request);
         }
@@ -146,7 +146,7 @@ public class HttpFileParserTests
 
         // Act
         var results = new List<ParsedHttpRequest>();
-        await foreach (var request in HttpFileParser.ParseAsync(stream))
+        await foreach (var request in new HttpFileParser().ParseAsync(stream))
         {
             results.Add(request);
         }
@@ -178,7 +178,7 @@ public class HttpFileParserTests
 
         // Act
         var results = new List<ParsedHttpRequest>();
-        await foreach (var request in HttpFileParser.ParseAsync(stream))
+        await foreach (var request in new HttpFileParser().ParseAsync(stream))
         {
             results.Add(request);
         }
@@ -197,7 +197,7 @@ public class HttpFileParserTests
         // Act
         Func<Task> act = async () =>
         {
-            await foreach (var _ in HttpFileParser.ParseAsync(null!))
+            await foreach (var _ in new HttpFileParser().ParseAsync(null!))
             {
                 // This should not be reached
             }
@@ -224,7 +224,7 @@ public class HttpFileParserTests
 
         // Act
         var results = new List<ParsedHttpRequest>();
-        await foreach (var request in HttpFileParser.ParseAsync(stream))
+        await foreach (var request in new HttpFileParser().ParseAsync(stream))
         {
             results.Add(request);
         }
@@ -259,7 +259,7 @@ public class HttpFileParserTests
 
             // Act
             var results = new List<ParsedHttpRequest>();
-            await foreach (var request in HttpFileParser.ParseFileAsync(tempFilePath))
+            await foreach (var request in new HttpFileParser().ParseFileAsync(tempFilePath))
             {
                 results.Add(request);
             }
@@ -289,7 +289,7 @@ public class HttpFileParserTests
         // Act
         Func<Task> act = async () =>
         {
-            await foreach (var _ in HttpFileParser.ParseFileAsync(nonExistentPath))
+            await foreach (var _ in new HttpFileParser().ParseFileAsync(nonExistentPath))
             {
                 // This should not be reached
             }
@@ -320,7 +320,7 @@ public class HttpFileParserTests
         var results = new List<ParsedHttpRequest>();
         var act = async () =>
         {
-            await foreach (var request in HttpFileParser.ParseAsync(stream))
+            await foreach (var request in new HttpFileParser().ParseAsync(stream))
             {
                 results.Add(request);
             }
@@ -359,7 +359,7 @@ public class HttpFileParserTests
         var results = new List<ParsedHttpRequest>();
         var task = Task.Run(async () =>
         {
-            await foreach (var request in HttpFileParser.ParseAsync(stream, cts.Token))
+            await foreach (var request in new HttpFileParser().ParseAsync(stream, cts.Token))
             {
                 results.Add(request);
                 // Cancel after processing the first request
@@ -401,7 +401,7 @@ public class HttpFileParserTests
             var results = new List<ParsedHttpRequest>();
             var task = Task.Run(async () =>
             {
-                await foreach (var request in HttpFileParser.ParseFileAsync(tempFilePath, cts.Token))
+                await foreach (var request in new HttpFileParser().ParseFileAsync(tempFilePath, cts.Token))
                 {
                     results.Add(request);
                     // Cancel after the first request
@@ -425,5 +425,38 @@ public class HttpFileParserTests
                 File.Delete(tempFilePath);
             }
         }
+    }
+
+    [Fact]
+    public async Task ParseAsync_Should_Use_Custom_Separator()
+    {
+        // Arrange
+        const string rawRequests = """
+            GET /api/users HTTP/1.1
+            Host: example.com
+
+            ---CUSTOM---
+
+            POST /api/users HTTP/1.1
+            Host: example.com
+            Content-Type: application/json
+
+            {"name": "test"}
+            """;
+
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(rawRequests));
+        var parser = new HttpFileParser("---CUSTOM---");
+
+        // Act
+        var results = new List<ParsedHttpRequest>();
+        await foreach (var request in parser.ParseAsync(stream))
+        {
+            results.Add(request);
+        }
+
+        // Assert
+        results.Should().HaveCount(2);
+        results[0].Method.Should().Be(HttpMethod.Get);
+        results[1].Method.Should().Be(HttpMethod.Post);
     }
 }

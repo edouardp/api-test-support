@@ -16,7 +16,7 @@ public class HttpFileCoverageTests
         // Act & Assert
         var exception = await Assert.ThrowsAsync<FileNotFoundException>(async () =>
         {
-            await foreach (var request in HttpFileParser.ParseFileAsync(nonExistentPath))
+            await foreach (var request in new HttpFileParser().ParseFileAsync(nonExistentPath))
             {
                 // This should not execute
             }
@@ -162,7 +162,7 @@ public class HttpFileCoverageTests
         // Act & Assert
         var exception = await Assert.ThrowsAsync<ArgumentNullException>(async () =>
         {
-            await foreach (var request in HttpFileParser.ParseAsync((Stream)null!))
+            await foreach (var request in new HttpFileParser().ParseAsync((Stream)null!))
             {
                 // This should not execute
             }
@@ -179,7 +179,7 @@ public class HttpFileCoverageTests
         // Act & Assert
         var exception = await Assert.ThrowsAsync<ArgumentException>(async () =>
         {
-            await foreach (var request in HttpFileParser.ParseAsync(nonReadableStream))
+            await foreach (var request in new HttpFileParser().ParseAsync(nonReadableStream))
             {
                 // This should not execute
             }
