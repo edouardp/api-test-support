@@ -47,10 +47,7 @@ public class HttpLineSplitter : IAsyncEnumerable<Stream>
             this.cancellationToken = cancellationToken;
         }
 
-        public Stream Current { get; private set; } = null!;
-        // The ugly null! assignment is because the IAsyncEnumerator<Stream> requires a
-        // Stream member, not a Stream? member. This could be addressed by refactoring in
-        // the future, as it is somewhat unsafe.
+        public Stream Current { get; private set; } = Stream.Null;
 
         /// <summary>
         /// Moves to the next HTTP request section in the stream.
@@ -129,16 +126,25 @@ public class HttpLineSplitter : IAsyncEnumerable<Stream>
         /// <summary>
         /// Disposes of managed resources.
         /// </summary>
-        public ValueTask DisposeAsync()
+        public async ValueTask DisposeAsync()
         {
             if (!disposed)
             {
-                Current?.Dispose();
-                // The conditional access is required because of the null forgiving "Current = null!" creation
+                if (Current != Stream.Null)
+                {
+                    if (Current is IAsyncDisposable asyncDisposable)
+                        await asyncDisposable.DisposeAsync();
+                    else
+#pragma warning disable S6966
+                        Current.Dispose();  // Not all Stream implementations have a DisposeAsync()
+#pragma warning restore S6966
+
+                    Current = Stream.Null;  // Reset to a safe value
+                }
+
                 reader.Dispose();
                 disposed = true;
             }
-            return ValueTask.CompletedTask;
         }
     }
 }
