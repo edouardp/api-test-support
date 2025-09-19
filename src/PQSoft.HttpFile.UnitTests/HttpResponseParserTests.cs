@@ -74,10 +74,12 @@ public class HttpResponseParserTests
 
                                    """;
 
-        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(rawResponse));
-
         // Act
-        Func<Task> act = async () => await HttpResponseParser.ParseAsync(stream);
+        Func<Task> act = async () =>
+        {
+            using var stream = new MemoryStream(Encoding.UTF8.GetBytes(rawResponse));
+            await HttpResponseParser.ParseAsync(stream);
+        };
 
         // Assert
         await act.Should().ThrowAsync<InvalidDataException>()
@@ -93,10 +95,12 @@ public class HttpResponseParserTests
 
                                    """;
 
-        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(rawResponse));
-
         // Act
-        Func<Task> act = async () => await HttpResponseParser.ParseAsync(stream);
+        Func<Task> act = async () =>
+        {
+            using var stream = new MemoryStream(Encoding.UTF8.GetBytes(rawResponse));
+            await HttpResponseParser.ParseAsync(stream);
+        };
 
         // Assert
         await act.Should().ThrowAsync<InvalidDataException>()
@@ -159,10 +163,12 @@ public class HttpResponseParserTests
         // Arrange: An HTTP response with no status line (empty response)
         string rawResponse = "";
 
-        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(rawResponse));
-
         // Act
-        Func<Task> act = async () => await HttpResponseParser.ParseAsync(stream);
+        Func<Task> act = async () =>
+        {
+            using var stream = new MemoryStream(Encoding.UTF8.GetBytes(rawResponse));
+            await HttpResponseParser.ParseAsync(stream);
+        };
 
         // Assert
         await act.Should().ThrowAsync<InvalidDataException>()
@@ -180,10 +186,12 @@ public class HttpResponseParserTests
                                    <html>Hello World</html>
                                    """;
 
-        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(rawResponse));
-
         // Act
-        Func<Task> act = async () => await HttpResponseParser.ParseAsync(stream);
+        Func<Task> act = async () =>
+        {
+            using var stream = new MemoryStream(Encoding.UTF8.GetBytes(rawResponse));
+            await HttpResponseParser.ParseAsync(stream);
+        };
 
         // Assert
         await act.Should().ThrowAsync<InvalidDataException>()
@@ -196,10 +204,12 @@ public class HttpResponseParserTests
         // Arrange: A status line that only has the HTTP version (missing status code and reason phrase)
         const string rawResponse = "HTTP/1.1\n";
 
-        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(rawResponse));
-
         // Act
-        Func<Task> act = async () => await HttpResponseParser.ParseAsync(stream);
+        Func<Task> act = async () =>
+        {
+            using var stream = new MemoryStream(Encoding.UTF8.GetBytes(rawResponse));
+            await HttpResponseParser.ParseAsync(stream);
+        };
 
         // Assert
         await act.Should().ThrowAsync<InvalidDataException>()
@@ -212,10 +222,12 @@ public class HttpResponseParserTests
         // Arrange: A status line with a non-numeric status code
         const string rawResponse = "HTTP/1.1 ABC OK\n";
 
-        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(rawResponse));
-
         // Act
-        Func<Task> act = async () => await HttpResponseParser.ParseAsync(stream);
+        Func<Task> act = async () =>
+        {
+            using var stream = new MemoryStream(Encoding.UTF8.GetBytes(rawResponse));
+            await HttpResponseParser.ParseAsync(stream);
+        };
 
         // Assert
         await act.Should().ThrowAsync<InvalidDataException>()
@@ -233,10 +245,12 @@ public class HttpResponseParserTests
                                    <html>Hello World</html>
                                    """;
 
-        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(rawResponse));
-
         // Act
-        Func<Task> act = async () => await HttpResponseParser.ParseAsync(stream);
+        Func<Task> act = async () =>
+        {
+            using var stream = new MemoryStream(Encoding.UTF8.GetBytes(rawResponse));
+            await HttpResponseParser.ParseAsync(stream);
+        };
 
         // Assert
         await act.Should().ThrowAsync<ArgumentException>()
@@ -254,10 +268,12 @@ public class HttpResponseParserTests
                                    <html>Hello World</html>
                                    """;
 
-        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(rawResponse));
-
         // Act
-        Func<Task> act = async () => await HttpResponseParser.ParseAsync(stream);
+        Func<Task> act = async () =>
+        {
+            using var stream = new MemoryStream(Encoding.UTF8.GetBytes(rawResponse));
+            await HttpResponseParser.ParseAsync(stream);
+        };
 
         // Assert
         await act.Should().ThrowAsync<ArgumentException>()
