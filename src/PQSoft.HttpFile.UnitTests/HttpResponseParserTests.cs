@@ -45,7 +45,7 @@ public class HttpResponseParserTests
     [Fact]
     public async Task ParseAsync_Should_Handle_Empty_Body_When_ContentLength_Is_Zero()
     {
-        // Arrange: A valid HTTP response with no body (Content-Length is 0)
+        // Arrange: A valid HTTP response without a body (Content-Length is 0)
         const string rawResponse = """
                                    HTTP/1.1 204 No Content
                                    Content-Length: 0
@@ -283,7 +283,7 @@ public class HttpResponseParserTests
     [Fact]
     public async Task ParseAsync_Should_ThrowException_When_Body_Is_Missing_And_ContentLength_Is_Set()
     {
-        // Arrange: A response with a Content-Length set but no body
+        // Arrange: A response with a Content-Length set but without a body
         const string rawResponse = """
                                    HTTP/1.1 200 OK
                                    Content-Length: 20
