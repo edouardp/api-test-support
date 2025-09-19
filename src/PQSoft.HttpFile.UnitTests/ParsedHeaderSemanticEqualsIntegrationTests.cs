@@ -445,6 +445,131 @@ public class ParsedHeaderSemanticEqualsIntegrationTests
 
     #endregion
 
+    #region Header Continuation Tests
+
+    [Fact]
+    public async Task SemanticEquals_HeaderContinuationVsSingleLine_ShouldReturnTrue()
+    {
+        // Arrange - Real header continuation (folded header) vs single line
+        var http1 = """
+            GET https://api.example.com/data HTTP/1.1
+            Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.
+             eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ
+            """;
+        
+        var http2 = """
+            GET https://api.example.com/data HTTP/1.1
+            Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9. eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ
+            """;
+
+        // Act
+        var request1 = await ParseHttpRequest(http1);
+        var request2 = await ParseHttpRequest(http2);
+
+        // Assert
+        ParsedHeader.SemanticEquals(request1.Headers, request2.Headers).Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task SemanticEquals_MultiLineContinuation_ShouldReturnTrue()
+    {
+        // Arrange - Multiple continuation lines vs single line
+        var http1 = """
+            POST https://api.example.com/upload HTTP/1.1
+            Content-Type: multipart/form-data;
+             boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW;
+             charset=utf-8
+            """;
+        
+        var http2 = """
+            POST https://api.example.com/upload HTTP/1.1
+            Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW; charset=utf-8
+            """;
+
+        // Act
+        var request1 = await ParseHttpRequest(http1);
+        var request2 = await ParseHttpRequest(http2);
+
+        // Assert
+        ParsedHeader.SemanticEquals(request1.Headers, request2.Headers).Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task SemanticEquals_ContinuationWithTabs_ShouldReturnTrue()
+    {
+        // Arrange - Continuation with tabs vs spaces
+        var http1 = """
+            GET https://api.example.com/data HTTP/1.1
+            User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)
+            	AppleWebKit/537.36
+            """;
+        
+        var http2 = """
+            GET https://api.example.com/data HTTP/1.1
+            User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36
+            """;
+
+        // Act
+        var request1 = await ParseHttpRequest(http1);
+        var request2 = await ParseHttpRequest(http2);
+
+        // Assert
+        ParsedHeader.SemanticEquals(request1.Headers, request2.Headers).Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task SemanticEquals_AuthorizationContinuation_ShouldReturnTrue()
+    {
+        // Arrange - Long authorization header with continuation
+        var http1 = """
+            POST https://api.example.com/secure HTTP/1.1
+            Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.
+             eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.
+             SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+            """;
+        
+        var http2 = """
+            POST https://api.example.com/secure HTTP/1.1
+            Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9. eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ. SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+            """;
+
+        // Act
+        var request1 = await ParseHttpRequest(http1);
+        var request2 = await ParseHttpRequest(http2);
+
+        // Assert
+        ParsedHeader.SemanticEquals(request1.Headers, request2.Headers).Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task SemanticEquals_MultipleContinuationHeaders_ShouldReturnTrue()
+    {
+        // Arrange - Multiple headers with continuations
+        var http1 = """
+            GET https://api.example.com/data HTTP/1.1
+            X-Custom-Header: value1;
+             param1=test;
+             param2=data
+            Accept-Language: en-US,en;q=0.9,
+             fr;q=0.8,de;q=0.7
+            """;
+        
+        var http2 = """
+            GET https://api.example.com/data HTTP/1.1
+            X-Custom-Header: value1; param1=test; param2=data
+            Accept-Language: en-US,en;q=0.9, fr;q=0.8,de;q=0.7
+            """;
+
+        // Act
+        var request1 = await ParseHttpRequest(http1);
+        var request2 = await ParseHttpRequest(http2);
+
+        // Assert
+        ParsedHeader.SemanticEquals(request1.Headers, request2.Headers).Should().BeTrue();
+    }
+
+    #endregion
+
     #region Helper Methods
 
     private static async Task<ParsedHttpRequest> ParseHttpRequest(string httpContent)
