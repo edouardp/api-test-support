@@ -169,6 +169,21 @@ dotnet nuget push "src/PQSoft.JsonComparer.AwesomeAssertions/bin/Release/PQSoft.
 
 Packages must be uploaded in dependency order to ensure successful publication.
 
+## Documentation
+
+Full documentation is available at: https://edouardp.github.io/api-test-support/
+
+### Setting up GitHub Pages
+
+To enable GitHub Pages for documentation:
+
+```bash
+# Enable Pages via GitHub CLI
+gh api repos/edouardp/api-test-support/pages -X POST --input - <<< '{"source":{"branch":"main","path":"/docs"}}'
+```
+
+Documentation is automatically built and deployed from the `docs/` folder using Jekyll.
+
 ## Support Projects
 
 PQSoft.HttpFile.UnitTests
