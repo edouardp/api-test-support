@@ -37,7 +37,7 @@ public static class HttpResponseParser
         }
 
         // Convert status code to integer and cast to HttpStatusCode enum
-        if (!int.TryParse(statusLineParts[1], out int statusCodeInt))
+        if (!int.TryParse(statusLineParts[1], out var statusCodeInt))
         {
             throw new InvalidDataException($"Invalid status code: {statusLineParts[1]}.");
         }

@@ -314,12 +314,11 @@ public class HttpFileParserTests
             Host: example.com
             """;
 
-        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(rawRequests));
-
         // Act
         var results = new List<ParsedHttpRequest>();
         var act = async () =>
         {
+            using var stream = new MemoryStream(Encoding.UTF8.GetBytes(rawRequests));
             await foreach (var request in new HttpFileParser().ParseAsync(stream))
             {
                 results.Add(request);
@@ -352,13 +351,14 @@ public class HttpFileParserTests
             Host: example.com
             """;
 
-        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(rawRequests));
-        var cts = new CancellationTokenSource();
-
         // Act
         var results = new List<ParsedHttpRequest>();
         var task = Task.Run(async () =>
         {
+
+            using var stream = new MemoryStream(Encoding.UTF8.GetBytes(rawRequests));
+            var cts = new CancellationTokenSource();
+
             await foreach (var request in new HttpFileParser().ParseAsync(stream, cts.Token))
             {
                 results.Add(request);
@@ -368,7 +368,7 @@ public class HttpFileParserTests
                     await cts.CancelAsync();
                 }
             }
-        }, cts.Token);
+        });
 
         // Assert
         await Assert.ThrowsAsync<OperationCanceledException>(async () => await task);

@@ -11,7 +11,7 @@ public class HttpFileCoverageTests
     public async Task HttpFileParser_NonExistentFile_ShouldThrowFileNotFoundException()
     {
         // Arrange
-        var nonExistentPath = "/path/that/does/not/exist.http";
+        const string nonExistentPath = "/path/that/does/not/exist.http";
 
         // Act & Assert
         var exception = await Assert.ThrowsAsync<FileNotFoundException>(async () =>
@@ -61,7 +61,7 @@ public class HttpFileCoverageTests
     public async Task HttpStreamParser_InvalidRequestLine_ShouldThrowInvalidDataException()
     {
         // Arrange - Request line with only 2 parts instead of required 3
-        var invalidHttp = "GET https://example.com";
+        const string invalidHttp = "GET https://example.com";
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(invalidHttp));
 
         // Act & Assert
@@ -74,10 +74,10 @@ public class HttpFileCoverageTests
     public async Task HttpStreamParser_ContinuationWithoutHeader_ShouldThrowInvalidDataException()
     {
         // Arrange
-        var invalidHttp = """
-            GET https://example.com HTTP/1.1
-             This is a continuation line without a preceding header
-            """;
+        const string invalidHttp = """
+                                   GET https://example.com HTTP/1.1
+                                    This is a continuation line without a preceding header
+                                   """;
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(invalidHttp));
 
         // Act & Assert
@@ -91,7 +91,7 @@ public class HttpFileCoverageTests
     public void HttpHeadersParser_InvalidHeaderMissingSeparator_ShouldThrowArgumentException()
     {
         // Arrange
-        var invalidHeader = "InvalidHeaderWithoutColon";
+        const string invalidHeader = "InvalidHeaderWithoutColon";
 
         // Act & Assert
         var exception = Assert.Throws<ArgumentException>(() =>
@@ -103,7 +103,7 @@ public class HttpFileCoverageTests
     public void HttpHeadersParser_InvalidHeaderMissingKey_ShouldThrowArgumentException()
     {
         // Arrange
-        var invalidHeader = ": value-without-key";
+        const string invalidHeader = ": value-without-key";
 
         // Act & Assert
         var exception = Assert.Throws<ArgumentException>(() =>
@@ -127,7 +127,7 @@ public class HttpFileCoverageTests
     public async Task HttpResponseParser_InvalidStatusLine_ShouldThrowInvalidDataException()
     {
         // Arrange - Status line with only 2 parts instead of required 3
-        var invalidResponse = "HTTP/1.1 200";
+        const string invalidResponse = "HTTP/1.1 200";
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(invalidResponse));
 
         // Act & Assert
@@ -160,13 +160,14 @@ public class HttpFileCoverageTests
     public async Task HttpFileParser_NullStream_ShouldThrowArgumentNullException()
     {
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentNullException>(async () =>
+        var exception = await Assert.ThrowsAsync<ArgumentNullException>(async () =>
         {
             await foreach (var _ in new HttpFileParser().ParseAsync(null!))
             {
                 // This should not execute
             }
         });
+        Assert.IsType<ArgumentNullException>(exception);
     }
 
     [Fact]

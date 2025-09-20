@@ -47,7 +47,7 @@ public void Should_Match_Expected_Response()
 {
     var response = await httpClient.GetStringAsync("/api/jobs/123");
     var expected = """{ "id": "[[JOB_ID]]", "status": "completed", "completedAt": "{{NOW()}}" }""";
-    
+
     response.AsJsonString().Should().FullyMatch(expected);
 }
 ```

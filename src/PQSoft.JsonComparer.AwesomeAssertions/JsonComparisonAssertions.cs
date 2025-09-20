@@ -7,6 +7,15 @@ namespace PQSoft.JsonComparer.AwesomeAssertions;
 /// <summary>
 /// A simple wrapper around a JSON string that serves as the subject for JSON-specific assertions.
 /// </summary>
+/// <param name="json">The JSON string to wrap for assertions.</param>
+/// <example>
+/// <code>
+/// var subject = new JsonSubject("""{"id": "12345", "createdAt": "2024-01-01T10:00:00Z"}""");
+/// subject.WithTimeProvider(TimeProvider.System)
+///        .Should()
+///        .FullyMatch("""{"id": "[[ID]]", "createdAt": "{{NOW()}}"}""");
+/// </code>
+/// </example>
 public class JsonSubject(string json)
 {
     public string Json { get; } = json ?? throw new ArgumentNullException(nameof(json));
@@ -17,6 +26,15 @@ public class JsonSubject(string json)
     /// </summary>
     /// <param name="timeProvider">The TimeProvider to use for time-based functions.</param>
     /// <returns>This JsonSubject instance for fluent chaining.</returns>
+    /// <example>
+    /// <code>
+    /// var fixedTime = new FakeTimeProvider(new DateTimeOffset(2024, 1, 1, 10, 0, 0, TimeSpan.Zero));
+    /// actualJson.AsJsonString()
+    ///          .WithTimeProvider(fixedTime)
+    ///          .Should()
+    ///          .FullyMatch("""{"timestamp": "{{NOW()}}"}""");
+    /// </code>
+    /// </example>
     public JsonSubject WithTimeProvider(TimeProvider timeProvider)
     {
         TimeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
@@ -91,6 +109,14 @@ public static class JsonSubjectExtensions
     /// <summary>
     /// Wraps the JSON string in a <see cref="JsonSubject"/>.
     /// </summary>
+    /// <param name="json">The JSON string to wrap.</param>
+    /// <returns>A JsonSubject that can be used for fluent assertions.</returns>
+    /// <example>
+    /// <code>
+    /// string actualJson = """{"id": "12345", "name": "John"}""";
+    /// actualJson.AsJsonString().Should().FullyMatch("""{"id": "[[ID]]", "name": "John"}""");
+    /// </code>
+    /// </example>
     public static JsonSubject AsJsonString(this string json)
     {
         return new JsonSubject(json);
@@ -99,6 +125,14 @@ public static class JsonSubjectExtensions
     /// <summary>
     /// Returns a <see cref="JsonSubjectAssertions"/> instance that can be used to assert on the JSON.
     /// </summary>
+    /// <param name="subject">The JsonSubject to create assertions for.</param>
+    /// <returns>A JsonSubjectAssertions instance for fluent assertion chaining.</returns>
+    /// <example>
+    /// <code>
+    /// var jsonSubject = actualJson.AsJsonString();
+    /// jsonSubject.Should().ContainSubset("""{"name": "John"}""");
+    /// </code>
+    /// </example>
     public static JsonSubjectAssertions Should(this JsonSubject subject)
     {
         return new JsonSubjectAssertions(subject);

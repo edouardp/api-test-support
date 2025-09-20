@@ -42,7 +42,24 @@ Authorization: Digest username="user", realm="Protected Area"
 
 ## Minor Improvements
 
-### 4. Token Validation (RFC 9110 Section 5.6.2)
+### 4. HTTP Version Parsing
+**Current Issue**: `ParseRequestLineAsync` discards the HTTP version part of the request line
+
+**Required Changes**:
+- Extend return type to include `System.Net.HttpVersion`
+- Parse HTTP version string (e.g., "HTTP/1.1" -> `HttpVersion.Version11`)
+- Update `ParsedHttpRequest` record to include HTTP version
+- Add HTTP version to `ToHttpRequestMessage()` method
+
+**Example**:
+```csharp
+private static async Task<(HttpMethod Method, string Url, Version HttpVersion)> ParseRequestLineAsync(StreamReader reader)
+{
+    // Parse "GET /api/users HTTP/1.1" -> (GET, /api/users, HttpVersion.Version11)
+}
+```
+
+### 5. Token Validation (RFC 9110 Section 5.6.2)
 - Validate header names against token grammar
 - Reject invalid characters in header names
 
