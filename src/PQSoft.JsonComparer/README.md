@@ -114,7 +114,7 @@ var result = comparer.ExactMatch(template, apiResponse);
 
 ### Discard Tokens for Presence Testing
 
-Sometimes you only care that a field exists, not its specific value. Use `[[_]]` as a discard token:
+Sometimes you only care that a field exists, not its specific value. Use `[[]]` (empty token) as a true discard token:
 
 ```csharp
 string apiResponse = """
@@ -130,16 +130,32 @@ string apiResponse = """
 string template = """
 {
     "userId": "[[USER_ID]]",
-    "internalId": "[[_]]",
-    "debugInfo": "[[_]]",
+    "internalId": "[[]]",
+    "debugInfo": "[[]]",
     "email": "test@example.com"
 }
 """;
 
 var result = comparer.ExactMatch(template, apiResponse);
-// Validates that internalId and debugInfo exist, but doesn't capture their values
+// Validates that internalId and debugInfo exist, but values are truly discarded
 // Only USER_ID is captured: result.ExtractedValues["USER_ID"] = "usr_abc123"
-// The "_" token is captured but typically ignored: result.ExtractedValues["_"] = "internal_xyz789"
+// Empty tokens are not added to ExtractedValues at all
+```
+
+You can also use named discard tokens like `[[_DISCARD_]]` for readability:
+
+```csharp
+string template = """
+{
+    "userId": "[[USER_ID]]",
+    "internalId": "[[_DISCARD_]]",
+    "debugInfo": "[[_DISCARD_]]",
+    "email": "test@example.com"
+}
+""";
+
+// [[_]] creates an entry: result.ExtractedValues["_DISCARD_"] = "internal_xyz789"
+// [[]] creates no entry (true discard)
 ```
 
 ### JsonElement Validation of Extracted Values

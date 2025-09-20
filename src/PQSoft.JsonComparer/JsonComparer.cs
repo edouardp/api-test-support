@@ -47,14 +47,14 @@ public partial class JsonComparer
         functionRegistry = new JsonFunctionRegistry(timeProvider);
     }
 
-    // Regex to match boxed tokens in expected JSON (e.g. "[[JOBID]]")
-    [GeneratedRegex(@"^\[\[(\w+)\]\]$", RegexOptions.Compiled)]
+    // Regex to match boxed tokens in expected JSON (e.g. "[[JOBID]]" or "[[]]")
+    [GeneratedRegex(@"^\[\[(\w*)\]\]$", RegexOptions.Compiled)]
     private static partial Regex TokenRegexGenerator();
     private static readonly Regex TokenRegex = TokenRegexGenerator();
 
     // Regex to find tokens that are not already enclosed in quotes.
     // This regex looks for the pattern [[VARIABLE]] that is not immediately preceded or followed by a double quote.
-    [GeneratedRegex("(?<!\\\")\\[\\[(\\w+)\\]\\](?!\\\")", RegexOptions.Compiled)]
+    [GeneratedRegex("(?<!\\\")\\[\\[(\\w*)\\]\\](?!\\\")", RegexOptions.Compiled)]
     private static partial Regex UnquotedTokenRegexGenerator();
     private static readonly Regex UnquotedTokenRegex = UnquotedTokenRegexGenerator();
 
@@ -199,7 +199,11 @@ public partial class JsonComparer
                 {
                     // It's a token, extract the actual value (of any type) and return.
                     var tokenName = match.Groups[1].Value;
-                    extractedValues[tokenName] = actual.Clone();
+                    // Only extract if token name is not empty (skip discard tokens like [[]])
+                    if (!string.IsNullOrEmpty(tokenName))
+                    {
+                        extractedValues[tokenName] = actual.Clone();
+                    }
                     return;
                 }
             }

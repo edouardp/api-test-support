@@ -45,6 +45,22 @@ public class JsonComparerTests
     }
 
     [Fact]
+    public void ExactMatch_WithEmptyToken_ShouldExtractTokenAndReturnTrue()
+    {
+        // Test that empty tokens [[]] work as true discard tokens
+        string expected = """{ "id": "[[]]", "name": "John", "status": "active" }""";
+        string actual = """{ "id": "12345", "name": "John", "status": "active" }""";
+
+        var comparer = new JsonComparer();
+        var result = comparer.ExactMatch(expected, actual);
+
+        Assert.True(result.IsMatch);
+        Assert.Empty(result.ExtractedValues); // Empty tokens should not be extracted
+        Assert.False(result.ExtractedValues.ContainsKey("")); // No empty key should exist
+        Assert.Empty(result.Mismatches);
+    }
+
+    [Fact]
     public void ExactMatch_ExtraPropertyInActual_ShouldReturnFalse()
     {
         // For an exact match, extra properties in actual JSON cause a failure.
