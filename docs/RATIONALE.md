@@ -12,8 +12,8 @@ Specifically ASP.NET and the .NET ecosystem give us:
 
 * **TestServer** and **WebApplicationFactory**
 
-      The ability to instantiate the running API and as much of the business/domain later as
-      required, and a client to interact with it, all running fast and locally on the engineers
+      The ability to instantiate the running API and as much of the business/domain layer as
+      required, and a client to interact with it, all running fast and locally on the engineer's
       laptop.
 
 * **XUnit**, **Moq**, **AwesomeAssertions**, **Reqnroll**
@@ -23,8 +23,8 @@ Specifically ASP.NET and the .NET ecosystem give us:
       methods or classes, but are broadly used across the industry further up the test
       pyramid
 
-      The tests built with thios infrastructure is integrated into engineers IDEs and command-line
-      tooling, and can even be run automatically with test runners like NCrunch or dotCovers
+      The tests built with this infrastructure are integrated into engineers' IDEs and command-line
+      tooling, and can even be run automatically with test runners like NCrunch or dotCover's
       Continuous Testing mode.
 
       Reqnroll extends the automated tests to Behaviour Driven Design using the industry standard
@@ -32,12 +32,12 @@ Specifically ASP.NET and the .NET ecosystem give us:
 
 * **TestContainers**
 
-      The ability to include other systems and and services directly into your unit tests in a
-      transparent and fully managed way using docker containers. 
+      The ability to include other systems and services directly into your unit tests in a
+      transparent and fully managed way using Docker containers. 
 
       A great example is running a database as part of your unit tests, so a call to the API within
-      your unit tests can tranverse the code all the way to the database and back again to not only
-      validate your API, but also the full vertical slice of you code all the way to the DB.
+      your unit tests can traverse the code all the way to the database and back again to not only
+      validate your API, but also the full vertical slice of your code all the way to the DB.
 
 ### Aside - "Unit Tests" vs "Fast Tests"
 
@@ -76,14 +76,14 @@ I'm going to use the phrase "Unit Tests" throughout this document, but mostly I 
 
 ## Correct and Complete
 
-In software devlepment, there is an idea of Correct and Complete, where the code does what it is
+In software development, there is an idea of Correct and Complete, where the code does what it is
 supposed to do, without any bugs or misbehaviour (the "Correct" part), and it handles all the possible
 use cases, not just the happy path, and performs as intended in every one of those scenarios (the
 "Complete" part).
 
 For example, a server should be able to handle
 
-* the network changing on the fly - a network interfaced being added or removed
+* the network changing on the fly - a network interface being added or removed
 * the disk filling up, so there is no space to write files locally
 * inputs being invalid
 * deadlocks cancelling a query in the database
@@ -96,21 +96,21 @@ Each "unhappy path" should have a clear strategy for handling the situation
 
 I find that many teams do a good job of correctness, but only a so-so job on completeness.
 
-Mocking frameworking like Moq help here a lot - failure modes that are hard or near impossible to
+Mocking frameworks like Moq help here a lot - failure modes that are hard or near impossible to
 trigger in a live system (whether in prod or pre-prod) can be invoked by a strategic mock when running
-the systems inside your unit tests - like mocking the databae layer to throw a
+the systems inside your unit tests - like mocking the database layer to throw a
 `MySqlException(ER_LOCK_DEADLOCK)` to ensure the system handles the deadlock correctly, ideally by retrying
 the SQL statement or transaction.
 
 ## So how do we test an API?
 
-The simplest level of testing is the send a request to the REST API, and validate we get the
-correct Reponse, by comparing the result to what we expected.
+The simplest level of testing is to send a request to the REST API, and validate we get the
+correct Response, by comparing the result to what we expected.
 
-In psuedocode this would be
+In pseudocode this would be
 
 ```
-expectedResponse = new HttpReponse(...)   // specify the expected response we want
+expectedResponse = new HttpResponse(...)   // specify the expected response we want
 request = new HttpRequest("GET", "/api/user/1234")
 actualResponse = httpClient.send(request)
 Assert.Equal(expectedResponse, actualResponse)
@@ -124,7 +124,7 @@ We send
 GET /api/user/1234 HTTP/1.1
 ```
 
-And we get a HTTP Reponse
+And we get an HTTP Response
 
 ```
 HTTP/1.1 200 OK
@@ -146,26 +146,28 @@ Content-Type: application/json
 But this is where we have to stop and consider what we mean by the expected response being
 equal to the actual response.
 
+## Headers
+
 ### Header Case
 
-The HTTP spec states that we should treat the header "content-type: text/html" to be equivilent to
-the header "Content-type: text/html"
+The HTTP spec states that we should treat the header `content-type: text/html` to be equivalent to
+the header `Content-type: text/html`
 
 ### Header Whitespace
 
-The HTTP spec also states that the header "Content-type:  text/html" is equivilent to the header
-"Content-type: test/html ". i.e. additional whitespace is ignored
+The HTTP spec also states that the header `Content-type:  text/html` is equivalent to the header
+`Content-type: text/html `. i.e. additional whitespace is ignored
 
 ### Cache-Control Header and Parameter Order
 
-Another thing the spec says is that "Cache-Control: max-age=3600, no-store" is equivilent to
-"Cache-Control: no-store, max-age=3600".
+Another thing the spec says is that `Cache-Control: max-age=3600, no-store` is equivalent to
+`Cache-Control: no-store, max-age=3600`.
 
-If your expected response is "Cache-Control: max-age=3600, no-store", but the actual response
-is "Cache-Control: no-store, max-age=3600" you want to say that that expected header matches.
+If your expected response is `Cache-Control: max-age=3600, no-store`, but the actual response
+is `Cache-Control: no-store, max-age=3600` you want to say that that expected header matches.
 
 But that there are some headers where the order is important, e.g.
-"Content-Encoding: sdch, gzip". The order matters, and cannot be reversed.
+`Content-Encoding: sdch, gzip`. The order matters, and cannot be reversed.
 
 ### Date Header
 
@@ -178,23 +180,23 @@ where you want the header to be present, but you don't care about the value
 
 ### X-Request-ID Header
 
-There are some headers that may be added the server code, or by middleware, or even
-by intermediate proxies. "X-Request-ID" is one of these, and we may want to ignore it
+There are some headers that may be added by the server code, or by middleware, or even
+by intermediate proxies. `X-Request-ID` is one of these, and we may want to ignore it
 altogether, or simply validate that the header is present, while ignoring the
 value.
 
-"Via: 1.1 varnish" is explicitly a proxy header, and may be added by intermediate hops
+`Via: 1.1 varnish` is explicitly a proxy header, and may be added by intermediate hops
 in the HTTP request when running in the real world.
 
 
 ## JSON Response Body
 
-The JSON body itself can be strucurally equivilent, but not be exactly the same.
+The JSON body itself can be structurally equivalent, but not be exactly the same.
 
 ### Whitespace
 
-`{"Username":"joeblogs"}` is strucurally equivilent to `{ "Username": "joeblogs" }`
-which is also equivilent to 
+`{"Username":"joeblogs"}` is structurally equivalent to `{ "Username": "joeblogs" }`
+which is also equivalent to 
 
 ```
 {
@@ -211,7 +213,7 @@ which is also equivilent to
 }
 ```
 
-is strucrally equivilent to
+is structurally equivalent to
 
 ```
 {
@@ -220,12 +222,16 @@ is strucrally equivilent to
 }
 ```
 
-### Numerical Equivilence
+### Numerical Equivalence
+
+TODO
 
 1 ≡ 1.0 ≡ 1e0
 
 
-### Escaped Equivilence
+### Escaped Equivalence
+
+TODO
 
 "hello" ≡ "he\u006Clo"
 
@@ -233,16 +239,16 @@ is strucrally equivilent to
 ## Selective Field Testing, Field Presence Only
 
 Sometimes, when testing a specific action with an API, we may not care about all of
-the feilds, but only the ones that are relevant to the action we are performing.
+the fields, but only the ones that are relevant to the action we are performing.
 
 Another common case is that we want to ensure that a certain field is present, but we don't
 care what the value is. E.g. when creating a new entity.
 
-For example a POST call to /api/job, 
-where we care that we get a reponse back with the job details, but every call to the API
+For example a POST call to /api/job,
+where we care that we get a response back with the job details, but every call to the API
 will give us a unique job ID.
 
-This is a little like the Date: or X-Request-ID headers - we may want to ensure the reponse
+This is a little like the Date: or X-Request-ID headers - we may want to ensure the response
 has a field, but we know that the value for that field changes every time.
 
 
@@ -253,14 +259,14 @@ Sooner or later the response may have values that could be correct or incorrect 
 meaning of data. 
 
 e.g. does the order of the value matter in this array `[1,2,3]`? Is `[2,1,3]` the same? Almost always
-no, but its more grey with something like `[{"StockId": 221313},{"StockId": 621142}]`. at this point
+no, but it's more grey with something like `[{"StockId": 221313},{"StockId": 621142}]`. At this point
 the answer may end up being "it depends".
 
 Sometimes we are working with an ordered list, and sometimes we are not. JSON has no "set" datatype. Some
 JSON HTTP Responses might have multiple arrays, some which need to be treated as ordered arrays, and
 some that should be treated as unordered sets.
 
-And another valid JSON reponse might be `{"a":1, "a":2}`, which is "valid" JSON text under RFC 8259, but it’s not "well-defined". Treating this consistantly is also hard.
+And another valid JSON response might be `{"a":1, "a":2}`, which is "valid" JSON text under RFC 8259, but it's not "well-defined". Treating this consistently is also hard.
 
 And then there is Unicode normalisation: "é" vs "e\u0301"
 
@@ -298,11 +304,11 @@ Actual Response:
 ```
 
 If we just want to ensure that the status code is working as expected, then we may want to
-only check if the expcted response is a subset of the actual reponse.
+only check if the expected response is a subset of the actual response.
 
 ## Ignoring values
 
-Building on the subset exampkle above, it may be good to do a subset match, but also have the
+Building on the subset example above, it may be good to do a subset match, but also have the
 ability to ignore the values of certain fields, but check that they are present.
 
 Expected Response:
