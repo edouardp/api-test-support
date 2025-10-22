@@ -35,6 +35,34 @@ public class ApiStepDefinitions
         _lastBody = await _lastResponse.Content.ReadAsStringAsync();
     }
 
+    [Given(@"the variable '(.*)' is set to '(.*)'")]
+    [Given(@"the variable ""(.*)"" is set to ""(.*)""")]
+    public void GivenTheVariableIsSetTo(string name, string value)
+    {
+        _variables[name] = JsonDocument.Parse($"\"{value}\"").RootElement;
+    }
+
+    [Given(@"the variable '(.*)' is set to (-?\d+)$")]
+    [Given(@"the variable ""(.*)"" is set to (-?\d+)$")]
+    public void GivenTheVariableIsSetToInt(string name, int value)
+    {
+        _variables[name] = JsonDocument.Parse(value.ToString()).RootElement;
+    }
+
+    [Given(@"the variable '(.*)' is set to (-?\d+\.\d+)$")]
+    [Given(@"the variable ""(.*)"" is set to (-?\d+\.\d+)$")]
+    public void GivenTheVariableIsSetToDouble(string name, double value)
+    {
+        _variables[name] = JsonDocument.Parse(value.ToString()).RootElement;
+    }
+
+    [Given(@"the variable '(.*)' is set to (true|false)")]
+    [Given(@"the variable ""(.*)"" is set to (true|false)")]
+    public void GivenTheVariableIsSetToBool(string name, bool value)
+    {
+        _variables[name] = JsonDocument.Parse(value.ToString().ToLower()).RootElement;
+    }
+
     [Then("the API returns the following response")]
     public async Task ThenTheApiReturnsTheFollowingResponse(string httpResponse)
     {
@@ -117,6 +145,7 @@ public class ApiStepDefinitions
     }
 
     [Then(@"the variable '(.*)' is equals to '(.*)'")] 
+    [Then(@"the variable ""(.*)"" is equals to ""(.*)""")] 
     public void ThenTheVariableIsEqualsTo(string name, string value)
     {
         if (!_variables.ContainsKey(name))
@@ -125,22 +154,33 @@ public class ApiStepDefinitions
         _variables[name].ToString().Should().Be(value);
     }
 
+    [Then(@"the variable '(.*)' equals '(.*)'")]
+    [Then(@"the variable ""(.*)"" equals ""(.*)""")]
+    public void ThenTheVariableEqualsString(string name, string value)
+    {
+        if (!_variables.ContainsKey(name))
+            throw new VariableNotFoundException(name, _variables.Keys);
+        
+        _variables[name].GetString().Should().Be(value);
+    }
+
     [Then(@"the variable '(.*)' is of type '(.*)'")] 
+    [Then(@"the variable ""(.*)"" is of type ""(.*)""")] 
     public void ThenTheVariableIsOfType(string name, string type)
     {
         if (!_variables.ContainsKey(name))
             throw new VariableNotFoundException(name, _variables.Keys);
         
         var kind = _variables[name].ValueKind;
-        switch (type)
+        switch (type.ToLowerInvariant())
         {
-            case "String": kind.Should().Be(JsonValueKind.String); break;
-            case "Number": kind.Should().Be(JsonValueKind.Number); break;
-            case "Boolean": kind.Should().BeOneOf(JsonValueKind.True, JsonValueKind.False); break;
-            case "Object": kind.Should().Be(JsonValueKind.Object); break;
-            case "Array": kind.Should().Be(JsonValueKind.Array); break;
-            case "Null": kind.Should().Be(JsonValueKind.Null); break;
-            case "Date":
+            case "string": kind.Should().Be(JsonValueKind.String); break;
+            case "number": kind.Should().Be(JsonValueKind.Number); break;
+            case "boolean": kind.Should().BeOneOf(JsonValueKind.True, JsonValueKind.False); break;
+            case "object": kind.Should().Be(JsonValueKind.Object); break;
+            case "array": kind.Should().Be(JsonValueKind.Array); break;
+            case "null": kind.Should().Be(JsonValueKind.Null); break;
+            case "date":
                 kind.Should().Be(JsonValueKind.String);
                 DateTime.TryParse(_variables[name].GetString(), out _).Should().BeTrue();
                 break;
@@ -149,6 +189,7 @@ public class ApiStepDefinitions
     }
 
     [Then(@"the variable '(.*)' matches '(.*)'")] 
+    [Then(@"the variable ""(.*)"" matches ""(.*)""")] 
     public void ThenTheVariableMatches(string name, string regex)
     {
         if (!_variables.ContainsKey(name))
@@ -157,10 +198,61 @@ public class ApiStepDefinitions
         _variables[name].ToString().Should().MatchRegex(regex);
     }
 
+    [Then(@"the variable '(.*)' equals (-?\d+)$")]
+    [Then(@"the variable ""(.*)"" equals (-?\d+)$")]
+    public void ThenTheVariableEqualsInt(string name, int expected)
+    {
+        if (!_variables.ContainsKey(name))
+            throw new VariableNotFoundException(name, _variables.Keys);
+        
+        _variables[name].GetInt32().Should().Be(expected);
+    }
+
+    [Then(@"the variable '(.*)' equals (-?\d+\.\d+)$")]
+    [Then(@"the variable ""(.*)"" equals (-?\d+\.\d+)$")]
+    public void ThenTheVariableEqualsDouble(string name, double expected)
+    {
+        if (!_variables.ContainsKey(name))
+            throw new VariableNotFoundException(name, _variables.Keys);
+        
+        _variables[name].GetDouble().Should().BeApproximately(expected, 0.0001);
+    }
+
+    [Then(@"the variable '(.*)' equals (-?[\d.]+) with delta ([\d.]+)")]
+    [Then(@"the variable ""(.*)"" equals (-?[\d.]+) with delta ([\d.]+)")]
+    public void ThenTheVariableEqualsWithDelta(string name, double expected, double delta)
+    {
+        if (!_variables.ContainsKey(name))
+            throw new VariableNotFoundException(name, _variables.Keys);
+        
+        _variables[name].GetDouble().Should().BeApproximately(expected, delta);
+    }
+
+    [Then(@"the variable '(.*)' equals (true|false)")]
+    [Then(@"the variable ""(.*)"" equals (true|false)")]
+    public void ThenTheVariableEqualsBool(string name, bool expected)
+    {
+        if (!_variables.ContainsKey(name))
+            throw new VariableNotFoundException(name, _variables.Keys);
+        
+        _variables[name].GetBoolean().Should().Be(expected);
+    }
+
     private string SubstituteVariables(string text)
     {
         foreach (var kvp in _variables)
-            text = text.Replace("{{" + kvp.Key + "}}", kvp.Value.ToString());
+        {
+            var value = kvp.Value.ValueKind switch
+            {
+                JsonValueKind.String => kvp.Value.GetString()!,
+                JsonValueKind.Number => kvp.Value.ToString(),
+                JsonValueKind.True => "true",
+                JsonValueKind.False => "false",
+                JsonValueKind.Null => "null",
+                _ => kvp.Value.ToString()
+            };
+            text = text.Replace("{{" + kvp.Key + "}}", value);
+        }
         return text;
     }
 

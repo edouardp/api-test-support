@@ -128,5 +128,43 @@ public class CsvController : ControllerBase
     }
 }
 
+[ApiController]
+[Route("api/[controller]")]
+public class StatsController : ControllerBase
+{
+    [HttpGet]
+    public IActionResult GetStats()
+    {
+        return Ok(new
+        {
+            count = 42,
+            price = 99.99,
+            rating = 4.5,
+            available = true,
+            discount = 0.15
+        });
+    }
+}
+
+[ApiController]
+[Route("api/[controller]")]
+public class ProfileController : ControllerBase
+{
+    [HttpPost]
+    public IActionResult CreateProfile([FromBody] CreateProfileRequest request)
+    {
+        var profileId = "PROFILE" + new Random().Next(1000, 9999);
+        return Created($"/api/profile/{profileId}", new
+        {
+            id = profileId,
+            name = request.Name,
+            age = request.Age,
+            premium = request.Premium,
+            status = "active"
+        });
+    }
+}
+
 public record CreateUserRequest(string Name);
 public record CreateOrderRequest(string UserId);
+public record CreateProfileRequest(string Name, int Age, bool Premium);
