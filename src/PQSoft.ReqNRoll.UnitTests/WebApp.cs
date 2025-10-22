@@ -102,5 +102,31 @@ public class XmlController : ControllerBase
     }
 }
 
+[ApiController]
+[Route("api/[controller]")]
+public class CsvController : ControllerBase
+{
+    [HttpPost]
+    [Consumes("text/csv")]
+    [Produces("text/csv")]
+    public IActionResult PostCsv()
+    {
+        using var reader = new StreamReader(Request.Body);
+        var body = reader.ReadToEndAsync().Result;
+        
+        var userId = "CSV" + Guid.NewGuid().ToString("N").Substring(0, 8).ToUpper();
+        var lines = body.Split('\n', StringSplitOptions.RemoveEmptyEntries);
+        
+        if (lines.Length > 1)
+        {
+            var dataLine = lines[1].Trim();
+            var csvResponse = $"id,name,age\n{userId},{dataLine}";
+            return Content(csvResponse, "text/csv");
+        }
+        
+        return BadRequest("Invalid CSV");
+    }
+}
+
 public record CreateUserRequest(string Name);
 public record CreateOrderRequest(string UserId);

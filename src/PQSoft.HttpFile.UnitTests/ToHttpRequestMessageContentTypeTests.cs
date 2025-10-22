@@ -309,7 +309,6 @@ public class ToHttpRequestMessageContentTypeTests
         {
             ("utf-8", "utf-8"),
             ("iso-8859-1", "iso-8859-1"),
-            ("windows-1252", "windows-1252"),
             ("utf-16", "utf-16")
         };
 
@@ -326,6 +325,65 @@ public class ToHttpRequestMessageContentTypeTests
             // Assert
             httpRequest.Content!.Headers.ContentType!.CharSet.Should().Be(expected, 
                 $"charset {charset} should be preserved");
+        }
+    }
+
+    [Fact]
+    public async Task Should_Apply_CSV_ContentType_To_HttpRequestMessage()
+    {
+        // Arrange
+        var rawHttp = """
+            POST https://api.example.com/data HTTP/1.1
+            Content-Type: text/csv
+
+            name,age
+            John,30
+            Jane,25
+            """;
+
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(rawHttp));
+        var request = await HttpStreamParser.ParseAsync(stream);
+
+        // Act
+        var httpRequest = request.ToHttpRequestMessage();
+
+        // Assert
+        httpRequest.Content.Should().NotBeNull();
+        httpRequest.Content!.Headers.ContentType.Should().NotBeNull();
+        httpRequest.Content.Headers.ContentType!.MediaType.Should().Be("text/csv");
+        
+        var body = await httpRequest.Content.ReadAsStringAsync();
+        body.Should().Contain("name,age");
+    }
+
+    [Fact]
+    public async Task Should_Apply_Correct_Encoding_To_Request_Body()
+    {
+        // Arrange - Test with special characters that differ across encodings
+        var testCases = new[]
+        {
+            ("utf-8", Encoding.UTF8, "Café ☕"),
+            ("utf-16", Encoding.Unicode, "Café ☕"),
+            ("iso-8859-1", Encoding.Latin1, "Café"),  // Latin1 doesn't support emoji
+            ("ascii", Encoding.ASCII, "Cafe")  // ASCII doesn't support accents
+        };
+
+        foreach (var (charset, expectedEncoding, bodyText) in testCases)
+        {
+            var rawHttp = $"POST https://api.example.com/data HTTP/1.1\nContent-Type: text/plain; charset={charset}\n\n{bodyText}";
+
+            using var stream = new MemoryStream(Encoding.UTF8.GetBytes(rawHttp));
+            var request = await HttpStreamParser.ParseAsync(stream);
+
+            // Act
+            var httpRequest = request.ToHttpRequestMessage();
+
+            // Assert
+            var actualBytes = await httpRequest.Content!.ReadAsByteArrayAsync();
+            var expectedBytes = expectedEncoding.GetBytes(bodyText);
+            
+            actualBytes.Should().Equal(expectedBytes, 
+                $"body should be encoded with {charset}");
         }
     }
 

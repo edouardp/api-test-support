@@ -116,13 +116,21 @@ public class ApiStepDefinitions
         }
     }
 
-    [Then(@"the variable '(.*)' is equals to '(.*)'")]
-    public void ThenTheVariableIsEqualsTo(string name, string value) =>
+    [Then(@"the variable '(.*)' is equals to '(.*)'")] 
+    public void ThenTheVariableIsEqualsTo(string name, string value)
+    {
+        if (!_variables.ContainsKey(name))
+            throw new VariableNotFoundException(name, _variables.Keys);
+        
         _variables[name].ToString().Should().Be(value);
+    }
 
-    [Then(@"the variable '(.*)' is of type '(.*)'")]
+    [Then(@"the variable '(.*)' is of type '(.*)'")] 
     public void ThenTheVariableIsOfType(string name, string type)
     {
+        if (!_variables.ContainsKey(name))
+            throw new VariableNotFoundException(name, _variables.Keys);
+        
         var kind = _variables[name].ValueKind;
         switch (type)
         {
@@ -140,9 +148,14 @@ public class ApiStepDefinitions
         }
     }
 
-    [Then(@"the variable '(.*)' matches '(.*)'")]
-    public void ThenTheVariableMatches(string name, string regex) =>
+    [Then(@"the variable '(.*)' matches '(.*)'")] 
+    public void ThenTheVariableMatches(string name, string regex)
+    {
+        if (!_variables.ContainsKey(name))
+            throw new VariableNotFoundException(name, _variables.Keys);
+        
         _variables[name].ToString().Should().MatchRegex(regex);
+    }
 
     private string SubstituteVariables(string text)
     {
@@ -153,30 +166,34 @@ public class ApiStepDefinitions
 
     private void ValidateHeaders(IEnumerable<ParsedHeader> expectedHeaders)
     {
+        var allHeaders = _lastResponse!.Headers.Concat(_lastResponse.Content.Headers)
+            .Select(h => h.Key).ToList();
+        
         foreach (var expected in expectedHeaders)
         {
-            if (!_lastResponse!.Headers.TryGetValues(expected.Name, out var values) &&
+            if (!_lastResponse.Headers.TryGetValues(expected.Name, out var values) &&
                 !_lastResponse.Content.Headers.TryGetValues(expected.Name, out values))
-                throw new InvalidOperationException($"Header '{expected.Name}' is missing.");
+                throw new HeaderValidationException(expected.Name, allHeaders, "Header is missing");
 
             var actual = HttpHeadersParser.ParseHeader($"{expected.Name}: {values.First()}");
             
-            // Always compare name and value
-            actual.Name.Should().Be(expected.Name);
-            actual.Value.Should().Be(expected.Value);
+            if (actual.Value != expected.Value)
+                throw new HeaderValidationException(expected.Name, allHeaders, 
+                    $"Expected value '{expected.Value}' but got '{actual.Value}'");
             
-            // If expected has parameters, validate them (strict mode)
             if (expected.Parameters.Any())
             {
                 foreach (var expectedParam in expected.Parameters)
                 {
-                    actual.Parameters.Should().ContainKey(expectedParam.Key,
-                        $"header '{expected.Name}' should have parameter '{expectedParam.Key}'");
-                    actual.Parameters[expectedParam.Key].Should().Be(expectedParam.Value,
-                        $"header '{expected.Name}' parameter '{expectedParam.Key}' should be '{expectedParam.Value}'");
+                    if (!actual.Parameters.ContainsKey(expectedParam.Key))
+                        throw new HeaderValidationException(expected.Name, allHeaders, 
+                            $"Parameter '{expectedParam.Key}' is missing");
+                    
+                    if (actual.Parameters[expectedParam.Key] != expectedParam.Value)
+                        throw new HeaderValidationException(expected.Name, allHeaders, 
+                            $"Parameter '{expectedParam.Key}' expected '{expectedParam.Value}' but got '{actual.Parameters[expectedParam.Key]}'");
                 }
             }
-            // Otherwise, ignore actual parameters (flexible mode for common cases)
         }
     }
 }

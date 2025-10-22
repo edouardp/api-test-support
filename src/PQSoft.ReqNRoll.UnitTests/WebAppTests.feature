@@ -199,3 +199,23 @@ Feature: PQSoft.ReqNRoll API Testing
     <response><id>[[USER_ID]]</id></response>
     """
 
+  Scenario: CSV content type
+    Given the following request
+    """
+    POST /api/csv HTTP/1.1
+    Content-Type: text/csv
+
+    name,age
+    John,30
+    """
+
+    Then the API returns the following response
+    """
+    HTTP/1.1 200 OK
+    Content-Type: text/csv
+
+    id,name,age
+    [[USER_ID]],John,30
+    """
+
+

@@ -15,6 +15,13 @@ public record ParsedHttpRequest(HttpMethod Method, string Url, List<ParsedHeader
     {
         var request = new HttpRequestMessage(Method, Url);
 
+        // Content headers that belong on HttpContent, not HttpRequestMessage
+        var contentHeaderNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "Content-Type", "Content-Length", "Content-Encoding", "Content-Language",
+            "Content-Location", "Content-MD5", "Content-Range", "Expires", "Last-Modified"
+        };
+
         // Find Content-Type header if present
         var contentTypeHeader = Headers.FirstOrDefault(h => 
             h.Name.Equals("Content-Type", StringComparison.OrdinalIgnoreCase));
@@ -24,28 +31,74 @@ public record ParsedHttpRequest(HttpMethod Method, string Url, List<ParsedHeader
             if (contentTypeHeader != null)
             {
                 var mediaType = new System.Net.Http.Headers.MediaTypeHeaderValue(contentTypeHeader.Value);
-                // Add parameters (like charset) if present
+                
+                // Get encoding from charset parameter or default to UTF8
+                var charset = contentTypeHeader.Parameters.GetValueOrDefault("charset", "utf-8");
+                var encoding = GetEncodingFromCharset(charset);
+                
+                // Add all parameters
                 foreach (var param in contentTypeHeader.Parameters)
                 {
                     mediaType.Parameters.Add(new System.Net.Http.Headers.NameValueHeaderValue(param.Key, param.Value));
                 }
-                request.Content = new StringContent(Body, Encoding.UTF8, mediaType);
+                
+                request.Content = new StringContent(Body, encoding, mediaType);
             }
             else
             {
-                // No Content-Type specified, use plain text
                 request.Content = new StringContent(Body, Encoding.UTF8, "text/plain");
             }
         }
 
-        // Add remaining headers (skip Content-Type as it's already set)
+        // Add headers to appropriate collection
         foreach (var header in Headers.Where(h => 
             !h.Name.Equals("Content-Type", StringComparison.OrdinalIgnoreCase)))
         {
-            request.Headers.TryAddWithoutValidation(header.Name, header.Value);
+            if (contentHeaderNames.Contains(header.Name))
+            {
+                // Content header - only add if we have content
+                if (request.Content != null)
+                {
+                    request.Content.Headers.TryAddWithoutValidation(header.Name, header.Value);
+                }
+            }
+            else
+            {
+                // Request header
+                request.Headers.TryAddWithoutValidation(header.Name, header.Value);
+            }
         }
 
         return request;
+    }
+
+    private static Encoding GetEncodingFromCharset(string charset)
+    {
+        // Remove quotes if present
+        charset = charset.Trim('"');
+        
+        return charset.ToLowerInvariant() switch
+        {
+            "utf-8" => Encoding.UTF8,
+            "utf-16" => Encoding.Unicode,
+            "utf-32" => Encoding.UTF32,
+            "ascii" => Encoding.ASCII,
+            "iso-8859-1" or "latin1" => Encoding.Latin1,
+            _ => TryGetEncoding(charset)
+        };
+    }
+
+    private static Encoding TryGetEncoding(string charset)
+    {
+        try
+        {
+            return Encoding.GetEncoding(charset);
+        }
+        catch (ArgumentException)
+        {
+            // Fallback to UTF-8 if encoding not supported
+            return Encoding.UTF8;
+        }
     }
 };
 
