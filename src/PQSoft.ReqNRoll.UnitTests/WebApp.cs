@@ -12,6 +12,9 @@ public class Program
             ContentRootPath = AppContext.BaseDirectory
         });
         
+        // Suppress logging for cleaner test output. Alternative: builder.Logging.SetMinimumLevel(LogLevel.Error);
+        builder.Logging.ClearProviders();
+        
         builder.Services.AddControllers()
             .AddXmlSerializerFormatters();  // Add XML support
         

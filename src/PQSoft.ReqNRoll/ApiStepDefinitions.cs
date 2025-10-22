@@ -1,10 +1,12 @@
 using PQSoft.HttpFile;
 using PQSoft.JsonComparer;
 using PQSoft.JsonComparer.AwesomeAssertions;
+using PQSoft.JsonComparer.Functions;
 using AwesomeAssertions;
 using Reqnroll;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 namespace PQSoft.ReqNRoll;
 
@@ -15,6 +17,7 @@ public class ApiStepDefinitions
     private HttpResponseMessage? _lastResponse;
     private string? _lastBody;
     private Dictionary<string, JsonElement> _variables = [];
+    private readonly JsonFunctionRegistry _functionRegistry = new();
 
     public ApiStepDefinitions(HttpClient client)
     {
@@ -39,6 +42,7 @@ public class ApiStepDefinitions
     [Given(@"the variable ""(.*)"" is set to ""(.*)""")]
     public void GivenTheVariableIsSetTo(string name, string value)
     {
+        value = ExecuteFunctions(value);
         _variables[name] = JsonDocument.Parse($"\"{value}\"").RootElement;
     }
 
@@ -254,6 +258,16 @@ public class ApiStepDefinitions
             text = text.Replace("{{" + kvp.Key + "}}", value);
         }
         return text;
+    }
+
+    private string ExecuteFunctions(string text)
+    {
+        var functionPattern = @"\{\{([A-Z_]+)\(\)\}\}";
+        return Regex.Replace(text, functionPattern, match =>
+        {
+            var functionName = match.Groups[1].Value;
+            return _functionRegistry.ExecuteFunction(functionName);
+        });
     }
 
     private void ValidateHeaders(IEnumerable<ParsedHeader> expectedHeaders)

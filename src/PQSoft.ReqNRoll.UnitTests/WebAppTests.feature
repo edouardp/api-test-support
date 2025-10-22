@@ -296,3 +296,30 @@ Feature: PQSoft.ReqNRoll API Testing
     And the variable "TEST_PRICE" equals 2.50
     And the variable "TEST_PRICE" is of type "Number"
 
+  Scenario: Set variable with GUID for parallel test execution
+    Given the variable 'UNIQUE_USER' is set to 'user-{{GUID()}}'
+    
+    Given the following request
+    """
+    POST /api/users HTTP/1.1
+    Content-Type: application/json
+
+    {
+      "name": "{{UNIQUE_USER}}"
+    }
+    """
+
+    Then the API returns the following response
+    """
+    HTTP/1.1 201 Created
+
+    {
+      "id": [[USER_ID]],
+      "name": "{{UNIQUE_USER}}"
+    }
+    """
+
+    Then the variable 'UNIQUE_USER' matches '^user-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+    And the variable 'USER_ID' is of type 'String'
+
+
