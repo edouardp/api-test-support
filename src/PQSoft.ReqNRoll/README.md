@@ -182,6 +182,28 @@ X-Request-Id: [[REQUEST_ID]]
 """
 ```
 
+### Setting Variables
+
+Set variables before making requests, including support for functions:
+
+```gherkin
+# Static values
+Given the variable 'API_KEY' is set to 'test-key-123'
+Given the variable 'MAX_RETRIES' is set to 3
+Given the variable 'ENABLED' is set to true
+
+# Dynamic values with functions
+Given the variable 'UNIQUE_USER' is set to 'user-{{GUID()}}'
+Given the variable 'TIMESTAMP' is set to '{{NOW()}}'
+```
+
+Available functions:
+- `{{GUID()}}` - Generate a unique GUID (e.g., `12345678-1234-1234-1234-123456789abc`)
+- `{{NOW()}}` - Current local time
+- `{{UTCNOW()}}` - Current UTC time
+
+This is especially useful for parallel test execution where each test needs unique identifiers.
+
 ### Variable Assertions
 
 ```gherkin
@@ -325,6 +347,36 @@ Scenario: Authenticated request
   """
 ```
 
+### Parallel Test Execution
+
+Use functions to generate unique identifiers for parallel test runs:
+
+```gherkin
+Scenario: Create user with unique identifier
+  Given the variable 'UNIQUE_USER' is set to 'user-{{GUID()}}'
+  
+  Given the following request
+  """
+  POST /api/users HTTP/1.1
+  Content-Type: application/json
+  
+  {
+    "username": "{{UNIQUE_USER}}",
+    "email": "{{UNIQUE_USER}}@example.com"
+  }
+  """
+  
+  Then the API returns the following response
+  """
+  HTTP/1.1 201 Created
+  
+  {
+    "id": [[USER_ID]],
+    "username": "{{UNIQUE_USER}}"
+  }
+  """
+```
+
 ## Advanced Usage
 
 ### Custom HttpClient Configuration
@@ -385,6 +437,7 @@ This package provides pre-built Reqnroll step definitions:
 
 - `Given the following request` - Send an HTTP request
 - `Then the API returns the following response` - Validate response with subset matching
+- `Given the variable '{name}' is set to '{value}'` - Set a variable (supports functions like `{{GUID()}}`)
 - `Then the variable '{name}' is equals to '{value}'` - Assert extracted variable value
 - `Then the variable '{name}' is of type '{type}'` - Assert variable type (String, Number, Boolean, Date, Object, Array, Null)
 - `Then the variable '{name}' matches '{regex}'` - Assert variable matches regex pattern
