@@ -15,15 +15,34 @@ public record ParsedHttpRequest(HttpMethod Method, string Url, List<ParsedHeader
     {
         var request = new HttpRequestMessage(Method, Url);
 
+        // Find Content-Type header if present
+        var contentTypeHeader = Headers.FirstOrDefault(h => 
+            h.Name.Equals("Content-Type", StringComparison.OrdinalIgnoreCase));
+
         if (!string.IsNullOrEmpty(Body))
         {
-            request.Content = new StringContent(Body);
+            if (contentTypeHeader != null)
+            {
+                var mediaType = new System.Net.Http.Headers.MediaTypeHeaderValue(contentTypeHeader.Value);
+                // Add parameters (like charset) if present
+                foreach (var param in contentTypeHeader.Parameters)
+                {
+                    mediaType.Parameters.Add(new System.Net.Http.Headers.NameValueHeaderValue(param.Key, param.Value));
+                }
+                request.Content = new StringContent(Body, Encoding.UTF8, mediaType);
+            }
+            else
+            {
+                // No Content-Type specified, use plain text
+                request.Content = new StringContent(Body, Encoding.UTF8, "text/plain");
+            }
         }
 
-        foreach (var header in Headers)
+        // Add remaining headers (skip Content-Type as it's already set)
+        foreach (var header in Headers.Where(h => 
+            !h.Name.Equals("Content-Type", StringComparison.OrdinalIgnoreCase)))
         {
             request.Headers.TryAddWithoutValidation(header.Name, header.Value);
-            request.Content?.Headers.TryAddWithoutValidation(header.Name, header.Value);
         }
 
         return request;

@@ -162,6 +162,9 @@ node_modules/
 # .NET Auto Generated Files
 *.AssemblyAttributes.cs
 
+# Reqnroll/SpecFlow auto-generated files
+*.feature.cs
+
 # Backup & temp files
 *.bak
 *.tmp
