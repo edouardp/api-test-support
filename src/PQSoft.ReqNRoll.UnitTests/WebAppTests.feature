@@ -312,6 +312,7 @@ Feature: PQSoft.ReqNRoll API Testing
     Then the API returns the following response
     """
     HTTP/1.1 201 Created
+    Content-Type: application/json
 
     {
       "id": [[USER_ID]],
