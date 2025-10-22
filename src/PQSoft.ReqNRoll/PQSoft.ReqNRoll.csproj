@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <PackageId>PQSoft.ReqNRoll</PackageId>
+    <Authors>PQSoft</Authors>
+    <Description>Reqnroll step definitions for API testing with PQSoft.HttpFile and PQSoft.JsonComparer</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/edouardp/api-test-support</RepositoryUrl>
+    <PackageTags>reqnroll;bdd;api-testing;http;json</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../PQSoft.HttpFile/PQSoft.HttpFile.csproj" />
+    <ProjectReference Include="../PQSoft.JsonComparer/PQSoft.JsonComparer.csproj" />
+    <ProjectReference Include="../PQSoft.JsonComparer.AwesomeAssertions/PQSoft.JsonComparer.AwesomeAssertions.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AwesomeAssertions" Version="9.1.0" />
+    <PackageReference Include="Reqnroll" Version="2.4.0" />
+    <PackageReference Include="System.Linq.Async" Version="6.0.1" />
+  </ItemGroup>
+
+</Project>

@@ -75,7 +75,7 @@ public class HttpResponseParserTests
                                    """;
 
         // Act
-        Func<Task> act = async () =>
+        var act = async () =>
         {
             using var stream = new MemoryStream(Encoding.UTF8.GetBytes(rawResponse));
             await HttpResponseParser.ParseAsync(stream);
@@ -96,7 +96,7 @@ public class HttpResponseParserTests
                                    """;
 
         // Act
-        Func<Task> act = async () =>
+        var act = async () =>
         {
             using var stream = new MemoryStream(Encoding.UTF8.GetBytes(rawResponse));
             await HttpResponseParser.ParseAsync(stream);
@@ -161,10 +161,10 @@ public class HttpResponseParserTests
     public async Task ParseAsync_Should_ThrowException_When_StatusLine_Is_Missing()
     {
         // Arrange: An HTTP response with no status line (empty response)
-        string rawResponse = "";
+        var rawResponse = "";
 
         // Act
-        Func<Task> act = async () =>
+        var act = async () =>
         {
             using var stream = new MemoryStream(Encoding.UTF8.GetBytes(rawResponse));
             await HttpResponseParser.ParseAsync(stream);
@@ -187,7 +187,7 @@ public class HttpResponseParserTests
                                    """;
 
         // Act
-        Func<Task> act = async () =>
+        var act = async () =>
         {
             using var stream = new MemoryStream(Encoding.UTF8.GetBytes(rawResponse));
             await HttpResponseParser.ParseAsync(stream);
@@ -205,7 +205,7 @@ public class HttpResponseParserTests
         const string rawResponse = "HTTP/1.1\n";
 
         // Act
-        Func<Task> act = async () =>
+        var act = async () =>
         {
             using var stream = new MemoryStream(Encoding.UTF8.GetBytes(rawResponse));
             await HttpResponseParser.ParseAsync(stream);
@@ -223,7 +223,7 @@ public class HttpResponseParserTests
         const string rawResponse = "HTTP/1.1 ABC OK\n";
 
         // Act
-        Func<Task> act = async () =>
+        var act = async () =>
         {
             using var stream = new MemoryStream(Encoding.UTF8.GetBytes(rawResponse));
             await HttpResponseParser.ParseAsync(stream);
@@ -246,7 +246,7 @@ public class HttpResponseParserTests
                                    """;
 
         // Act
-        Func<Task> act = async () =>
+        var act = async () =>
         {
             using var stream = new MemoryStream(Encoding.UTF8.GetBytes(rawResponse));
             await HttpResponseParser.ParseAsync(stream);
@@ -269,7 +269,7 @@ public class HttpResponseParserTests
                                    """;
 
         // Act
-        Func<Task> act = async () =>
+        var act = async () =>
         {
             using var stream = new MemoryStream(Encoding.UTF8.GetBytes(rawResponse));
             await HttpResponseParser.ParseAsync(stream);
@@ -280,8 +280,12 @@ public class HttpResponseParserTests
             .WithMessage("Invalid header format, missing key.");
     }
 
+    /// <summary>
+    /// The libraries job is not to validate that the response is legal (e.g. a Content Length,
+    /// without a matching body size). It's job is to parse the response only.
+    /// </summary>
     [Fact]
-    public async Task ParseAsync_Should_ThrowException_When_Body_Is_Missing_And_ContentLength_Is_Set()
+    public async Task ParseAsync_Should_Not_ThrowException_When_Body_Is_Missing_And_ContentLength_Is_Set()
     {
         // Arrange: A response with a Content-Length set but without a body
         const string rawResponse = """

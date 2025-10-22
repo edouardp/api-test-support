@@ -94,6 +94,57 @@ actualJson.AsJsonString().Should().FullyMatch(expectedJson);
 // Extracted values are available in the assertion result
 ```
 
+### PQSoft.ReqNRoll
+
+Pre-built Reqnroll (BDD) step definitions for API testing. Write tests in plain Gherkin without boilerplate:
+
+```gherkin
+Scenario: Create a new job
+  Given the following request
+  """
+  POST /api/job HTTP/1.1
+  Content-Type: application/json
+  
+  {
+    "JobType": "Upgrade"
+  }
+  """
+  
+  Then the API returns the following response
+  """
+  HTTP/1.1 201 Created
+  Content-Type: application/json
+  
+  {
+    "jobId": [[JOBID]]
+  }
+  """
+  
+  Given the following request
+  """
+  GET /api/job/status/{{JOBID}} HTTP/1.1
+  """
+  
+  Then the API returns the following response
+  """
+  HTTP/1.1 200 OK
+  
+  {
+    "jobId": "{{JOBID}}",
+    "status": "Pending"
+  }
+  """
+```
+
+Features:
+- Token extraction with `[[TOKEN]]` and substitution with `{{TOKEN}}`
+- Automatic HTTP request/response parsing
+- JSON subset matching
+- Header validation
+- Variable type assertions
+
+See [PQSoft.ReqNRoll README](src/PQSoft.ReqNRoll/README.md) for detailed examples.
+
 ## Installation
 
 Install packages from NuGet:
@@ -107,6 +158,9 @@ dotnet add package PQSoft.JsonComparer
 
 # JSON comparison with FluentAssertions
 dotnet add package PQSoft.JsonComparer.AwesomeAssertions
+
+# BDD/Reqnroll step definitions for API testing
+dotnet add package PQSoft.ReqNRoll
 ```
 
 ## Building and Publishing
@@ -161,11 +215,13 @@ dotnet build --configuration Release
 dotnet pack src/PQSoft.HttpFile/PQSoft.HttpFile.csproj --configuration Release -p:Version=1.0.1
 dotnet pack src/PQSoft.JsonComparer/PQSoft.JsonComparer.csproj --configuration Release -p:Version=1.0.1
 dotnet pack src/PQSoft.JsonComparer.AwesomeAssertions/PQSoft.JsonComparer.AwesomeAssertions.csproj --configuration Release -p:Version=1.0.1
+dotnet pack src/PQSoft.ReqNRoll/PQSoft.ReqNRoll.csproj --configuration Release -p:Version=1.0.1
 
 # Push to NuGet (in dependency order)
 dotnet nuget push "src/PQSoft.HttpFile/bin/Release/PQSoft.HttpFile.1.0.1.nupkg" --api-key $NUGET_API_KEY --source https://api.nuget.org/v3/index.json
 dotnet nuget push "src/PQSoft.JsonComparer/bin/Release/PQSoft.JsonComparer.1.0.1.nupkg" --api-key $NUGET_API_KEY --source https://api.nuget.org/v3/index.json
 dotnet nuget push "src/PQSoft.JsonComparer.AwesomeAssertions/bin/Release/PQSoft.JsonComparer.AwesomeAssertions.1.0.1.nupkg" --api-key $NUGET_API_KEY --source https://api.nuget.org/v3/index.json
+dotnet nuget push "src/PQSoft.ReqNRoll/bin/Release/PQSoft.ReqNRoll.1.0.1.nupkg" --api-key $NUGET_API_KEY --source https://api.nuget.org/v3/index.json
 ```
 
 ### Package Dependencies
@@ -173,6 +229,7 @@ dotnet nuget push "src/PQSoft.JsonComparer.AwesomeAssertions/bin/Release/PQSoft.
 - **PQSoft.HttpFile**: No external dependencies
 - **PQSoft.JsonComparer**: Depends on System.Text.Json
 - **PQSoft.JsonComparer.AwesomeAssertions**: Depends on PQSoft.JsonComparer and AwesomeAssertions
+- **PQSoft.ReqNRoll**: Depends on PQSoft.HttpFile, PQSoft.JsonComparer, PQSoft.JsonComparer.AwesomeAssertions, and Reqnroll
 
 Packages must be uploaded in dependency order to ensure successful publication.
 

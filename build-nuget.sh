@@ -26,17 +26,20 @@ dotnet clean --configuration Release
 dotnet build src/PQSoft.HttpFile/PQSoft.HttpFile.csproj --configuration Release --no-restore
 dotnet build src/PQSoft.JsonComparer/PQSoft.JsonComparer.csproj --configuration Release --no-restore
 dotnet build src/PQSoft.JsonComparer.AwesomeAssertions/PQSoft.JsonComparer.AwesomeAssertions.csproj --configuration Release --no-restore
+dotnet build src/PQSoft.ReqNRoll/PQSoft.ReqNRoll.csproj --configuration Release --no-restore
 
 # Pack packages with specified version (in dependency order)
 echo "Packing packages..."
 dotnet pack src/PQSoft.HttpFile/PQSoft.HttpFile.csproj --configuration Release --no-build -p:Version="$VERSION"
 dotnet pack src/PQSoft.JsonComparer/PQSoft.JsonComparer.csproj --configuration Release --no-build -p:Version="$VERSION"
 dotnet pack src/PQSoft.JsonComparer.AwesomeAssertions/PQSoft.JsonComparer.AwesomeAssertions.csproj --configuration Release --no-build -p:Version="$VERSION"
+dotnet pack src/PQSoft.ReqNRoll/PQSoft.ReqNRoll.csproj --configuration Release --no-build -p:Version="$VERSION"
 
 # Upload to NuGet.org in dependency order
 echo "Uploading packages to NuGet.org..."
 dotnet nuget push "src/PQSoft.HttpFile/bin/Release/PQSoft.HttpFile.$VERSION.nupkg" --api-key "$NUGET_API_KEY" --source https://api.nuget.org/v3/index.json --skip-duplicate
 dotnet nuget push "src/PQSoft.JsonComparer/bin/Release/PQSoft.JsonComparer.$VERSION.nupkg" --api-key "$NUGET_API_KEY" --source https://api.nuget.org/v3/index.json --skip-duplicate
 dotnet nuget push "src/PQSoft.JsonComparer.AwesomeAssertions/bin/Release/PQSoft.JsonComparer.AwesomeAssertions.$VERSION.nupkg" --api-key "$NUGET_API_KEY" --source https://api.nuget.org/v3/index.json --skip-duplicate
+dotnet nuget push "src/PQSoft.ReqNRoll/bin/Release/PQSoft.ReqNRoll.$VERSION.nupkg" --api-key "$NUGET_API_KEY" --source https://api.nuget.org/v3/index.json --skip-duplicate
 
 echo "Build and upload complete for version $VERSION!"
