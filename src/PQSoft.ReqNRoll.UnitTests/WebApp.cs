@@ -168,6 +168,148 @@ public class ProfileController : ControllerBase
     }
 }
 
+[ApiController]
+[Route("api/[controller]")]
+public class LoginController : ControllerBase
+{
+    [HttpPost]
+    public IActionResult Login([FromBody] LoginRequest request)
+    {
+        if (request.Username == "testuser" && request.Password == "testpass")
+        {
+            var sessionToken = "sess_" + Guid.NewGuid().ToString("N").Substring(0, 16);
+            Response.Headers["Set-Cookie"] = $"session={sessionToken}; Path=/; HttpOnly";
+            return Ok(new { message = "Login successful" });
+        }
+        return Unauthorized();
+    }
+}
+
+[ApiController]
+[Route("api/[controller]")]
+public class ProfileController2 : ControllerBase
+{
+    [HttpGet]
+    [Route("/api/profile")]
+    public IActionResult GetProfile()
+    {
+        var sessionCookie = Request.Headers.Cookie.FirstOrDefault();
+        if (sessionCookie?.Contains("session=") == true)
+        {
+            var sessionToken = sessionCookie.Split("session=")[1].Split(';')[0];
+            return Ok(new { username = "testuser", sessionId = sessionToken });
+        }
+        return Unauthorized();
+    }
+}
+
+[ApiController]
+[Route("api/[controller]")]
+public class UploadController : ControllerBase
+{
+    [HttpPost]
+    public IActionResult Upload()
+    {
+        var uploadId = "UP_" + Guid.NewGuid().ToString("N").Substring(0, 12).ToUpper();
+        var fileHash = "hash_" + Guid.NewGuid().ToString("N").Substring(0, 16);
+        var fileId = "FILE_" + Guid.NewGuid().ToString("N").Substring(0, 8).ToUpper();
+        
+        Response.Headers["X-Upload-Id"] = uploadId;
+        Response.Headers["X-File-Hash"] = fileHash;
+        Response.Headers["Location"] = $"/api/files/{fileId}";
+        
+        // Store the hash in a static dictionary for consistency across requests
+        FileHashStore.Store(uploadId, fileHash);
+        
+        return StatusCode(201, new { status = "uploaded" });
+    }
+}
+
+[ApiController]
+[Route("api/[controller]")]
+public class FilesController : ControllerBase
+{
+    [HttpGet("{id}")]
+    public IActionResult GetFile(string id)
+    {
+        var uploadRef = Request.Headers["X-Upload-Reference"].FirstOrDefault();
+        if (string.IsNullOrEmpty(uploadRef))
+            return BadRequest("Upload reference required");
+            
+        // Get the stored hash for this upload
+        var fileHash = FileHashStore.Get(uploadRef);
+        Response.Headers["ETag"] = $"\"{fileHash}\"";
+        
+        return Ok(new 
+        { 
+            fileId = id, 
+            uploadId = uploadRef,
+            hash = fileHash
+        });
+    }
+}
+
+[ApiController]
+[Route("api/[controller]")]
+public class AuthController : ControllerBase
+{
+    [HttpPost]
+    public IActionResult Authenticate([FromBody] AuthRequest request)
+    {
+        if (request.ClientId == "test-client")
+        {
+            var accessToken = "tok_" + Guid.NewGuid().ToString("N").Substring(0, 20);
+            var tokenType = "Bearer";
+            var expiresIn = 3600;
+            
+            Response.Headers["Authorization"] = $"Bearer {accessToken}";
+            Response.Headers["X-Token-Type"] = tokenType;
+            Response.Headers["X-Expires-In"] = expiresIn.ToString();
+            
+            return Ok(new { tokenType });
+        }
+        return Unauthorized();
+    }
+}
+
+[ApiController]
+[Route("api/[controller]")]
+public class ProtectedController : ControllerBase
+{
+    [HttpGet]
+    public IActionResult GetProtected()
+    {
+        var authHeader = Request.Headers.Authorization.FirstOrDefault();
+        if (authHeader?.StartsWith("Bearer ") == true)
+        {
+            return Ok(new 
+            { 
+                message = "Access granted",
+                tokenType = "Bearer",
+                expiresIn = 3600
+            });
+        }
+        return Unauthorized();
+    }
+}
+
 public record CreateUserRequest(string Name);
 public record CreateOrderRequest(string UserId);
 public record CreateProfileRequest(string Name, int Age, bool Premium);
+public record LoginRequest(string Username, string Password);
+public record AuthRequest(string ClientId);
+
+public static class FileHashStore
+{
+    private static readonly Dictionary<string, string> _store = new();
+    
+    public static void Store(string uploadId, string hash)
+    {
+        _store[uploadId] = hash;
+    }
+    
+    public static string Get(string uploadId)
+    {
+        return _store.TryGetValue(uploadId, out var hash) ? hash : "unknown";
+    }
+}

@@ -91,7 +91,8 @@ public class ApiStepDefinitions
         if (isJson)
         {
             // JSON response - use subset matching and token extraction
-            var captured = _lastBody!.AsJsonString().Should().ContainSubset(expected.Body);
+            var expectedBodyWithSubstitution = SubstituteVariables(expected.Body);
+            var captured = _lastBody!.AsJsonString().Should().ContainSubset(expectedBodyWithSubstitution);
             _variables = _variables.Concat(captured.ExtractedValues)
                 .GroupBy(kvp => kvp.Key)
                 .ToDictionary(g => g.Key, g => g.Last().Value);
@@ -232,6 +233,18 @@ public class ApiStepDefinitions
         _variables[name].GetDouble().Should().BeApproximately(expected, delta);
     }
 
+    [Then(@"the variable '(.*)' equals the variable '(.*)'")] 
+    [Then(@"the variable ""(.*)"" equals the variable ""(.*)""")] 
+    public void ThenTheVariableEqualsTheVariable(string name1, string name2)
+    {
+        if (!_variables.ContainsKey(name1))
+            throw new VariableNotFoundException(name1, _variables.Keys);
+        if (!_variables.ContainsKey(name2))
+            throw new VariableNotFoundException(name2, _variables.Keys);
+        
+        _variables[name1].ToString().Should().Be(_variables[name2].ToString());
+    }
+
     [Then(@"the variable '(.*)' equals (true|false)")]
     [Then(@"the variable ""(.*)"" equals (true|false)")]
     public void ThenTheVariableEqualsBool(string name, bool expected)
@@ -244,6 +257,7 @@ public class ApiStepDefinitions
 
     private string SubstituteVariables(string text)
     {
+        // First substitute {{TOKEN}} patterns (variable substitution)
         foreach (var kvp in _variables)
         {
             var value = kvp.Value.ValueKind switch
@@ -257,6 +271,22 @@ public class ApiStepDefinitions
             };
             text = text.Replace("{{" + kvp.Key + "}}", value);
         }
+        
+        // Then substitute [[TOKEN]] patterns (token extraction patterns)
+        foreach (var kvp in _variables)
+        {
+            var value = kvp.Value.ValueKind switch
+            {
+                JsonValueKind.String => kvp.Value.GetString()!,
+                JsonValueKind.Number => kvp.Value.ToString(),
+                JsonValueKind.True => "true",
+                JsonValueKind.False => "false",
+                JsonValueKind.Null => "null",
+                _ => kvp.Value.ToString()
+            };
+            text = text.Replace("[[" + kvp.Key + "]]", value);
+        }
+        
         return text;
     }
 
@@ -275,6 +305,23 @@ public class ApiStepDefinitions
         var allHeaders = _lastResponse!.Headers.Concat(_lastResponse.Content.Headers)
             .Select(h => h.Key).ToList();
         
+        // Build actual headers for extraction
+        var actualHeaders = new List<ParsedHeader>();
+        foreach (var header in _lastResponse.Headers.Concat(_lastResponse.Content.Headers))
+        {
+            var headerValue = string.Join(", ", header.Value);
+            var parsed = HttpHeadersParser.ParseHeader($"{header.Key}: {headerValue}");
+            actualHeaders.Add(parsed);
+        }
+        
+        // Extract variables from headers FIRST
+        var extractedVariables = HeaderVariableExtractor.ExtractVariables(expectedHeaders, actualHeaders);
+        foreach (var kvp in extractedVariables)
+        {
+            _variables[kvp.Key] = JsonDocument.Parse($"\"{kvp.Value}\"").RootElement;
+        }
+        
+        // Now validate headers with substituted values
         foreach (var expected in expectedHeaders)
         {
             if (!_lastResponse.Headers.TryGetValues(expected.Name, out var values) &&
@@ -283,9 +330,12 @@ public class ApiStepDefinitions
 
             var actual = HttpHeadersParser.ParseHeader($"{expected.Name}: {values.First()}");
             
-            if (actual.Value != expected.Value)
+            // Substitute variables in expected value for comparison
+            var expectedValue = SubstituteVariables(expected.Value);
+            
+            if (actual.Value != expectedValue)
                 throw new HeaderValidationException(expected.Name, allHeaders, 
-                    $"Expected value '{expected.Value}' but got '{actual.Value}'");
+                    $"Expected value '{expectedValue}' but got '{actual.Value}'");
             
             if (expected.Parameters.Any())
             {
@@ -295,9 +345,10 @@ public class ApiStepDefinitions
                         throw new HeaderValidationException(expected.Name, allHeaders, 
                             $"Parameter '{expectedParam.Key}' is missing");
                     
-                    if (actual.Parameters[expectedParam.Key] != expectedParam.Value)
+                    var expectedParamValue = SubstituteVariables(expectedParam.Value);
+                    if (actual.Parameters[expectedParam.Key] != expectedParamValue)
                         throw new HeaderValidationException(expected.Name, allHeaders, 
-                            $"Parameter '{expectedParam.Key}' expected '{expectedParam.Value}' but got '{actual.Parameters[expectedParam.Key]}'");
+                            $"Parameter '{expectedParam.Key}' expected '{expectedParamValue}' but got '{actual.Parameters[expectedParam.Key]}'");
                 }
             }
         }

@@ -167,6 +167,114 @@ HTTP/1.1 200 OK
 
 This matches even if the actual response has 50 other fields. Perfect for testing specific behaviors without brittle tests.
 
+### Header Variable Extraction
+
+Extract variables from HTTP response headers and use them in subsequent requests:
+
+```gherkin
+Scenario: Extract session token and use in authenticated request
+  Given the following request
+  """
+  POST /api/login HTTP/1.1
+  Content-Type: application/json
+  
+  {
+    "username": "testuser",
+    "password": "testpass"
+  }
+  """
+  
+  Then the API returns the following response
+  """
+  HTTP/1.1 200 OK
+  Set-Cookie: session=[[SESSION_TOKEN]]; Path=/; HttpOnly
+  Content-Type: application/json
+  
+  {
+    "message": "Login successful"
+  }
+  """
+  
+  Given the following request
+  """
+  GET /api/profile HTTP/1.1
+  Cookie: session={{SESSION_TOKEN}}
+  """
+  
+  Then the API returns the following response
+  """
+  HTTP/1.1 200 OK
+  Content-Type: application/json
+  
+  {
+    "username": "testuser",
+    "sessionId": "{{SESSION_TOKEN}}"
+  }
+  """
+```
+
+Extract multiple values from different headers:
+
+```gherkin
+Scenario: Extract multiple header values
+  Given the following request
+  """
+  POST /api/upload HTTP/1.1
+  Content-Type: multipart/form-data
+  
+  file content
+  """
+  
+  Then the API returns the following response
+  """
+  HTTP/1.1 201 Created
+  X-Upload-Id: [[UPLOAD_ID]]
+  X-File-Hash: [[FILE_HASH]]
+  Location: /api/files/[[FILE_ID]]
+  
+  {
+    "status": "uploaded"
+  }
+  """
+  
+  Given the following request
+  """
+  GET /api/files/{{FILE_ID}} HTTP/1.1
+  X-Upload-Reference: {{UPLOAD_ID}}
+  """
+  
+  Then the API returns the following response
+  """
+  HTTP/1.1 200 OK
+  ETag: "{{FILE_HASH}}"
+  
+  {
+    "fileId": "{{FILE_ID}}",
+    "uploadId": "{{UPLOAD_ID}}",
+    "hash": "{{FILE_HASH}}"
+  }
+  """
+```
+
+### Variable Comparison
+
+Compare variables extracted from different sources (headers vs body):
+
+```gherkin
+Scenario: Validate token consistency
+  Then the API returns the following response
+  """
+  HTTP/1.1 200 OK
+  X-Token-Type: [[HEADER_TOKEN_TYPE]]
+  
+  {
+    "tokenType": [[BODY_TOKEN_TYPE]]
+  }
+  """
+  
+  Then the variable 'HEADER_TOKEN_TYPE' equals the variable 'BODY_TOKEN_TYPE'
+```
+
 ### Header Validation
 
 Headers are automatically validated:
@@ -441,6 +549,7 @@ This package provides pre-built Reqnroll step definitions:
 - `Then the variable '{name}' is equals to '{value}'` - Assert extracted variable value
 - `Then the variable '{name}' is of type '{type}'` - Assert variable type (String, Number, Boolean, Date, Object, Array, Null)
 - `Then the variable '{name}' matches '{regex}'` - Assert variable matches regex pattern
+- `Then the variable '{name1}' equals the variable '{name2}'` - Compare two variables
 
 ## Dependencies
 

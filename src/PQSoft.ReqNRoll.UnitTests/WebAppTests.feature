@@ -323,4 +323,125 @@ Feature: PQSoft.ReqNRoll API Testing
     Then the variable 'UNIQUE_USER' matches '^user-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
     And the variable 'USER_ID' is of type 'String'
 
+  Scenario: Extract session token from header and use in subsequent request
+    Given the following request
+    """
+    POST /api/login HTTP/1.1
+    Content-Type: application/json
+
+    {
+      "username": "testuser",
+      "password": "testpass"
+    }
+    """
+
+    Then the API returns the following response
+    """
+    HTTP/1.1 200 OK
+    Set-Cookie: session=[[SESSION_TOKEN]]; Path=/; HttpOnly
+    Content-Type: application/json
+
+    {
+      "message": "Login successful"
+    }
+    """
+
+    Given the following request
+    """
+    GET /api/profile HTTP/1.1
+    Cookie: session={{SESSION_TOKEN}}
+    """
+
+    Then the API returns the following response
+    """
+    HTTP/1.1 200 OK
+    Content-Type: application/json
+
+    {
+      "username": "testuser",
+      "sessionId": "{{SESSION_TOKEN}}"
+    }
+    """
+
+  Scenario: Extract multiple header values and use them
+    Given the following request
+    """
+    POST /api/upload HTTP/1.1
+    Content-Type: multipart/form-data
+
+    file content
+    """
+
+    Then the API returns the following response
+    """
+    HTTP/1.1 201 Created
+    X-Upload-Id: [[UPLOAD_ID]]
+    X-File-Hash: [[FILE_HASH]]
+    Location: /api/files/[[FILE_ID]]
+
+    {
+      "status": "uploaded"
+    }
+    """
+
+    Given the following request
+    """
+    GET /api/files/{{FILE_ID}} HTTP/1.1
+    X-Upload-Reference: {{UPLOAD_ID}}
+    """
+
+    Then the API returns the following response
+    """
+    HTTP/1.1 200 OK
+    ETag: "{{FILE_HASH}}"
+
+    {
+      "fileId": "{{FILE_ID}}",
+      "uploadId": "{{UPLOAD_ID}}",
+      "hash": "{{FILE_HASH}}"
+    }
+    """
+
+  Scenario: Extract authorization token from complex header
+    Given the following request
+    """
+    POST /api/auth HTTP/1.1
+    Content-Type: application/json
+
+    {
+      "clientId": "test-client"
+    }
+    """
+
+    Then the API returns the following response
+    """
+    HTTP/1.1 200 OK
+    Authorization: Bearer [[ACCESS_TOKEN]]
+    X-Token-Type: [[HEADER_TOKEN_TYPE]]
+    X-Expires-In: [[EXPIRES_IN]]
+
+    {
+      "tokenType": [[BODY_TOKEN_TYPE]]
+    }
+    """
+
+    Then the variable 'HEADER_TOKEN_TYPE' equals the variable 'BODY_TOKEN_TYPE'
+
+    Given the following request
+    """
+    GET /api/protected HTTP/1.1
+    Authorization: Bearer {{ACCESS_TOKEN}}
+    """
+
+    Then the API returns the following response
+    """
+    HTTP/1.1 200 OK
+
+    {
+      "message": "Access granted",
+      "tokenType": "{{HEADER_TOKEN_TYPE}}",
+      "expiresIn": {{EXPIRES_IN}}
+    }
+    """
+
 

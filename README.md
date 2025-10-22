@@ -12,6 +12,7 @@ VS Code .http files. It provides functionality to:
 - Parse HTTP requests with method, URL, headers, and body
 - Parse HTTP responses with status code, headers, and body
 - Handle HTTP headers with parameters
+- Extract variables from headers using token patterns like `[[VAR_NAME]]`
 - Semantically compare parsed headers for testing purposes
 - Convert parsed requests to `HttpRequestMessage` objects for integration
   with HttpClient
@@ -48,6 +49,36 @@ The method handles:
 - Adding all headers to the request
 - Setting request content when a body is present
 - Proper header placement (request headers vs content headers)
+
+#### Header Variable Extraction
+
+The `HeaderVariableExtractor` class provides functionality to extract variables from HTTP headers using token patterns:
+
+```csharp
+// Parse expected and actual headers
+var expectedHeaders = new[]
+{
+    new ParsedHeader("Set-Cookie", "session=[[SESSION_TOKEN]]; Path=/", new Dictionary<string, string>()),
+    new ParsedHeader("X-Token-Type", "[[TOKEN_TYPE]]", new Dictionary<string, string>())
+};
+
+var actualHeaders = new[]
+{
+    new ParsedHeader("Set-Cookie", "session=abc123; Path=/", new Dictionary<string, string>()),
+    new ParsedHeader("X-Token-Type", "Bearer", new Dictionary<string, string>())
+};
+
+// Extract variables
+var variables = HeaderVariableExtractor.ExtractVariables(expectedHeaders, actualHeaders);
+// variables["SESSION_TOKEN"] = "abc123"
+// variables["TOKEN_TYPE"] = "Bearer"
+```
+
+The extractor supports:
+- Multiple tokens in the same header value
+- Tokens in header parameters
+- Case-insensitive header name matching
+- Complex patterns with mixed literal text and tokens
 
 This package is particularly useful for API testing scenarios where you need to parse and validate HTTP traffic.
 
@@ -138,10 +169,76 @@ Scenario: Create a new job
 
 Features:
 - Token extraction with `[[TOKEN]]` and substitution with `{{TOKEN}}`
+- Header variable extraction from response headers
 - Automatic HTTP request/response parsing
 - JSON subset matching
 - Header validation
 - Variable type assertions
+- Variable comparison between different sources
+
+#### Header Variable Extraction
+
+Extract variables from HTTP response headers and use them in subsequent requests:
+
+```gherkin
+Scenario: Extract session token and use in authenticated request
+  Given the following request
+  """
+  POST /api/login HTTP/1.1
+  Content-Type: application/json
+  
+  {
+    "username": "testuser",
+    "password": "testpass"
+  }
+  """
+  
+  Then the API returns the following response
+  """
+  HTTP/1.1 200 OK
+  Set-Cookie: session=[[SESSION_TOKEN]]; Path=/; HttpOnly
+  Content-Type: application/json
+  
+  {
+    "message": "Login successful"
+  }
+  """
+  
+  Given the following request
+  """
+  GET /api/profile HTTP/1.1
+  Cookie: session={{SESSION_TOKEN}}
+  """
+  
+  Then the API returns the following response
+  """
+  HTTP/1.1 200 OK
+  Content-Type: application/json
+  
+  {
+    "username": "testuser",
+    "sessionId": "{{SESSION_TOKEN}}"
+  }
+  """
+```
+
+#### Variable Comparison
+
+Compare variables extracted from different sources:
+
+```gherkin
+Then the API returns the following response
+"""
+HTTP/1.1 200 OK
+X-Token-Type: [[HEADER_TOKEN_TYPE]]
+
+{
+  "tokenType": [[BODY_TOKEN_TYPE]]
+}
+"""
+
+Then the variable 'HEADER_TOKEN_TYPE' equals the variable 'BODY_TOKEN_TYPE'
+```
 
 See [PQSoft.ReqNRoll README](src/PQSoft.ReqNRoll/README.md) for detailed examples.
 
