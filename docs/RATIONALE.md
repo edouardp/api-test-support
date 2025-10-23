@@ -2,66 +2,80 @@
 
 ## API Testing
 
-When we build REST APIs in C#, we want to test if they behave as we expect. 
+When we build REST APIs in C#, we want to test if they behave as we expect.
 
-ASP.NET gives us some useful tools to push this testing left to the "inner dev loop", the
-write, test, debug activity that an engineer performs on her laptop, and forms the most
-important flywheel that delivers developer velocity and productivity.
+ASP.NET gives us some useful tools to push this testing left to the "inner dev
+loop", the write, test, debug activity that an engineer performs on her laptop,
+and forms the most important flywheel that delivers developer velocity and
+productivity.
 
 Specifically ASP.NET and the .NET ecosystem give us:
 
-* **TestServer** and **WebApplicationFactory**
+- **TestServer** and **WebApplicationFactory**
 
-      The ability to instantiate the running API and as much of the business/domain layer as
-      required, and a client to interact with it, all running fast and locally on the engineer's
-      laptop.
+        The ability to instantiate the running API and as much of the business/domain layer as
+        required, and a client to interact with it, all running fast and locally on the engineer's
+        laptop.
 
-* **XUnit**, **Moq**, **AwesomeAssertions**, **Reqnroll**
+- **XUnit**, **Moq**, **AwesomeAssertions**, **Reqnroll**
 
-      High quality test automation infrastructure, also running fast and locally. These
-      are often considered essential for the lowest level, granular unit tests of individual
-      methods or classes, but are broadly used across the industry further up the test
-      pyramid
+        High quality test automation infrastructure, also running fast and locally. These
+        are often considered essential for the lowest level, granular unit tests of individual
+        methods or classes, but are broadly used across the industry further up the test
+        pyramid
 
-      The tests built with this infrastructure are integrated into engineers' IDEs and command-line
-      tooling, and can even be run automatically with test runners like NCrunch or dotCover's
-      Continuous Testing mode.
+        The tests built with this infrastructure are integrated into engineers' IDEs and command-line
+        tooling, and can even be run automatically with test runners like NCrunch or dotCover's
+        Continuous Testing mode.
 
-      Reqnroll extends the automated tests to Behaviour Driven Design using the industry standard
-      cucumber format, which transparently compiles down to unit tests.
+        Reqnroll extends the automated tests to Behaviour Driven Design using the industry standard
+        cucumber format, which transparently compiles down to unit tests.
 
-* **TestContainers**
+- **TestContainers**
 
-      The ability to include other systems and services directly into your unit tests in a
-      transparent and fully managed way using Docker containers. 
+        The ability to include other systems and services directly into your unit tests in a
+        transparent and fully managed way using Docker containers.
 
-      A great example is running a database as part of your unit tests, so a call to the API within
-      your unit tests can traverse the code all the way to the database and back again to not only
-      validate your API, but also the full vertical slice of your code all the way to the DB.
+        A great example is running a database as part of your unit tests, so a call to the API within
+        your unit tests can traverse the code all the way to the database and back again to not only
+        validate your API, but also the full vertical slice of your code all the way to the DB.
 
 ### Aside - "Unit Tests" vs "Fast Tests"
 
-Traditionally, "unit tests" meant testing a single method or class in isolation, with all dependencies mocked out. While these focused tests are still crucial for code correctness, modern development practices have expanded what we can test quickly.
+Traditionally, "unit tests" meant testing a single method or class in isolation,
+with all dependencies mocked out. While these focused tests are still crucial
+for code correctness, modern development practices have expanded what we can
+test quickly.
 
-**Fast Tests** go beyond single-method testing. With modern tooling, you can test much broader scenarios while maintaining the speed and reliability of traditional unit tests:
+**Fast Tests** go beyond single-method testing. With modern tooling, you can
+test much broader scenarios while maintaining the speed and reliability of
+traditional unit tests:
 
-- **Full API endpoints** using `WebApplicationFactory` - instantiate your entire web app in memory
-- **Complete vertical slices** from HTTP request → business logic → database → response
-- **Real database interactions** using TestContainers with Docker - often sub-100ms per test
+- **Full API endpoints** using `WebApplicationFactory` - instantiate your entire
+  web app in memory
+- **Complete vertical slices** from HTTP request → business logic → database →
+  response
+- **Real database interactions** using TestContainers with Docker - often
+  sub-100ms per test
 - **Multi-step workflows** that exercise complete user journeys
 - **Integration scenarios** that validate multiple components working together
 
-The key insight: **if a test runs locally in milliseconds and gives immediate feedback, it belongs in your inner dev loop** - regardless of how much of the system it exercises.
+The key insight: **if a test runs locally in milliseconds and gives immediate
+feedback, it belongs in your inner dev loop** - regardless of how much of the
+system it exercises.
 
 For example, a "Fast Test" might:
 
-1. Start a PostgreSQL container via TestContainers (~2 seconds startup, cached between tests)
-2. Make an HTTP POST to `/api/job` via WebApplicationFactory (in-memory, no network)
+1. Start a PostgreSQL container via TestContainers (~2 seconds startup, cached
+   between tests)
+2. Make an HTTP POST to `/api/job` via WebApplicationFactory (in-memory, no
+   network)
 3. Insert data through your API into the real database (~50ms)
 4. Query the database through another API endpoint (~30ms)
 5. Validate the full response with PQSoft libraries (~5ms)
 
-**Total test time: ~85ms after container warmup**. Fast enough to run hundreds of times per hour during development.
+**Total test time: ~85ms after container warmup**. Fast enough to run hundreds
+of times per hour during development.
 
 This is radically different from slow integration tests that require:
 
@@ -70,42 +84,50 @@ This is radically different from slow integration tests that require:
 - Coordinating shared test databases
 - Running tests sequentially to avoid conflicts
 
-**Fast Tests blur the line between "unit" and "integration"** - they test integrated behavior at unit test speed.
+**Fast Tests blur the line between "unit" and "integration"** - they test
+integrated behavior at unit test speed.
 
-I'm going to use the phrase "Unit Tests" throughout this document, but mostly I mean "Fast Tests" utilizing a standard Unit Test framework like xUnit. The tests may exercise a single method, an entire API endpoint, or a full vertical slice through your application - what matters is they're fast enough for the inner dev loop.
+I'm going to use the phrase "Unit Tests" throughout this document, but mostly I
+mean "Fast Tests" utilizing a standard Unit Test framework like xUnit. The tests
+may exercise a single method, an entire API endpoint, or a full vertical slice
+through your application - what matters is they're fast enough for the inner dev
+loop.
 
 ## Correct and Complete
 
-In software development, there is an idea of Correct and Complete, where the code does what it is
-supposed to do, without any bugs or misbehaviour (the "Correct" part), and it handles all the possible
-use cases, not just the happy path, and performs as intended in every one of those scenarios (the
-"Complete" part).
+In software development, there is an idea of Correct and Complete, where the
+code does what it is supposed to do, without any bugs or misbehaviour (the
+"Correct" part), and it handles all the possible use cases, not just the happy
+path, and performs as intended in every one of those scenarios (the "Complete"
+part).
 
 For example, a server should be able to handle
 
-* the network changing on the fly - a network interface being added or removed
-* the disk filling up, so there is no space to write files locally
-* inputs being invalid
-* deadlocks cancelling a query in the database
-* the database being offline, then coming back online
-* Handling Leap years properly
-* handling 2am happening twice (or never) as Daylight Savings start and ends
-* and many, many more
+- the network changing on the fly - a network interface being added or removed
+- the disk filling up, so there is no space to write files locally
+- inputs being invalid
+- deadlocks cancelling a query in the database
+- the database being offline, then coming back online
+- Handling Leap years properly
+- handling 2am happening twice (or never) as Daylight Savings start and ends
+- and many, many more
 
 Each "unhappy path" should have a clear strategy for handling the situation
 
-I find that many teams do a good job of correctness, but only a so-so job on completeness.
+I find that many teams do a good job of correctness, but only a so-so job on
+completeness.
 
-Mocking frameworks like Moq help here a lot - failure modes that are hard or near impossible to
-trigger in a live system (whether in prod or pre-prod) can be invoked by a strategic mock when running
-the systems inside your unit tests - like mocking the database layer to throw a
-`MySqlException(ER_LOCK_DEADLOCK)` to ensure the system handles the deadlock correctly, ideally by retrying
-the SQL statement or transaction.
+Mocking frameworks like Moq help here a lot - failure modes that are hard or
+near impossible to trigger in a live system (whether in prod or pre-prod) can be
+invoked by a strategic mock when running the systems inside your unit tests -
+like mocking the database layer to throw a `MySqlException(ER_LOCK_DEADLOCK)` to
+ensure the system handles the deadlock correctly, ideally by retrying the SQL
+statement or transaction.
 
 ## So how do we test an API?
 
-The simplest level of testing is to send a request to the REST API, and validate we get the
-correct Response, by comparing the result to what we expected.
+The simplest level of testing is to send a request to the REST API, and validate
+we get the correct Response, by comparing the result to what we expected.
 
 In pseudocode this would be
 
@@ -143,60 +165,64 @@ Content-Type: application/json
 {"UserID": 1234, "Username": "joeblogs"}
 ```
 
-But this is where we have to stop and consider what we mean by the expected response being
-equal to the actual response.
+But this is where we have to stop and consider what we mean by the expected
+response being equal to the actual response.
 
 ## Headers
 
 ### Header Case
 
-The HTTP spec states that we should treat the header `content-type: text/html` to be equivalent to
-the header `Content-type: text/html`
+The HTTP spec states that we should treat the header `content-type: text/html`
+to be equivalent to the header `Content-type: text/html`
 
 ### Header Whitespace
 
-The HTTP spec also states that the header `Content-type:  text/html` is equivalent to the header
-`Content-type: text/html `. i.e. additional whitespace is ignored
+The HTTP spec also states that the header `Content-type:  text/html` is
+equivalent to the header `Content-type: text/html`. i.e. additional whitespace
+is ignored
 
 ### Cache-Control Header and Parameter Order
 
-Another thing the spec says is that `Cache-Control: max-age=3600, no-store` is equivalent to
-`Cache-Control: no-store, max-age=3600`.
+Another thing the spec says is that `Cache-Control: max-age=3600, no-store` is
+equivalent to `Cache-Control: no-store, max-age=3600`.
 
-If your expected response is `Cache-Control: max-age=3600, no-store`, but the actual response
-is `Cache-Control: no-store, max-age=3600` you want to say that that expected header matches.
+If your expected response is `Cache-Control: max-age=3600, no-store`, but the
+actual response is `Cache-Control: no-store, max-age=3600` you want to say that
+that expected header matches.
 
 But that there are some headers where the order is important, e.g.
 `Content-Encoding: sdch, gzip`. The order matters, and cannot be reversed.
 
 ### Date Header
 
-The `Date` header is simply the date that the response is generated, and, in almost all cases,
-is not important for correctness, and, unless special effort is applied to inject a known
-time into the REST API server, will change every time the unit test is run.
+The `Date` header is simply the date that the response is generated, and, in
+almost all cases, is not important for correctness, and, unless special effort
+is applied to inject a known time into the REST API server, will change every
+time the unit test is run.
 
-For headers like this, you may want to ignore it altogether, or perhaps there may be a case
-where you want the header to be present, but you don't care about the value
+For headers like this, you may want to ignore it altogether, or perhaps there
+may be a case where you want the header to be present, but you don't care about
+the value
 
 ### X-Request-ID Header
 
-There are some headers that may be added by the server code, or by middleware, or even
-by intermediate proxies. `X-Request-ID` is one of these, and we may want to ignore it
-altogether, or simply validate that the header is present, while ignoring the
-value.
+There are some headers that may be added by the server code, or by middleware,
+or even by intermediate proxies. `X-Request-ID` is one of these, and we may want
+to ignore it altogether, or simply validate that the header is present, while
+ignoring the value.
 
-`Via: 1.1 varnish` is explicitly a proxy header, and may be added by intermediate hops
-in the HTTP request when running in the real world.
-
+`Via: 1.1 varnish` is explicitly a proxy header, and may be added by
+intermediate hops in the HTTP request when running in the real world.
 
 ## JSON Response Body
 
-The JSON body itself can be structurally equivalent, but not be exactly the same.
+The JSON body itself can be structurally equivalent, but not be exactly the
+same.
 
 ### Whitespace
 
-`{"Username":"joeblogs"}` is structurally equivalent to `{ "Username": "joeblogs" }`
-which is also equivalent to 
+`{"Username":"joeblogs"}` is structurally equivalent to
+`{ "Username": "joeblogs" }` which is also equivalent to
 
 ```
 {
@@ -228,52 +254,53 @@ TODO
 
 1 ≡ 1.0 ≡ 1e0
 
-
 ### Escaped Equivalence
 
 TODO
 
 "hello" ≡ "he\u006Clo"
 
-
 ## Selective Field Testing, Field Presence Only
 
-Sometimes, when testing a specific action with an API, we may not care about all of
-the fields, but only the ones that are relevant to the action we are performing.
+Sometimes, when testing a specific action with an API, we may not care about all
+of the fields, but only the ones that are relevant to the action we are
+performing.
 
-Another common case is that we want to ensure that a certain field is present, but we don't
-care what the value is. E.g. when creating a new entity.
+Another common case is that we want to ensure that a certain field is present,
+but we don't care what the value is. E.g. when creating a new entity.
 
-For example a POST call to /api/job,
-where we care that we get a response back with the job details, but every call to the API
-will give us a unique job ID.
+For example a POST call to /api/job, where we care that we get a response back
+with the job details, but every call to the API will give us a unique job ID.
 
-This is a little like the Date: or X-Request-ID headers - we may want to ensure the response
-has a field, but we know that the value for that field changes every time.
-
-
+This is a little like the Date: or X-Request-ID headers - we may want to ensure
+the response has a field, but we know that the value for that field changes
+every time.
 
 ## Down the Rabbit Hole
 
-Sooner or later the response may have values that could be correct or incorrect depending on the
-meaning of data. 
+Sooner or later the response may have values that could be correct or incorrect
+depending on the meaning of data.
 
-e.g. does the order of the value matter in this array `[1,2,3]`? Is `[2,1,3]` the same? Almost always
-no, but it's more grey with something like `[{"StockId": 221313},{"StockId": 621142}]`. At this point
-the answer may end up being "it depends".
+e.g. does the order of the value matter in this array `[1,2,3]`? Is `[2,1,3]`
+the same? Almost always no, but it's more grey with something like
+`[{"StockId": 221313},{"StockId": 621142}]`. At this point the answer may end up
+being "it depends".
 
-Sometimes we are working with an ordered list, and sometimes we are not. JSON has no "set" datatype. Some
-JSON HTTP Responses might have multiple arrays, some which need to be treated as ordered arrays, and
-some that should be treated as unordered sets.
+Sometimes we are working with an ordered list, and sometimes we are not. JSON
+has no "set" datatype. Some JSON HTTP Responses might have multiple arrays, some
+which need to be treated as ordered arrays, and some that should be treated as
+unordered sets.
 
-And another valid JSON response might be `{"a":1, "a":2}`, which is "valid" JSON text under RFC 8259, but it's not "well-defined". Treating this consistently is also hard.
+And another valid JSON response might be `{"a":1, "a":2}`, which is "valid" JSON
+text under RFC 8259, but it's not "well-defined". Treating this consistently is
+also hard.
 
 And then there is Unicode normalisation: "é" vs "e\u0301"
 
 ## Is Expected a Subset of Actual?
 
-A lot of the time, it can be very valuable to allow check if the expected document is a subset
-of the Actual document returned by the API.
+A lot of the time, it can be very valuable to allow check if the expected
+document is a subset of the Actual document returned by the API.
 
 e.g.
 
@@ -303,13 +330,15 @@ Actual Response:
 }
 ```
 
-If we just want to ensure that the status code is working as expected, then we may want to
-only check if the expected response is a subset of the actual response.
+If we just want to ensure that the status code is working as expected, then we
+may want to only check if the expected response is a subset of the actual
+response.
 
 ## Ignoring values
 
-Building on the subset example above, it may be good to do a subset match, but also have the
-ability to ignore the values of certain fields, but check that they are present.
+Building on the subset example above, it may be good to do a subset match, but
+also have the ability to ignore the values of certain fields, but check that
+they are present.
 
 Expected Response:
 
@@ -382,7 +411,8 @@ This works, but it's verbose and doesn't handle:
 - Dynamic values (dates, IDs, trace IDs)
 - Subset matching
 
-You could write helper methods to handle these cases, but you'd essentially be building a JSON comparison library.
+You could write helper methods to handle these cases, but you'd essentially be
+building a JSON comparison library.
 
 ### The Problem Gets Worse
 
@@ -410,7 +440,8 @@ Assert.Contains("charset", parameters.Keys);
 Assert.Equal("utf-8", parameters["charset"]);
 ```
 
-This is extremely verbose for a simple header check! And you'd need to write this boilerplate for every test.
+This is extremely verbose for a simple header check! And you'd need to write
+this boilerplate for every test.
 
 ### And It Gets Even More Complex
 
@@ -491,7 +522,8 @@ var statusResponse = await client.GetAsync($"/api/job/{jobId}/status");
 ```
 
 **Tokens** (`[[TOKEN_NAME]]`) extract dynamic values for later use.
-**Functions** (`{{NOW()}}`, `{{GUID()}}`, `{{UTCNOW()}}`) validate timestamps and generated values.
+**Functions** (`{{NOW()}}`, `{{GUID()}}`, `{{UTCNOW()}}`) validate timestamps
+and generated values.
 
 ### 3. **Subset Matching** - Test What Matters
 
@@ -579,9 +611,12 @@ jobId.Should().NotBeNullOrEmpty();
 The library was built on these principles:
 
 ### 1. **Fast Inner Dev Loop**
-Tests run locally in milliseconds using `TestServer`, `WebApplicationFactory`, and standard xUnit infrastructure.
+
+Tests run locally in milliseconds using `TestServer`, `WebApplicationFactory`,
+and standard xUnit infrastructure.
 
 ### 2. **Semantic Correctness**
+
 Comparisons follow HTTP and JSON specifications precisely:
 
 - Header names are case-insensitive
@@ -590,22 +625,27 @@ Comparisons follow HTTP and JSON specifications precisely:
 - Parameter order is ignored where appropriate
 
 ### 3. **Handle Real-World Testing Needs**
+
 - **Dynamic values**: Extract and reuse generated IDs, timestamps, trace IDs
 - **Subset matching**: Test only what matters for each scenario
 - **Flexible assertions**: Exact match when needed, subset when appropriate
 
 ### 4. **Developer Experience**
+
 - Readable test code using FluentAssertions style
 - Clear error messages with detailed mismatches
 - Natural syntax that expresses intent
 
 ### 5. **Supports "Correct and Complete" Testing**
-As discussed earlier, software should be both correct (bug-free) and complete (handles all scenarios).
-This library enables complete test coverage without sacrificing correctness:
+
+As discussed earlier, software should be both correct (bug-free) and complete
+(handles all scenarios). This library enables complete test coverage without
+sacrificing correctness:
 
 - Mock dynamic time with `TimeProvider` for deterministic timestamp testing
 - Extract unpredictable values with tokens to test dynamic scenarios
-- Use subset matching for focused assertions without brittle full-response checks
+- Use subset matching for focused assertions without brittle full-response
+  checks
 
 ## Example: Complete API Test Workflow
 
@@ -671,6 +711,9 @@ Testing APIs correctly and completely requires handling:
 - Subset matching for focused testing
 - Value extraction for multi-step workflows
 
-**PQSoft API Test Support** provides focused, composable tools that solve these challenges while maintaining fast inner dev loop performance and readable test code.
+**PQSoft API Test Support** provides focused, composable tools that solve these
+challenges while maintaining fast inner dev loop performance and readable test
+code.
 
-The result: **more comprehensive test coverage, fewer brittle tests, and faster developer velocity**.
+The result: **more comprehensive test coverage, fewer brittle tests, and faster
+developer velocity**.

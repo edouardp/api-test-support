@@ -5,8 +5,10 @@ Documentation for API Test Engineering libraries.
 ## Packages
 
 - [PQSoft.HttpFile](api/httpfile.md) - Parse HTTP request and response files
-- [PQSoft.JsonComparer](api/jsoncomparer.md) - Advanced JSON comparison with tokens and functions
-- [PQSoft.JsonComparer.AwesomeAssertions](api/assertions.md) - FluentAssertions extensions for JSON comparison
+- [PQSoft.JsonComparer](api/jsoncomparer.md) - Advanced JSON comparison with
+  tokens and functions
+- [PQSoft.JsonComparer.AwesomeAssertions](api/assertions.md) - FluentAssertions
+  extensions for JSON comparison
 
 ## Installation
 

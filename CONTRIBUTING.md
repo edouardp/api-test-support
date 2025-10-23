@@ -1,16 +1,19 @@
 # Contributing to PQSoft.JsonComparer
 
-Thank you for your interest in contributing to PQSoft.JsonComparer! This document provides guidelines and instructions for contributing to this project.
+Thank you for your interest in contributing to PQSoft.JsonComparer! This
+document provides guidelines and instructions for contributing to this project.
 
 ## Code of Conduct
 
-Please be respectful and considerate of others when contributing to this project. We aim to foster an inclusive and welcoming community.
+Please be respectful and considerate of others when contributing to this
+project. We aim to foster an inclusive and welcoming community.
 
 ## How to Contribute
 
 ### Reporting Bugs
 
-If you find a bug, please create an issue on GitHub with the following information:
+If you find a bug, please create an issue on GitHub with the following
+information:
 
 - A clear, descriptive title
 - A detailed description of the issue
@@ -53,4 +56,5 @@ We welcome suggestions for enhancements! Please create an issue on GitHub with:
 
 ## License
 
-By contributing to this project, you agree that your contributions will be licensed under the project's MIT License.
+By contributing to this project, you agree that your contributions will be
+licensed under the project's MIT License.

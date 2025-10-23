@@ -1,6 +1,7 @@
 # PQSoft.JsonComparer Sample Application
 
-This sample application demonstrates how to use the PQSoft.JsonComparer library to compare JSON documents.
+This sample application demonstrates how to use the PQSoft.JsonComparer library
+to compare JSON documents.
 
 ## Features Demonstrated
 

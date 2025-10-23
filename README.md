@@ -6,16 +6,16 @@ A repository for Open Source packages for API Test Engineering
 
 ### PQSoft.HttpFile
 
-A library for parsing HTTP request and response files, similar to Microsoft's
-VS Code .http files. It provides functionality to:
+A library for parsing HTTP request and response files, similar to Microsoft's VS
+Code .http files. It provides functionality to:
 
 - Parse HTTP requests with method, URL, headers, and body
 - Parse HTTP responses with status code, headers, and body
 - Handle HTTP headers with parameters
 - Extract variables from headers using token patterns like `[[VAR_NAME]]`
 - Semantically compare parsed headers for testing purposes
-- Convert parsed requests to `HttpRequestMessage` objects for integration
-  with HttpClient
+- Convert parsed requests to `HttpRequestMessage` objects for integration with
+  HttpClient
 
 #### Converting to HttpRequestMessage
 
@@ -52,7 +52,8 @@ The method handles:
 
 #### Header Variable Extraction
 
-The `HeaderVariableExtractor` class provides functionality to extract variables from HTTP headers using token patterns:
+The `HeaderVariableExtractor` class provides functionality to extract variables
+from HTTP headers using token patterns:
 
 ```csharp
 // Parse expected and actual headers
@@ -75,23 +76,31 @@ var variables = HeaderVariableExtractor.ExtractVariables(expectedHeaders, actual
 ```
 
 The extractor supports:
+
 - Multiple tokens in the same header value
 - Tokens in header parameters
 - Case-insensitive header name matching
 - Complex patterns with mixed literal text and tokens
 
-This package is particularly useful for API testing scenarios where you need to parse and validate HTTP traffic.
+This package is particularly useful for API testing scenarios where you need to
+parse and validate HTTP traffic.
 
 ### PQSoft.JsonComparer
 
 A powerful library for comparing JSON documents with advanced features:
 
-- **Exact Match**: Validates that two JSON documents are identical (except for tokens)
-- **Subset Match**: Verifies that all elements in the expected JSON exist within the actual JSON
-- **Token Support**: Extract values from actual JSON using tokens like `[[TOKEN_NAME]]`
-- **Function Execution**: Execute functions like `{{GUID()}}`, `{{NOW()}}`, and `{{UTCNOW()}}` during comparison
-- **Variable Substitution**: Substitute variables from provided context during preprocessing
-- **Detailed Mismatch Reporting**: Provides structured information on any differences found
+- **Exact Match**: Validates that two JSON documents are identical (except for
+  tokens)
+- **Subset Match**: Verifies that all elements in the expected JSON exist within
+  the actual JSON
+- **Token Support**: Extract values from actual JSON using tokens like
+  `[[TOKEN_NAME]]`
+- **Function Execution**: Execute functions like `{{GUID()}}`, `{{NOW()}}`, and
+  `{{UTCNOW()}}` during comparison
+- **Variable Substitution**: Substitute variables from provided context during
+  preprocessing
+- **Detailed Mismatch Reporting**: Provides structured information on any
+  differences found
 - **Custom Function Registration**: Extend functionality with custom functions
 
 Example:
@@ -108,7 +117,8 @@ bool isMatch = comparer.ExactMatch(expectedJson, actualJson, out var extractedVa
 
 ### PQSoft.JsonComparer.AwesomeAssertions
 
-FluentAssertions extensions for JSON comparison that integrate seamlessly with the JsonComparer functionality:
+FluentAssertions extensions for JSON comparison that integrate seamlessly with
+the JsonComparer functionality:
 
 - Provides a fluent API for JSON assertions
 - Works with the token extraction features of JsonComparer
@@ -127,7 +137,8 @@ actualJson.AsJsonString().Should().FullyMatch(expectedJson);
 
 ### PQSoft.ReqNRoll
 
-Pre-built Reqnroll (BDD) step definitions for API testing. Write tests in plain Gherkin without boilerplate:
+Pre-built Reqnroll (BDD) step definitions for API testing. Write tests in plain
+Gherkin without boilerplate:
 
 ```gherkin
 Scenario: Create a new job
@@ -135,31 +146,31 @@ Scenario: Create a new job
   """
   POST /api/job HTTP/1.1
   Content-Type: application/json
-  
+
   {
     "JobType": "Upgrade"
   }
   """
-  
+
   Then the API returns the following response
   """
   HTTP/1.1 201 Created
   Content-Type: application/json
-  
+
   {
     "jobId": [[JOBID]]
   }
   """
-  
+
   Given the following request
   """
   GET /api/job/status/{{JOBID}} HTTP/1.1
   """
-  
+
   Then the API returns the following response
   """
   HTTP/1.1 200 OK
-  
+
   {
     "jobId": "{{JOBID}}",
     "status": "Pending"
@@ -168,6 +179,7 @@ Scenario: Create a new job
 ```
 
 Features:
+
 - Token extraction with `[[TOKEN]]` and substitution with `{{TOKEN}}`
 - Header variable extraction from response headers
 - Automatic HTTP request/response parsing
@@ -178,7 +190,8 @@ Features:
 
 #### Header Variable Extraction
 
-Extract variables from HTTP response headers and use them in subsequent requests:
+Extract variables from HTTP response headers and use them in subsequent
+requests:
 
 ```gherkin
 Scenario: Extract session token and use in authenticated request
@@ -186,35 +199,35 @@ Scenario: Extract session token and use in authenticated request
   """
   POST /api/login HTTP/1.1
   Content-Type: application/json
-  
+
   {
     "username": "testuser",
     "password": "testpass"
   }
   """
-  
+
   Then the API returns the following response
   """
   HTTP/1.1 200 OK
   Set-Cookie: session=[[SESSION_TOKEN]]; Path=/; HttpOnly
   Content-Type: application/json
-  
+
   {
     "message": "Login successful"
   }
   """
-  
+
   Given the following request
   """
   GET /api/profile HTTP/1.1
   Cookie: session={{SESSION_TOKEN}}
   """
-  
+
   Then the API returns the following response
   """
   HTTP/1.1 200 OK
   Content-Type: application/json
-  
+
   {
     "username": "testuser",
     "sessionId": "{{SESSION_TOKEN}}"
@@ -240,7 +253,8 @@ X-Token-Type: [[HEADER_TOKEN_TYPE]]
 Then the variable 'HEADER_TOKEN_TYPE' equals the variable 'BODY_TOKEN_TYPE'
 ```
 
-See [PQSoft.ReqNRoll README](src/PQSoft.ReqNRoll/README.md) for detailed examples.
+See [PQSoft.ReqNRoll README](src/PQSoft.ReqNRoll/README.md) for detailed
+examples.
 
 ## Installation
 
@@ -264,25 +278,30 @@ dotnet add package PQSoft.ReqNRoll
 
 ### Prerequisites
 
-1. **NuGet API Key**: Create an API key at [nuget.org/account/apikeys](https://www.nuget.org/account/apikeys)
+1. **NuGet API Key**: Create an API key at
+   [nuget.org/account/apikeys](https://www.nuget.org/account/apikeys)
 2. **Environment Variable**: Set your API key as an environment variable:
-   ```bash
-   export NUGET_API_KEY="your-api-key-here"
-   ```
+
+    ```bash
+    export NUGET_API_KEY="your-api-key-here"
+    ```
 
 ### Version Management
 
-All packages use centralized versioning in `Directory.Build.props`. To update the version:
+All packages use centralized versioning in `Directory.Build.props`. To update
+the version:
 
 1. **Edit Directory.Build.props**:
-   ```xml
-   <Version>1.0.1</Version>
-   ```
+
+    ```xml
+    <Version>1.0.1</Version>
+    ```
 
 2. **Or override during build**:
-   ```bash
-   ./build-nuget.sh 1.0.1
-   ```
+
+    ```bash
+    ./build-nuget.sh 1.0.1
+    ```
 
 ### Building and Publishing
 
@@ -325,14 +344,17 @@ dotnet nuget push "src/PQSoft.ReqNRoll/bin/Release/PQSoft.ReqNRoll.1.0.1.nupkg" 
 
 - **PQSoft.HttpFile**: No external dependencies
 - **PQSoft.JsonComparer**: Depends on System.Text.Json
-- **PQSoft.JsonComparer.AwesomeAssertions**: Depends on PQSoft.JsonComparer and AwesomeAssertions
-- **PQSoft.ReqNRoll**: Depends on PQSoft.HttpFile, PQSoft.JsonComparer, PQSoft.JsonComparer.AwesomeAssertions, and Reqnroll
+- **PQSoft.JsonComparer.AwesomeAssertions**: Depends on PQSoft.JsonComparer and
+  AwesomeAssertions
+- **PQSoft.ReqNRoll**: Depends on PQSoft.HttpFile, PQSoft.JsonComparer,
+  PQSoft.JsonComparer.AwesomeAssertions, and Reqnroll
 
 Packages must be uploaded in dependency order to ensure successful publication.
 
 ## Documentation
 
-Full documentation is available at: <https://edouardp.github.io/api-test-support/>
+Full documentation is available at:
+<https://edouardp.github.io/api-test-support/>
 
 ### Setting up GitHub Pages
 
@@ -343,11 +365,11 @@ To enable GitHub Pages for documentation:
 gh api repos/edouardp/api-test-support/pages -X POST --input - <<< '{"source":{"branch":"main","path":"/docs"}}'
 ```
 
-Documentation is automatically built and deployed from the `docs/` folder using Jekyll.
+Documentation is automatically built and deployed from the `docs/` folder using
+Jekyll.
 
 ## Support Projects
 
 - PQSoft.HttpFile.UnitTests
 - PQSoft.JsonComparer.UnitTests
 - PQSoft.JsonComparer.AwesomeAssertions.UnitTests
-

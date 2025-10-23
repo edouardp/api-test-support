@@ -1,6 +1,7 @@
 # PQSoft.HttpFile
 
-A library for parsing HTTP request and response files, similar to Microsoft's VS Code .http files.
+A library for parsing HTTP request and response files, similar to Microsoft's VS
+Code .http files.
 
 ## Features
 
@@ -9,7 +10,8 @@ A library for parsing HTTP request and response files, similar to Microsoft's VS
 - Handle HTTP headers with parameters
 - Semantically compare parsed headers for testing purposes
 
-This package is particularly useful for API testing scenarios where you need to parse and validate HTTP traffic.
+This package is particularly useful for API testing scenarios where you need to
+parse and validate HTTP traffic.
 
 ## Installation
 

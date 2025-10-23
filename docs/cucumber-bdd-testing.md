@@ -2,9 +2,13 @@
 
 ## Overview
 
-Behavior-Driven Development (BDD) using Cucumber/Reqnroll (formerly SpecFlow) provides a way to write tests in natural language (Gherkin) that are executable and maintainable. The PQSoft libraries integrate seamlessly with BDD testing to provide powerful API testing capabilities.
+Behavior-Driven Development (BDD) using Cucumber/Reqnroll (formerly SpecFlow)
+provides a way to write tests in natural language (Gherkin) that are executable
+and maintainable. The PQSoft libraries integrate seamlessly with BDD testing to
+provide powerful API testing capabilities.
 
 This guide shows how to:
+
 - Write readable Gherkin scenarios for API testing
 - Use token extraction (`[[TOKEN]]`) to capture dynamic values
 - Reference captured values in subsequent requests (`{{TOKEN}}`)
@@ -18,20 +22,21 @@ This guide shows how to:
 Without proper tooling, BDD API tests suffer from:
 
 1. **Brittle assertions**: Hard-coded IDs, timestamps, and headers break easily
-2. **Verbose step definitions**: Manual JSON parsing and comparison in every step
+2. **Verbose step definitions**: Manual JSON parsing and comparison in every
+   step
 3. **Poor multi-step support**: Difficult to pass data between steps
 4. **Header complexity**: Hard to validate HTTP headers semantically
 5. **Limited reusability**: Step definitions become test-specific
 
 ### **PQSoft Solutions**
 
-| Challenge | PQSoft Solution |
-|-----------|----------------|
-| Dynamic values (IDs, timestamps) | Token extraction: `[[JOBID]]` |
-| Value reuse across steps | Token substitution: `{{JOBID}}` |
-| JSON comparison | Semantic comparison with `JsonComparer` |
-| Header validation | Semantic header matching with `ParsedHeader` |
-| HTTP parsing | Direct `.http` format support in Gherkin |
+| Challenge                        | PQSoft Solution                              |
+| -------------------------------- | -------------------------------------------- |
+| Dynamic values (IDs, timestamps) | Token extraction: `[[JOBID]]`                |
+| Value reuse across steps         | Token substitution: `{{JOBID}}`              |
+| JSON comparison                  | Semantic comparison with `JsonComparer`      |
+| Header validation                | Semantic header matching with `ParsedHeader` |
+| HTTP parsing                     | Direct `.http` format support in Gherkin     |
 
 ## Quick Start Example
 
@@ -87,7 +92,8 @@ Feature: Job Management API
 
 1. `[[JOBID]]` extracts the `jobId` value from the response (e.g., `"abc-123"`)
 2. `{{JOBID}}` substitutes the captured value into subsequent requests
-3. Headers are compared semantically (case-insensitive, parameter order independent)
+3. Headers are compared semantically (case-insensitive, parameter order
+   independent)
 4. JSON is compared structurally (field order doesn't matter)
 
 ## Token System
@@ -132,11 +138,11 @@ The `{{JOBID}}` is replaced with the actual value captured earlier.
 
 Execute functions during comparison:
 
-| Function | Description | Example Output |
-|----------|-------------|----------------|
-| `{{NOW()}}` | Current local time with timezone | `2025-01-15T10:30:45.123+13:00` |
-| `{{UTCNOW()}}` | Current UTC time | `2025-01-15T10:30:45.123Z` |
-| `{{GUID()}}` | Generate a new GUID | `7a3b2c1d-4e5f-6a7b-8c9d-0e1f2a3b4c5d` |
+| Function       | Description                      | Example Output                         |
+| -------------- | -------------------------------- | -------------------------------------- |
+| `{{NOW()}}`    | Current local time with timezone | `2025-01-15T10:30:45.123+13:00`        |
+| `{{UTCNOW()}}` | Current UTC time                 | `2025-01-15T10:30:45.123Z`             |
+| `{{GUID()}}`   | Generate a new GUID              | `7a3b2c1d-4e5f-6a7b-8c9d-0e1f2a3b4c5d` |
 
 ```gherkin
 Then the API returns the following response
@@ -571,7 +577,8 @@ Scenario: Extract multiple values from response
 
 ### **Discard Tokens (Validate Presence Only)**
 
-Use empty tokens `[[]]` when you want to validate a field exists but don't care about the value:
+Use empty tokens `[[]]` when you want to validate a field exists but don't care
+about the value:
 
 ```gherkin
 Then the API returns the following response
@@ -632,8 +639,10 @@ Scenario Outline: Various invalid inputs
 ### **3. Use Semantic Header Matching**
 
 Headers are automatically compared semantically:
+
 - Names are case-insensitive: `Content-Type` == `content-type`
-- Parameters are order-independent: `charset=utf-8; boundary=abc` == `boundary=abc; charset=utf-8`
+- Parameters are order-independent: `charset=utf-8; boundary=abc` ==
+  `boundary=abc; charset=utf-8`
 - Whitespace is normalized
 
 ```gherkin
@@ -727,10 +736,12 @@ Scenario: Create job with fixed timestamp
 
 The PQSoft libraries transform Cucumber/Reqnroll BDD testing by:
 
-1. **Enabling natural language HTTP/JSON in Gherkin**: Write `.http` format directly in scenarios
+1. **Enabling natural language HTTP/JSON in Gherkin**: Write `.http` format
+   directly in scenarios
 2. **Token extraction and substitution**: Handle dynamic values elegantly
 3. **Semantic comparison**: Follow HTTP/JSON specs automatically
 4. **Multi-step workflows**: Pass data between steps without complex plumbing
 5. **Readable scenarios**: Business stakeholders can understand API behavior
 
-The result: **executable specifications that test real API behavior with minimal code**.
+The result: **executable specifications that test real API behavior with minimal
+code**.

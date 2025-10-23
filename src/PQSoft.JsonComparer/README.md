@@ -1,7 +1,8 @@
 # PQSoft.JsonComparer
 
-A powerful library for **structural JSON comparison** designed for testing REST APIs,
-validating service responses, and comparing JSON documents received as strings or bytes.
+A powerful library for **structural JSON comparison** designed for testing REST
+APIs, validating service responses, and comparing JSON documents received as
+strings or bytes.
 
 ## Core Value: Structural JSON Comparison
 
@@ -26,8 +27,8 @@ var result = comparer.ExactMatch(expected, apiResponse);
 
 ### Perfect for REST API Testing
 
-When testing REST endpoints, you receive JSON as strings or bytes.
-JsonComparer handles this seamlessly:
+When testing REST endpoints, you receive JSON as strings or bytes. JsonComparer
+handles this seamlessly:
 
 ```csharp
 // Test a REST API endpoint
@@ -83,7 +84,8 @@ dynamic content common in modern APIs:
 
 ### Token Extraction for Dynamic Values
 
-APIs generate IDs, timestamps, and tokens. Extract these for validation or subsequent use:
+APIs generate IDs, timestamps, and tokens. Extract these for validation or
+subsequent use:
 
 ```csharp
 // API returns generated values
@@ -114,7 +116,8 @@ var result = comparer.ExactMatch(template, apiResponse);
 
 ### Discard Tokens for Presence Testing
 
-Sometimes you only care that a field exists, not its specific value. Use `[[]]` (empty token) as a true discard token:
+Sometimes you only care that a field exists, not its specific value. Use `[[]]`
+(empty token) as a true discard token:
 
 ```csharp
 string apiResponse = """
@@ -160,7 +163,8 @@ string template = """
 
 ### JsonElement Validation of Extracted Values
 
-Extracted tokens are `JsonElement` objects, allowing rich type and value validation:
+Extracted tokens are `JsonElement` objects, allowing rich type and value
+validation:
 
 ```csharp
 string apiResponse = """
@@ -351,7 +355,8 @@ var customerId = result.ExtractedValues["CUSTOMER_ID"].GetString();
 
 ### Function-Based Validation
 
-Validate generated values like GUIDs and timestamps without hardcoding specific values:
+Validate generated values like GUIDs and timestamps without hardcoding specific
+values:
 
 ```csharp
 string eventPayload = """
@@ -430,7 +435,8 @@ var result = comparer.ExactMatch(expected, actual);
 ## Core Features
 
 - **Token Extraction**: `[[TOKEN_NAME]]` - Extract dynamic values for later use
-- **Function Execution**: `{{GUID()}}`, `{{NOW()}}`, `{{UTCNOW()}}` - Validate generated values
+- **Function Execution**: `{{GUID()}}`, `{{NOW()}}`, `{{UTCNOW()}}` - Validate
+  generated values
 - **Exact Matching**: Strict structural and value comparison
 - **Subset Matching**: Verify required fields exist (ignores extra fields)
 - **Variable Substitution**: Template-based JSON with variable replacement
@@ -447,6 +453,7 @@ dotnet add package PQSoft.JsonComparer
 ## Token Extraction Examples
 
 ### Basic Token Extraction
+
 Extract dynamic values from API responses for use in subsequent tests:
 
 ```csharp
@@ -482,6 +489,7 @@ string token = result.ExtractedValues["SESSION_TOKEN"].GetString(); // "eyJhbGci
 ```
 
 ### Multi-Level Token Extraction
+
 Handle complex nested structures with multiple dynamic values:
 
 ```csharp
@@ -530,6 +538,7 @@ var result = comparer.ExactMatch(template, orderResponse);
 ```
 
 ### Array Token Extraction
+
 Extract values from JSON arrays:
 
 ```csharp
@@ -562,6 +571,7 @@ var result = comparer.ExactMatch(pattern, usersResponse);
 ## Function Execution Examples
 
 ### Time-Based Validation
+
 Validate timestamps without hardcoding specific times:
 
 ```csharp
@@ -595,6 +605,7 @@ var result = comparer.ExactMatch(expectedPattern, eventPayload);
 ```
 
 ### Deterministic Time Testing with TimeProvider
+
 Control time for predictable tests:
 
 ```csharp
@@ -624,6 +635,7 @@ var result = comparer.ExactMatch(expectedTemplate, actualResponse);
 ```
 
 ### Mixed Functions and Tokens
+
 Combine function validation with token extraction:
 
 ```csharp
@@ -658,6 +670,7 @@ var result = comparer.ExactMatch(template, apiResponse);
 ## Subset Matching Examples
 
 ### API Contract Validation
+
 Ensure required fields exist without caring about extra fields:
 
 ```csharp
@@ -696,6 +709,7 @@ var result = comparer.SubsetMatch(requiredFields, apiResponse);
 ```
 
 ### Database Record Validation
+
 Validate core fields while ignoring audit fields:
 
 ```csharp
@@ -727,6 +741,7 @@ var result = comparer.SubsetMatch(coreFields, dbRecord);
 ```
 
 ### Microservices Integration Testing
+
 Validate service contracts while allowing implementation flexibility:
 
 ```csharp
@@ -774,6 +789,7 @@ var result = comparer.SubsetMatch(contractRequirements, serviceResponse);
 ## Variable Substitution Examples
 
 ### Environment-Specific Testing
+
 Use variables for different environments:
 
 ```csharp
@@ -807,6 +823,7 @@ var result = comparer.ExactMatch(expectedResponse, actualResponse, testConfig);
 ```
 
 ### Test Data Templates
+
 Create reusable test templates:
 
 ```csharp
@@ -842,6 +859,7 @@ var result = comparer.ExactMatch(userProfileTemplate, actualUserResponse, userTe
 ## Custom Functions
 
 ### Register Domain-Specific Functions
+
 Add custom validation functions for your domain:
 
 ```csharp
@@ -881,6 +899,7 @@ var result = comparer.ExactMatch(orderTemplate, actualOrder);
 ```
 
 ### Parameterized Custom Functions
+
 Create functions that accept parameters:
 
 ```csharp
@@ -902,6 +921,7 @@ string template = """
 ## Error Handling and Debugging
 
 ### Detailed Mismatch Information
+
 Get precise information about what doesn't match:
 
 ```csharp
@@ -968,6 +988,7 @@ if (!result.IsMatch)
 ```
 
 ### Validation with Exception Details
+
 Handle validation errors gracefully:
 
 ```csharp
@@ -986,6 +1007,7 @@ catch (JsonException ex)
 ## Real-World Use Cases
 
 ### 1. API Integration Testing
+
 ```csharp
 // Test user registration endpoint
 var registrationData = new { email = "test@example.com", password = "secure123" };
@@ -1013,6 +1035,7 @@ var verificationToken = result.ExtractedValues["VERIFICATION_TOKEN"].GetString()
 ```
 
 ### 2. Event-Driven Architecture Testing
+
 ```csharp
 // Validate published events
 string publishedEvent = await eventStore.GetLastEventAsync("UserRegistered");
@@ -1036,6 +1059,7 @@ Assert.True(result.IsMatch);
 ```
 
 ### 3. Database Integration Testing
+
 ```csharp
 // Validate database state after operation
 var dbUser = await userRepository.GetByEmailAsync("test@example.com");
@@ -1058,6 +1082,7 @@ Assert.True(result.IsMatch);
 ```
 
 ### 4. Configuration Validation
+
 ```csharp
 // Validate application configuration
 string configJson = await configService.GetConfigurationAsync();
@@ -1089,6 +1114,7 @@ Assert.True(int.Parse(result.ExtractedValues["DB_TIMEOUT"].GetString()) > 0);
 ## Advanced Patterns
 
 ### Chain Multiple Comparisons
+
 ```csharp
 // Multi-step API testing workflow
 var createResult = comparer.ExactMatch(createUserTemplate, createResponse);
@@ -1113,6 +1139,7 @@ Assert.Equal(userId, getResult.ExtractedValues["SAME_USER_ID"].GetString());
 ```
 
 ### Conditional Validation
+
 ```csharp
 // Different validation based on response type
 var baseTemplate = """
@@ -1157,12 +1184,14 @@ else if (status == "error")
 ## Performance Considerations
 
 JsonComparer is optimized for testing scenarios:
+
 - Efficient JSON parsing using System.Text.Json
 - Minimal memory allocation for token extraction
 - Fast path for exact matches without tokens or functions
 - Lazy evaluation of functions only when needed
 
 For high-volume scenarios, consider:
+
 - Reusing JsonComparer instances
 - Pre-compiling templates with variables
 - Using subset matching when full validation isn't needed

@@ -35,6 +35,7 @@ api-test-support/
 ## Features Implemented
 
 ### PQSoft.HttpFile
+
 - Parse HTTP requests with method, URL, headers, and body
 - Parse HTTP responses with status code, headers, and body
 - Handle HTTP headers with parameters
@@ -42,15 +43,23 @@ api-test-support/
 - Semantic header comparison for testing
 
 ### PQSoft.JsonComparer
-- **Exact Match**: Validates that two JSON documents are identical (except for tokens)
-- **Subset Match**: Verifies that all elements in expected JSON exist within actual JSON
-- **Token Support**: Extract values from actual JSON using tokens like `[[TOKEN_NAME]]`
-- **Function Execution**: Execute functions like `{{GUID()}}`, `{{NOW()}}`, and `{{UTCNOW()}}`
-- **Variable Substitution**: Substitute variables from provided context during preprocessing
-- **Detailed Mismatch Reporting**: Provides structured information on differences
+
+- **Exact Match**: Validates that two JSON documents are identical (except for
+  tokens)
+- **Subset Match**: Verifies that all elements in expected JSON exist within
+  actual JSON
+- **Token Support**: Extract values from actual JSON using tokens like
+  `[[TOKEN_NAME]]`
+- **Function Execution**: Execute functions like `{{GUID()}}`, `{{NOW()}}`, and
+  `{{UTCNOW()}}`
+- **Variable Substitution**: Substitute variables from provided context during
+  preprocessing
+- **Detailed Mismatch Reporting**: Provides structured information on
+  differences
 - **Custom Function Registration**: Extend functionality with custom functions
 
 ### PQSoft.JsonComparer.AwesomeAssertions
+
 - FluentAssertions extensions for JSON comparison
 - Fluent API for JSON assertions
 - Token extraction integration
@@ -67,20 +76,23 @@ api-test-support/
 ## Next Steps
 
 ### Potential Enhancements
+
 - Add JsonComparerOptions class for configurable comparison behavior
-  - Case-insensitive string comparison
-  - Ignore array order
-  - Exclude specific paths from comparison
+    - Case-insensitive string comparison
+    - Ignore array order
+    - Exclude specific paths from comparison
 - Support for JSON Schema validation
 - Performance optimizations for large JSON documents
 - Support for JSON Patch generation
 
 ### Documentation Improvements
+
 - Add more comprehensive examples
 - Create video tutorials
 - Expand API documentation
 
 ### Community
+
 - Set up issue templates
 - Create a roadmap for future development
 - Add more sample applications

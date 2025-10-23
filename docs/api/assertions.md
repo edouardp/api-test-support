@@ -1,6 +1,7 @@
 # PQSoft.JsonComparer.AwesomeAssertions
 
-FluentAssertions extensions for JSON comparison that integrate seamlessly with the JsonComparer functionality.
+FluentAssertions extensions for JSON comparison that integrate seamlessly with
+the JsonComparer functionality.
 
 ## Features
 

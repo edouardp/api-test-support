@@ -4,10 +4,5 @@ using Reqnroll;
 namespace PQSoft.ReqNRoll.UnitTests;
 
 [Binding]
-public class WebAppTestSteps : PQSoft.ReqNRoll.ApiStepDefinitions
-{
-    public WebAppTestSteps(WebApplicationFactory<Program> factory) 
-        : base(factory.CreateClient())
-    {
-    }
-}
+public class WebAppTestSteps(WebApplicationFactory<Program> factory)
+    : PQSoft.ReqNRoll.ApiStepDefinitions(factory.CreateClient());

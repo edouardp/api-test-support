@@ -1,6 +1,7 @@
 # PQSoft.JsonComparer.AwesomeAssertions
 
-AwesomeAssertions extensions for JSON comparison that integrate seamlessly with the JsonComparer functionality.
+AwesomeAssertions extensions for JSON comparison that integrate seamlessly with
+the JsonComparer functionality.
 
 ## Why Use This Library?
 
@@ -21,7 +22,8 @@ Assert.True(parsed.CreatedAt > DateTime.UtcNow.AddMinutes(-1));
 
 ### The Solution: Smart JSON Assertions
 
-This library provides **intelligent JSON testing** that handles dynamic values while maintaining strict validation:
+This library provides **intelligent JSON testing** that handles dynamic values
+while maintaining strict validation:
 
 ```csharp
 // ✅ Flexible - extracts dynamic values while validating structure
@@ -37,7 +39,9 @@ actualJson.AsJsonString().Should().FullyMatch("""
 ## Key Testing Scenarios
 
 ### 1. API Response Validation
-Perfect for testing REST APIs where responses contain generated IDs, timestamps, and tokens:
+
+Perfect for testing REST APIs where responses contain generated IDs, timestamps,
+and tokens:
 
 ```csharp
 // Test user creation endpoint
@@ -61,6 +65,7 @@ var token = result.ExtractedValues["AUTH_TOKEN"];
 ```
 
 ### 2. Database Integration Testing
+
 Validate database operations while handling auto-generated fields:
 
 ```csharp
@@ -80,6 +85,7 @@ json.AsJsonString().Should().FullyMatch("""
 ```
 
 ### 3. Event-Driven Architecture Testing
+
 Validate event payloads with dynamic correlation IDs and timestamps:
 
 ```csharp
@@ -99,7 +105,9 @@ eventPayload.AsJsonString().Should().FullyMatch("""
 ```
 
 ### 4. Microservices Contract Testing
-Ensure service contracts are maintained while allowing for implementation flexibility:
+
+Ensure service contracts are maintained while allowing for implementation
+flexibility:
 
 ```csharp
 // Validate service response contract
@@ -119,7 +127,8 @@ serviceResponse.AsJsonString().Should().ContainSubset("""
 
 ### Deterministic Time Testing
 
-The biggest challenge in testing time-sensitive code is dealing with `DateTime.Now` and `DateTime.UtcNow`. This library solves it:
+The biggest challenge in testing time-sensitive code is dealing with
+`DateTime.Now` and `DateTime.UtcNow`. This library solves it:
 
 ```csharp
 // ❌ Flaky test - timing dependent
@@ -240,5 +249,6 @@ dotnet add package PQSoft.JsonComparer.AwesomeAssertions
 ## Dependencies
 
 This package depends on:
+
 - PQSoft.JsonComparer
 - AwesomeAssertions

@@ -1,6 +1,7 @@
 # Publishing Guide
 
-This document provides detailed instructions for building and publishing PQSoft packages to NuGet.org.
+This document provides detailed instructions for building and publishing PQSoft
+packages to NuGet.org.
 
 ## Prerequisites
 
@@ -22,6 +23,7 @@ source ~/.zshrc
 ### 2. Version Planning
 
 Follow [Semantic Versioning (SemVer)](https://semver.org/):
+
 - **MAJOR** (1.0.0 → 2.0.0): Breaking changes
 - **MINOR** (1.0.0 → 1.1.0): New features, backward compatible
 - **PATCH** (1.0.0 → 1.0.1): Bug fixes, backward compatible
@@ -35,6 +37,7 @@ Use the automated build script for the easiest publishing experience:
 ```
 
 This script will:
+
 1. Validate the version parameter and API key
 2. Clean and build the solution
 3. Pack all packages with the specified version
@@ -124,6 +127,7 @@ PQSoft.JsonComparer.AwesomeAssertions (depends on PQSoft.JsonComparer + AwesomeA
 ### Version Already Exists
 
 If you get a "version already exists" error:
+
 1. Check [nuget.org](https://www.nuget.org/packages) to confirm
 2. Increment the version number
 3. Try again
@@ -141,6 +145,7 @@ curl -H "X-NuGet-ApiKey: $NUGET_API_KEY" https://www.nuget.org/api/v2/Packages
 ### Dependency Resolution Failures
 
 If `PQSoft.JsonComparer.AwesomeAssertions` fails to upload:
+
 1. Ensure `PQSoft.JsonComparer` was uploaded successfully first
 2. Wait a few minutes for NuGet indexing
 3. Retry the upload

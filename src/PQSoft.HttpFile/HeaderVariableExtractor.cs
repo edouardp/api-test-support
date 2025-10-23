@@ -5,9 +5,9 @@ namespace PQSoft.HttpFile;
 /// <summary>
 /// Extracts variables from HTTP headers using token patterns like [[VAR_NAME]].
 /// </summary>
-public static class HeaderVariableExtractor
+public static partial class HeaderVariableExtractor
 {
-    private static readonly Regex TokenPattern = new(@"\[\[([A-Z_]+)\]\]", RegexOptions.Compiled);
+    private static readonly Regex TokenPattern = MyRegex();
 
     /// <summary>
     /// Extracts variables from headers by matching expected patterns against actual values.
@@ -51,37 +51,40 @@ public static class HeaderVariableExtractor
         // Build regex pattern by replacing tokens with capture groups
         var pattern = expectedValue;
         var tokenNames = new List<string>();
-        
+
         foreach (Match match in matches)
         {
             tokenNames.Add(match.Groups[1].Value);
         }
-        
+
         // Replace tokens with capture groups from right to left to preserve indices
-        for (int i = matches.Count - 1; i >= 0; i--)
+        for (var i = matches.Count - 1; i >= 0; i--)
         {
             var match = matches[i];
-            
+
             // Determine if this is the last token (use greedy) or not (use non-greedy)
             var isLastToken = i == matches.Count - 1;
             var captureGroup = isLastToken ? "(.+)" : "(.+?)";
-            
-            pattern = pattern.Substring(0, match.Index) + captureGroup + pattern.Substring(match.Index + match.Length);
+
+            pattern = string.Concat(pattern.AsSpan(0, match.Index), captureGroup, pattern.AsSpan(match.Index + match.Length));
         }
-        
+
         // Escape the pattern except for our capture groups
         var escapedPattern = Regex.Escape(pattern);
         // Restore capture groups
         escapedPattern = escapedPattern.Replace(@"\(\.\+\?\)", "(.+?)").Replace(@"\(\.\+\)", "(.+)");
-        
+
         var extractionMatch = Regex.Match(actualValue, escapedPattern);
-        
+
         if (extractionMatch.Success && extractionMatch.Groups.Count > tokenNames.Count)
         {
-            for (int i = 0; i < tokenNames.Count; i++)
+            for (var i = 0; i < tokenNames.Count; i++)
             {
                 variables[tokenNames[i]] = extractionMatch.Groups[i + 1].Value;
             }
         }
     }
+
+    [GeneratedRegex(@"\[\[([A-Z_]+)\]\]", RegexOptions.Compiled)]
+    private static partial Regex MyRegex();
 }

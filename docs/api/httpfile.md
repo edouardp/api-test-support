@@ -1,6 +1,7 @@
 # PQSoft.HttpFile
 
-A library for parsing HTTP request and response files, similar to Microsoft's VS Code .http files.
+A library for parsing HTTP request and response files, similar to Microsoft's VS
+Code .http files.
 
 ## Features
 
@@ -8,7 +9,8 @@ A library for parsing HTTP request and response files, similar to Microsoft's VS
 - Parse HTTP responses with status code, headers, and body
 - Handle HTTP headers with parameters
 - Semantically compare parsed headers for testing purposes
-- Convert parsed requests to `HttpRequestMessage` objects for integration with HttpClient
+- Convert parsed requests to `HttpRequestMessage` objects for integration with
+  HttpClient
 
 ## Usage
 
@@ -39,6 +41,7 @@ var response = await client.SendAsync(httpRequest);
 ```
 
 The method handles:
+
 - Setting HTTP method and URL
 - Adding all headers to the request
 - Setting request content when a body is present

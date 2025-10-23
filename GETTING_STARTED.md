@@ -1,12 +1,14 @@
 # Getting Started with PQSoft.JsonComparer
 
-This document provides instructions for getting started with the PQSoft.JsonComparer library, both as a user and as a contributor.
+This document provides instructions for getting started with the
+PQSoft.JsonComparer library, both as a user and as a contributor.
 
 ## For Users
 
 ### Installation
 
-Once the package is published to NuGet, you can install it using the following command:
+Once the package is published to NuGet, you can install it using the following
+command:
 
 ```bash
 dotnet add package PQSoft.JsonComparer
@@ -48,25 +50,29 @@ bool staticMatch = JsonComparer.ExactMatch(expectedJson, actualJson, out var val
 ### Setting Up the Development Environment
 
 1. Clone the repository:
-   ```bash
-   git clone https://github.com/edouardp/api-test-support.git
-   cd api-test-support
-   ```
+
+    ```bash
+    git clone https://github.com/edouardp/api-test-support.git
+    cd api-test-support
+    ```
 
 2. Restore dependencies:
-   ```bash
-   dotnet restore
-   ```
+
+    ```bash
+    dotnet restore
+    ```
 
 3. Build the solution:
-   ```bash
-   dotnet build
-   ```
+
+    ```bash
+    dotnet build
+    ```
 
 4. Run tests:
-   ```bash
-   dotnet test
-   ```
+
+    ```bash
+    dotnet test
+    ```
 
 ### Project Structure
 
@@ -86,13 +92,14 @@ bool staticMatch = JsonComparer.ExactMatch(expectedJson, actualJson, out var val
 
 To publish the package to NuGet:
 
-1. Create a NuGet API key at https://www.nuget.org/
+1. Create a NuGet API key at <https://www.nuget.org/>
 2. Add the API key as a GitHub secret named `NUGET_API_KEY`
 3. Create a GitHub release to trigger the publish workflow
 
 ## Known Issues
 
-- There are currently warnings about vulnerabilities in the System.Text.Json package. These are known issues that will be addressed in future updates.
+- There are currently warnings about vulnerabilities in the System.Text.Json
+  package. These are known issues that will be addressed in future updates.
 
 ## Next Steps
 

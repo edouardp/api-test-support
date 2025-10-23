@@ -1,6 +1,7 @@
 # PQSoft.ReqNRoll
 
-Write API tests in plain English using Gherkin syntax. No boilerplate, no manual HTTP client setup, no JSON parsing headaches.
+Write API tests in plain English using Gherkin syntax. No boilerplate, no manual
+HTTP client setup, no JSON parsing headaches.
 
 ## Why Use This?
 
@@ -13,13 +14,13 @@ public async Task CreateJob_ReturnsJobId()
     var client = _factory.CreateClient();
     var content = new StringContent("{\"JobType\":\"Upgrade\"}", Encoding.UTF8, "application/json");
     var response = await client.PostAsync("/api/job", content);
-    
+
     response.StatusCode.Should().Be(HttpStatusCode.Created);
     var body = await response.Content.ReadAsStringAsync();
     var json = JsonDocument.Parse(body);
     var jobId = json.RootElement.GetProperty("jobId").GetString();
     jobId.Should().NotBeNullOrEmpty();
-    
+
     // Now use that jobId in another request...
     var getResponse = await client.GetAsync($"/api/job/status/{jobId}");
     // More parsing, more assertions...
@@ -34,31 +35,31 @@ Scenario: Create a new job
   """
   POST /api/job HTTP/1.1
   Content-Type: application/json
-  
+
   {
     "JobType": "Upgrade"
   }
   """
-  
+
   Then the API returns the following response
   """
   HTTP/1.1 201 Created
   Content-Type: application/json
-  
+
   {
     "jobId": [[JOBID]]
   }
   """
-  
+
   Given the following request
   """
   GET /api/job/status/{{JOBID}} HTTP/1.1
   """
-  
+
   Then the API returns the following response
   """
   HTTP/1.1 200 OK
-  
+
   {
     "jobId": "{{JOBID}}",
     "status": "Pending"
@@ -86,8 +87,8 @@ using Reqnroll;
 [Binding]
 public class ApiSteps : ApiStepDefinitions
 {
-    public ApiSteps(WebApplicationFactory<Program> factory) 
-        : base(factory.CreateClient()) 
+    public ApiSteps(WebApplicationFactory<Program> factory)
+        : base(factory.CreateClient())
     {
     }
 }
@@ -103,18 +104,18 @@ Scenario: Create and retrieve a user
   """
   POST /api/users HTTP/1.1
   Content-Type: application/json
-  
+
   {
     "name": "Alice",
     "email": "alice@example.com"
   }
   """
-  
+
   Then the API returns the following response
   """
   HTTP/1.1 201 Created
   Content-Type: application/json
-  
+
   {
     "id": [[USER_ID]],
     "name": "Alice",
@@ -165,11 +166,13 @@ HTTP/1.1 200 OK
 """
 ```
 
-This matches even if the actual response has 50 other fields. Perfect for testing specific behaviors without brittle tests.
+This matches even if the actual response has 50 other fields. Perfect for
+testing specific behaviors without brittle tests.
 
 ### Header Variable Extraction
 
-Extract variables from HTTP response headers and use them in subsequent requests:
+Extract variables from HTTP response headers and use them in subsequent
+requests:
 
 ```gherkin
 Scenario: Extract session token and use in authenticated request
@@ -177,35 +180,35 @@ Scenario: Extract session token and use in authenticated request
   """
   POST /api/login HTTP/1.1
   Content-Type: application/json
-  
+
   {
     "username": "testuser",
     "password": "testpass"
   }
   """
-  
+
   Then the API returns the following response
   """
   HTTP/1.1 200 OK
   Set-Cookie: session=[[SESSION_TOKEN]]; Path=/; HttpOnly
   Content-Type: application/json
-  
+
   {
     "message": "Login successful"
   }
   """
-  
+
   Given the following request
   """
   GET /api/profile HTTP/1.1
   Cookie: session={{SESSION_TOKEN}}
   """
-  
+
   Then the API returns the following response
   """
   HTTP/1.1 200 OK
   Content-Type: application/json
-  
+
   {
     "username": "testuser",
     "sessionId": "{{SESSION_TOKEN}}"
@@ -221,33 +224,33 @@ Scenario: Extract multiple header values
   """
   POST /api/upload HTTP/1.1
   Content-Type: multipart/form-data
-  
+
   file content
   """
-  
+
   Then the API returns the following response
   """
   HTTP/1.1 201 Created
   X-Upload-Id: [[UPLOAD_ID]]
   X-File-Hash: [[FILE_HASH]]
   Location: /api/files/[[FILE_ID]]
-  
+
   {
     "status": "uploaded"
   }
   """
-  
+
   Given the following request
   """
   GET /api/files/{{FILE_ID}} HTTP/1.1
   X-Upload-Reference: {{UPLOAD_ID}}
   """
-  
+
   Then the API returns the following response
   """
   HTTP/1.1 200 OK
   ETag: "{{FILE_HASH}}"
-  
+
   {
     "fileId": "{{FILE_ID}}",
     "uploadId": "{{UPLOAD_ID}}",
@@ -266,12 +269,12 @@ Scenario: Validate token consistency
   """
   HTTP/1.1 200 OK
   X-Token-Type: [[HEADER_TOKEN_TYPE]]
-  
+
   {
     "tokenType": [[BODY_TOKEN_TYPE]]
   }
   """
-  
+
   Then the variable 'HEADER_TOKEN_TYPE' equals the variable 'BODY_TOKEN_TYPE'
 ```
 
@@ -306,11 +309,14 @@ Given the variable 'TIMESTAMP' is set to '{{NOW()}}'
 ```
 
 Available functions:
-- `{{GUID()}}` - Generate a unique GUID (e.g., `12345678-1234-1234-1234-123456789abc`)
+
+- `{{GUID()}}` - Generate a unique GUID (e.g.,
+  `12345678-1234-1234-1234-123456789abc`)
 - `{{NOW()}}` - Current local time
 - `{{UTCNOW()}}` - Current UTC time
 
-This is especially useful for parallel test execution where each test needs unique identifiers.
+This is especially useful for parallel test execution where each test needs
+unique identifiers.
 
 ### Variable Assertions
 
@@ -334,17 +340,17 @@ Scenario: Invalid input returns 400
   """
   POST /api/job HTTP/1.1
   Content-Type: application/json
-  
+
   {
     "JobType": ""
   }
   """
-  
+
   Then the API returns the following response
   """
   HTTP/1.1 400 BadRequest
   Content-Type: application/problem+json
-  
+
   {
     "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
     "title": "Job Type Invalid",
@@ -362,12 +368,12 @@ Scenario: Non-existent resource returns 404
   """
   GET /api/job/status/DOES_NOT_EXIST HTTP/1.1
   """
-  
+
   Then the API returns the following response
   """
   HTTP/1.1 404 NotFound
   Content-Type: application/problem+json
-  
+
   {
     "title": "Job Not Found",
     "status": 404
@@ -384,7 +390,7 @@ Scenario: Complete order workflow
   """
   POST /api/users HTTP/1.1
   Content-Type: application/json
-  
+
   { "name": "Bob" }
   """
   Then the API returns the following response
@@ -392,13 +398,13 @@ Scenario: Complete order workflow
   HTTP/1.1 201 Created
   { "id": [[USER_ID]] }
   """
-  
+
   # Create order
   Given the following request
   """
   POST /api/orders HTTP/1.1
   Content-Type: application/json
-  
+
   { "userId": "{{USER_ID}}", "item": "Widget" }
   """
   Then the API returns the following response
@@ -406,7 +412,7 @@ Scenario: Complete order workflow
   HTTP/1.1 201 Created
   { "orderId": [[ORDER_ID]], "status": "pending" }
   """
-  
+
   # Process order
   Given the following request
   """
@@ -417,7 +423,7 @@ Scenario: Complete order workflow
   HTTP/1.1 200 OK
   { "orderId": "{{ORDER_ID}}", "status": "completed" }
   """
-  
+
   # Verify final state
   Given the following request
   """
@@ -443,11 +449,11 @@ Scenario: Authenticated request
   GET /api/profile HTTP/1.1
   Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
   """
-  
+
   Then the API returns the following response
   """
   HTTP/1.1 200 OK
-  
+
   {
     "username": "alice",
     "role": "admin"
@@ -462,22 +468,22 @@ Use functions to generate unique identifiers for parallel test runs:
 ```gherkin
 Scenario: Create user with unique identifier
   Given the variable 'UNIQUE_USER' is set to 'user-{{GUID()}}'
-  
+
   Given the following request
   """
   POST /api/users HTTP/1.1
   Content-Type: application/json
-  
+
   {
     "username": "{{UNIQUE_USER}}",
     "email": "{{UNIQUE_USER}}@example.com"
   }
   """
-  
+
   Then the API returns the following response
   """
   HTTP/1.1 201 Created
-  
+
   {
     "id": [[USER_ID]],
     "username": "{{UNIQUE_USER}}"
@@ -493,11 +499,11 @@ Scenario: Create user with unique identifier
 [Binding]
 public class ApiSteps : ApiStepDefinitions
 {
-    public ApiSteps(WebApplicationFactory<Program> factory) 
-        : base(CreateConfiguredClient(factory)) 
+    public ApiSteps(WebApplicationFactory<Program> factory)
+        : base(CreateConfiguredClient(factory))
     {
     }
-    
+
     private static HttpClient CreateConfiguredClient(WebApplicationFactory<Program> factory)
     {
         var client = factory.CreateClient();
@@ -517,19 +523,19 @@ Extend the base class with your own steps:
 public class ApiSteps : ApiStepDefinitions
 {
     private readonly IDatabase _database;
-    
-    public ApiSteps(WebApplicationFactory<Program> factory, IDatabase database) 
-        : base(factory.CreateClient()) 
+
+    public ApiSteps(WebApplicationFactory<Program> factory, IDatabase database)
+        : base(factory.CreateClient())
     {
         _database = database;
     }
-    
+
     [Given(@"the database contains a user with email '(.*)'")]
     public async Task GivenDatabaseContainsUser(string email)
     {
         await _database.InsertUser(new User { Email = email });
     }
-    
+
     [Then(@"the database should contain (\d+) orders")]
     public async Task ThenDatabaseShouldContainOrders(int count)
     {
@@ -544,19 +550,27 @@ public class ApiSteps : ApiStepDefinitions
 This package provides pre-built Reqnroll step definitions:
 
 - `Given the following request` - Send an HTTP request
-- `Then the API returns the following response` - Validate response with subset matching
-- `Given the variable '{name}' is set to '{value}'` - Set a variable (supports functions like `{{GUID()}}`)
-- `Then the variable '{name}' is equals to '{value}'` - Assert extracted variable value
-- `Then the variable '{name}' is of type '{type}'` - Assert variable type (String, Number, Boolean, Date, Object, Array, Null)
-- `Then the variable '{name}' matches '{regex}'` - Assert variable matches regex pattern
-- `Then the variable '{name1}' equals the variable '{name2}'` - Compare two variables
+- `Then the API returns the following response` - Validate response with subset
+  matching
+- `Given the variable '{name}' is set to '{value}'` - Set a variable (supports
+  functions like `{{GUID()}}`)
+- `Then the variable '{name}' is equals to '{value}'` - Assert extracted
+  variable value
+- `Then the variable '{name}' is of type '{type}'` - Assert variable type
+  (String, Number, Boolean, Date, Object, Array, Null)
+- `Then the variable '{name}' matches '{regex}'` - Assert variable matches regex
+  pattern
+- `Then the variable '{name1}' equals the variable '{name2}'` - Compare two
+  variables
 
 ## Dependencies
 
 Built on top of:
 
-- [PQSoft.HttpFile](https://www.nuget.org/packages/PQSoft.HttpFile) - HTTP request/response parsing
-- [PQSoft.JsonComparer](https://www.nuget.org/packages/PQSoft.JsonComparer) - Smart JSON comparison with token extraction
+- [PQSoft.HttpFile](https://www.nuget.org/packages/PQSoft.HttpFile) - HTTP
+  request/response parsing
+- [PQSoft.JsonComparer](https://www.nuget.org/packages/PQSoft.JsonComparer) -
+  Smart JSON comparison with token extraction
 - [Reqnroll](https://reqnroll.net/) - BDD test framework
 
 ## License
