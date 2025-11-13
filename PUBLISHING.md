@@ -28,6 +28,14 @@ Follow [Semantic Versioning (SemVer)](https://semver.org/):
 - **MINOR** (1.0.0 → 1.1.0): New features, backward compatible
 - **PATCH** (1.0.0 → 1.0.1): Bug fixes, backward compatible
 
+### 3. Current Version
+
+The current version can be determined via 
+
+```bash
+dotnet package search PQSoft.JsonComparer --prerelease --exact-match | grep PQSoft.JsonComparer | tail -1
+```
+
 ## Quick Publishing
 
 Use the automated build script for the easiest publishing experience:

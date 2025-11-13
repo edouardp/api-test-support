@@ -178,7 +178,7 @@ public static class HttpStreamParser
                 {
                     throw new InvalidDataException($"Invalid HTTP header format: continuation line '{line.Trim()}' without preceding header.");
                 }
-                currentHeaderBuilder.Append(Space).Append(line.Trim());
+                currentHeaderBuilder.Append($" {line.Trim()}");
             }
             else
             {
