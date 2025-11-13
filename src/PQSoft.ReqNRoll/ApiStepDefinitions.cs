@@ -11,13 +11,16 @@ using System.Text.RegularExpressions;
 namespace PQSoft.ReqNRoll;
 
 [Binding]
-public class ApiStepDefinitions(HttpClient client)
+public partial class ApiStepDefinitions(HttpClient client)
 {
     private HttpClient Client { get; } = client;
     private HttpResponseMessage? lastResponse;
     private string? lastBody;
     private Dictionary<string, JsonElement> variables = [];
     private readonly JsonFunctionRegistry functionRegistry = new();
+
+    [GeneratedRegex(@"\{\{([A-Z_]+)\(\)\}\}", RegexOptions.Compiled)]
+    private static partial Regex FunctionPatternRegex();
 
     [Given("the following request")]
     public async Task GivenTheFollowingRequest(string httpRequest)
@@ -28,7 +31,10 @@ public class ApiStepDefinitions(HttpClient client)
         var parser = new HttpFileParser();
         var request = await parser.ParseAsync(stream).FirstOrDefaultAsync();
 
-        var requestMessage = request!.ToHttpRequestMessage();
+        if (request == null)
+            throw new InvalidOperationException("Failed to parse HTTP request. The request format may be invalid.");
+
+        var requestMessage = request.ToHttpRequestMessage();
         lastResponse = await Client.SendAsync(requestMessage);
         lastBody = await lastResponse.Content.ReadAsStringAsync();
     }
@@ -40,7 +46,7 @@ public class ApiStepDefinitions(HttpClient client)
     public void GivenTheVariableIsSetTo(string name, string value)
     {
         value = ExecuteFunctions(value);
-        variables[name] = JsonDocument.Parse($"\"{value}\"").RootElement;
+        variables[name] = JsonDocument.Parse(JsonSerializer.Serialize(value)).RootElement;
     }
 
     [Given("""the variable '(.*)' is set to (-?\d+)$""")]
@@ -134,7 +140,7 @@ public class ApiStepDefinitions(HttpClient client)
                 if (nextDelimiterIndex >= tokenStart && tokenStart < actualBody.Length)
                 {
                     var extractedValue = actualBody.Substring(tokenStart, nextDelimiterIndex - tokenStart);
-                    variables[tokenName] = JsonDocument.Parse($"\"{extractedValue}\"").RootElement;
+                    variables[tokenName] = JsonDocument.Parse(JsonSerializer.Serialize(extractedValue)).RootElement;
 
                     // Replace token in expected with extracted value for comparison
                     expectedBody = expectedBody.Replace(match.Value, extractedValue);
@@ -211,10 +217,10 @@ public class ApiStepDefinitions(HttpClient client)
     [Then("""the variable "(.*)" equals (-?\d+)$""")]
     public void ThenTheVariableEqualsInt(string name, int expected)
     {
-        if (!variables.ContainsKey(name))
+        if (!variables.TryGetValue(name, out var value))
             throw new VariableNotFoundException(name, variables.Keys.ToList());
 
-        variables[name].GetInt32().Should().Be(expected);
+        value.GetInt32().Should().Be(expected);
     }
 
     [Then(@"the variable '(.*)' equals (-?\d+\.\d+)$")]
@@ -294,8 +300,7 @@ public class ApiStepDefinitions(HttpClient client)
 
     private string ExecuteFunctions(string text)
     {
-        var functionPattern = @"\{\{([A-Z_]+)\(\)\}\}";
-        return Regex.Replace(text, functionPattern, match =>
+        return FunctionPatternRegex().Replace(text, match =>
         {
             var functionName = match.Groups[1].Value;
             return functionRegistry.ExecuteFunction(functionName);
@@ -321,7 +326,7 @@ public class ApiStepDefinitions(HttpClient client)
         var extractedVariables = HeaderVariableExtractor.ExtractVariables(parsedHeaders, actualHeaders);
         foreach (var kvp in extractedVariables)
         {
-            variables[kvp.Key] = JsonDocument.Parse($"\"{kvp.Value}\"").RootElement;
+            variables[kvp.Key] = JsonDocument.Parse(JsonSerializer.Serialize(kvp.Value)).RootElement;
         }
 
         // Now validate headers with substituted values

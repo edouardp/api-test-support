@@ -4,13 +4,8 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageId>PQSoft.ReqNRoll</PackageId>
-    <Authors>PQSoft</Authors>
     <Description>Reqnroll step definitions for API testing with PQSoft.HttpFile and PQSoft.JsonComparer</Description>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <RepositoryUrl>https://github.com/edouardp/api-test-support</RepositoryUrl>
     <PackageTags>reqnroll;bdd;api-testing;http;json</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
